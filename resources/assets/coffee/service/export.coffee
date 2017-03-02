@@ -7,14 +7,19 @@ angular.module 'Wstat'
 				true
 
 			this.uploader = new this.FileUploader
-				url: this.controller + "/import"
-				alias: 'imported_file'
-				autoUpload: true
-				method: 'post'
-				removeAfterUpload: true
+				list: 				options.list
+				url: 				"excel/import"
+				alias: 				'imported_file'
+				method: 			'post'
+				autoUpload: 		true
+				removeAfterUpload: 	true
 				onCompleteItem: (i, response, status) ->
-					notifySuccess 'Импортировано' if status is 200
-					notifyError 'Ошибка импорта' if status isnt 200
+					if status is 200
+						this.list.phrases  = response if response.length
+						notifySuccess 'Импортировано'
+					else
+						notifyError 'Ошибка импорта'
+
 				onWhenAddingFileFailed  = (item, filter, options) ->
 					if filter.name is "queueLimit"
 						this.clearQueue()
@@ -25,12 +30,8 @@ angular.module 'Wstat'
 			$('#import-button').trigger 'click'
 			return
 
-		this.exportDialog = ->
-			$('#export-modal').modal 'show'
-			return false
-
 		this.export = ->
-			window.location = "/#{ this.controller }/export?field=#{ this.export_field }"
-			$('#export-modal').modal 'hide'
-			return false
+			window.location = "/excel/export"
+			return
+
 		this

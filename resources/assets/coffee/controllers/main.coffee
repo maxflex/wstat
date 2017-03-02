@@ -1,6 +1,6 @@
 angular
     .module 'Wstat'
-    .controller 'MainCtrl', ($scope, $rootScope, $timeout, DEFAULT_LIST_TITLE) ->
+    .controller 'MainCtrl', ($scope, $rootScope) ->
         # tab listener on textarea
         $scope.$on '$viewContentLoaded', ->
             $("#addwords").off('keydown').keydown (e) ->

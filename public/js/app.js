@@ -1,5 +1,6 @@
 (function() {
-  angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui.sortable', 'ui.bootstrap', 'angular-ladda', 'angularFileUpload']).constant('DEFAULT_LIST_TITLE', 'Новый список').run(function($rootScope, List, DEFAULT_LIST_TITLE) {
+  angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui.sortable', 'ui.bootstrap', 'angular-ladda', 'angularFileUpload']).constant('DEFAULT_LIST_TITLE', 'Новый список').run(function($rootScope, List, DEFAULT_LIST_TITLE, ExportService) {
+    $rootScope.ExportService = ExportService;
     $rootScope.list = new List({
       title: null,
       phrases: []
@@ -19,8 +20,11 @@
     return $rootScope.$on('$routeChangeStart', function(event, next, prev) {
       $rootScope.route = next.$$route;
       if ($rootScope.route.originalPath === '/') {
-        return $rootScope.route.title = $rootScope.list.title || DEFAULT_LIST_TITLE;
+        $rootScope.route.title = $rootScope.list.title || DEFAULT_LIST_TITLE;
       }
+      return ExportService.init({
+        list: $rootScope.list
+      });
     });
   });
 
@@ -40,6 +44,170 @@
       });
     }
   ]);
+
+}).call(this);
+
+(function() {
+
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').controller('ListsCtrl', function($scope, $rootScope, $location, $timeout, List) {
+    if ($scope.lists === void 0) {
+      $rootScope.loading = true;
+      $scope.lists = List.query(function() {
+        return $rootScope.loading = false;
+      });
+    }
+    $scope.remove = function(list) {
+      $scope.lists = removeById($scope.lists, list.id);
+      return List["delete"]({
+        id: list.id
+      });
+    };
+    return $scope.open = function(list) {
+      $rootScope.loading = true;
+      return $rootScope.list = List.get({
+        id: list.id
+      }, function() {
+        $rootScope.loading = false;
+        return $location.path('/');
+      });
+    };
+  });
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').controller('LoginCtrl', function($scope, $http) {
+    angular.element(document).ready(function() {
+      return $scope.l = Ladda.create(document.querySelector('#login-submit'));
+    });
+    return $scope.checkFields = function() {
+      $scope.l.start();
+      ajaxStart();
+      $scope.in_process = true;
+      return $http.post('login', {
+        login: $scope.login,
+        password: $scope.password
+      }).then(function(response) {
+        if (response.data === true) {
+          return location.reload();
+        } else {
+          $scope.in_process = false;
+          ajaxEnd();
+          $scope.l.stop();
+          return notifyError("Неправильная пара логин-пароль");
+        }
+      });
+    };
+  });
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope) {
+    $scope.$on('$viewContentLoaded', function() {
+      return $("#addwords").off('keydown').keydown(function(e) {
+        var $this, end, start, value;
+        if (e.keyCode === 9) {
+          start = this.selectionStart;
+          end = this.selectionEnd;
+          $this = $(this);
+          value = $this.val();
+          $this.val(value.substring(0, start) + "\t" + value.substring(end));
+          this.selectionStart = this.selectionEnd = start + 1;
+          return e.preventDefault();
+        }
+      });
+    });
+    $scope.addWords = function() {
+      var error, new_phrases;
+      $("#addwords").removeClass('has-error');
+      new_phrases = [];
+      error = false;
+      $scope.addwords.split('\n').forEach(function(line) {
+        var frequency, list, list_item;
+        if (line.trim().length) {
+          list = line.split('\t');
+          list_item = {
+            phrase: list[0].trim()
+          };
+          if (list.length > 1) {
+            frequency = list[1];
+            if (!$.isNumeric(frequency)) {
+              $("#addwords").addClass('has-error');
+              $scope.list = [];
+              error = true;
+              return;
+            } else {
+              list_item.frequency = parseInt(frequency);
+            }
+          }
+          return new_phrases.push(list_item);
+        }
+      });
+      if (error) {
+        return;
+      }
+      $scope.addwords = null;
+      $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases);
+      return closeModal('addwords');
+    };
+    $scope.splitPhrasesToWords = function() {
+      var new_phrases;
+      new_phrases = [];
+      $rootScope.list.phrases.forEach(function(list_item) {
+        return list_item.phrase.split(' ').forEach(function(word) {
+          word = word.trim();
+          if (word.length) {
+            return new_phrases.push({
+              phrase: word,
+              frequency: list_item.frequency
+            });
+          }
+        });
+      });
+      return $rootScope.list.phrases = new_phrases;
+    };
+    $scope.uniq = function() {
+      return $rootScope.list.phrases = _.uniq($rootScope.list.phrases, 'phrase');
+    };
+    $scope.lowercase = function() {
+      return $rootScope.list.phrases.forEach(function(list_item) {
+        return list_item.phrase = list_item.phrase.toLowerCase();
+      });
+    };
+    $scope.removeFrequencies = function() {
+      return $rootScope.list.phrases.forEach(function(list_item) {
+        return list_item.frequency = void 0;
+      });
+    };
+    $scope.removeStartingWith = function(sign) {
+      return $rootScope.list.phrases.forEach(function(list_item) {
+        var words;
+        words = [];
+        list_item.phrase.split(' ').forEach(function(word) {
+          if (word.length && word[0] !== sign) {
+            return words.push(word);
+          }
+        });
+        return list_item.phrase = words.join(' ');
+      });
+    };
+    $scope.saveAs = function() {
+      $rootScope.loading = true;
+      $rootScope.title = $rootScope.list.title;
+      $rootScope.list.$save().then(function() {
+        return $rootScope.loading = false;
+      });
+      return closeModal('title');
+    };
+    return angular.element(document).ready(function() {
+      return console.log($scope.title);
+    });
+  });
 
 }).call(this);
 
@@ -260,170 +428,6 @@
 
 (function() {
 
-
-}).call(this);
-
-(function() {
-
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').controller('ListsCtrl', function($scope, $rootScope, $location, $timeout, List) {
-    if ($scope.lists === void 0) {
-      $rootScope.loading = true;
-      $scope.lists = List.query(function() {
-        return $rootScope.loading = false;
-      });
-    }
-    $scope.remove = function(list) {
-      $scope.lists = removeById($scope.lists, list.id);
-      return List["delete"]({
-        id: list.id
-      });
-    };
-    return $scope.open = function(list) {
-      $rootScope.loading = true;
-      return $rootScope.list = List.get({
-        id: list.id
-      }, function() {
-        $rootScope.loading = false;
-        return $location.path('/');
-      });
-    };
-  });
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').controller('LoginCtrl', function($scope, $http) {
-    angular.element(document).ready(function() {
-      return $scope.l = Ladda.create(document.querySelector('#login-submit'));
-    });
-    return $scope.checkFields = function() {
-      $scope.l.start();
-      ajaxStart();
-      $scope.in_process = true;
-      return $http.post('login', {
-        login: $scope.login,
-        password: $scope.password
-      }).then(function(response) {
-        if (response.data === true) {
-          return location.reload();
-        } else {
-          $scope.in_process = false;
-          ajaxEnd();
-          $scope.l.stop();
-          return notifyError("Неправильная пара логин-пароль");
-        }
-      });
-    };
-  });
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $timeout, DEFAULT_LIST_TITLE) {
-    $scope.$on('$viewContentLoaded', function() {
-      return $("#addwords").off('keydown').keydown(function(e) {
-        var $this, end, start, value;
-        if (e.keyCode === 9) {
-          start = this.selectionStart;
-          end = this.selectionEnd;
-          $this = $(this);
-          value = $this.val();
-          $this.val(value.substring(0, start) + "\t" + value.substring(end));
-          this.selectionStart = this.selectionEnd = start + 1;
-          return e.preventDefault();
-        }
-      });
-    });
-    $scope.addWords = function() {
-      var error, new_phrases;
-      $("#addwords").removeClass('has-error');
-      new_phrases = [];
-      error = false;
-      $scope.addwords.split('\n').forEach(function(line) {
-        var frequency, list, list_item;
-        if (line.trim().length) {
-          list = line.split('\t');
-          list_item = {
-            phrase: list[0].trim()
-          };
-          if (list.length > 1) {
-            frequency = list[1];
-            if (!$.isNumeric(frequency)) {
-              $("#addwords").addClass('has-error');
-              $scope.list = [];
-              error = true;
-              return;
-            } else {
-              list_item.frequency = parseInt(frequency);
-            }
-          }
-          return new_phrases.push(list_item);
-        }
-      });
-      if (error) {
-        return;
-      }
-      $scope.addwords = null;
-      $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases);
-      return closeModal('addwords');
-    };
-    $scope.splitPhrasesToWords = function() {
-      var new_phrases;
-      new_phrases = [];
-      $rootScope.list.phrases.forEach(function(list_item) {
-        return list_item.phrase.split(' ').forEach(function(word) {
-          word = word.trim();
-          if (word.length) {
-            return new_phrases.push({
-              phrase: word,
-              frequency: list_item.frequency
-            });
-          }
-        });
-      });
-      return $rootScope.list.phrases = new_phrases;
-    };
-    $scope.uniq = function() {
-      return $rootScope.list.phrases = _.uniq($rootScope.list.phrases, 'phrase');
-    };
-    $scope.lowercase = function() {
-      return $rootScope.list.phrases.forEach(function(list_item) {
-        return list_item.phrase = list_item.phrase.toLowerCase();
-      });
-    };
-    $scope.removeFrequencies = function() {
-      return $rootScope.list.phrases.forEach(function(list_item) {
-        return list_item.frequency = void 0;
-      });
-    };
-    $scope.removeStartingWith = function(sign) {
-      return $rootScope.list.phrases.forEach(function(list_item) {
-        var words;
-        words = [];
-        list_item.phrase.split(' ').forEach(function(word) {
-          if (word.length && word[0] !== sign) {
-            return words.push(word);
-          }
-        });
-        return list_item.phrase = words.join(' ');
-      });
-    };
-    $scope.saveAs = function() {
-      $rootScope.loading = true;
-      $rootScope.title = $rootScope.list.title;
-      $rootScope.list.$save().then(function() {
-        return $rootScope.loading = false;
-      });
-      return closeModal('title');
-    };
-    return angular.element(document).ready(function() {
-      return console.log($scope.title);
-    });
-  });
 
 }).call(this);
 
@@ -673,16 +677,19 @@
         return true;
       };
       return this.uploader = new this.FileUploader({
-        url: this.controller + "/import",
+        list: options.list,
+        url: "excel/import",
         alias: 'imported_file',
-        autoUpload: true,
         method: 'post',
+        autoUpload: true,
         removeAfterUpload: true,
         onCompleteItem: function(i, response, status) {
           if (status === 200) {
-            notifySuccess('Импортировано');
-          }
-          if (status !== 200) {
+            if (response.length) {
+              this.list.phrases = response;
+            }
+            return notifySuccess('Импортировано');
+          } else {
             return notifyError('Ошибка импорта');
           }
         }
@@ -697,14 +704,8 @@
       e.preventDefault();
       $('#import-button').trigger('click');
     };
-    this.exportDialog = function() {
-      $('#export-modal').modal('show');
-      return false;
-    };
     this["export"] = function() {
-      window.location = "/" + this.controller + "/export?field=" + this.export_field;
-      $('#export-modal').modal('hide');
-      return false;
+      window.location = "/excel/export";
     };
     return this;
   });
