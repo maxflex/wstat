@@ -1,0 +1,9 @@
+/node_modules
+/public/storage
+/vendor
+/.idea
+/resources/assets/bower
+Envoy.blade.php
+Homestead.json
+Homestead.yaml
+.env
