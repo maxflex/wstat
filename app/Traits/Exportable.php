@@ -65,8 +65,9 @@ trait Exportable
      */
     public static function import($request) {
         if ($request->hasFile('imported_file')) {
-            Excel::load($request->file('imported_file'), function($reader){
-                foreach ($reader->all()->toArray() as $model) {
+            $data = [];
+            Excel::load($request->file('imported_file'), function ($reader) use (&$data) {
+                foreach ($data = $reader->all()->toArray() as $model) {
                     if (isset(static::$long_fields)) {
                         foreach (static::$long_fields as $field) {
                             unset($model[$field]);
@@ -85,6 +86,7 @@ trait Exportable
                     static::whereId($model['id'])->update($model);
                 }
             });
+            return $data;
         } else {
             abort(400);
         }

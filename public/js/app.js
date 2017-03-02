@@ -58,7 +58,7 @@
   angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $timeout, ExportService) {
     $scope.ExportService = ExportService;
     ExportService.init({
-      controller: 'pages'
+      list: $rootScope.list
     });
     $scope.$on('$viewContentLoaded', function() {
       return $("#addwords").off('keydown').keydown(function(e) {
@@ -174,65 +174,6 @@
       title: 'внизу'
     }
   ]);
-
-}).call(this);
-
-(function() {
-  var apiPath, countable, updatable;
-
-  angular.module('Wstat').factory('Variable', function($resource) {
-    return $resource(apiPath('variables'), {
-      id: '@id'
-    }, updatable());
-  }).factory('Tag', function($resource) {
-    return $resource(apiPath('tags'), {
-      id: '@id'
-    }, {
-      update: {
-        method: 'PUT'
-      },
-      autocomplete: {
-        method: 'GET',
-        url: apiPath('tags', 'autocomplete'),
-        isArray: true
-      }
-    });
-  }).factory('Page', function($resource) {
-    return $resource(apiPath('pages'), {
-      id: '@id'
-    }, {
-      update: {
-        method: 'PUT'
-      },
-      checkExistance: {
-        method: 'POST',
-        url: apiPath('pages', 'checkExistance')
-      }
-    });
-  });
-
-  apiPath = function(entity, additional) {
-    if (additional == null) {
-      additional = '';
-    }
-    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
-  };
-
-  updatable = function() {
-    return {
-      update: {
-        method: 'PUT'
-      }
-    };
-  };
-
-  countable = function() {
-    return {
-      count: {
-        method: 'GET'
-      }
-    };
-  };
 
 }).call(this);
 
@@ -465,6 +406,65 @@
 }).call(this);
 
 (function() {
+  var apiPath, countable, updatable;
+
+  angular.module('Wstat').factory('Variable', function($resource) {
+    return $resource(apiPath('variables'), {
+      id: '@id'
+    }, updatable());
+  }).factory('Tag', function($resource) {
+    return $resource(apiPath('tags'), {
+      id: '@id'
+    }, {
+      update: {
+        method: 'PUT'
+      },
+      autocomplete: {
+        method: 'GET',
+        url: apiPath('tags', 'autocomplete'),
+        isArray: true
+      }
+    });
+  }).factory('Page', function($resource) {
+    return $resource(apiPath('pages'), {
+      id: '@id'
+    }, {
+      update: {
+        method: 'PUT'
+      },
+      checkExistance: {
+        method: 'POST',
+        url: apiPath('pages', 'checkExistance')
+      }
+    });
+  });
+
+  apiPath = function(entity, additional) {
+    if (additional == null) {
+      additional = '';
+    }
+    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
+  };
+
+  updatable = function() {
+    return {
+      update: {
+        method: 'PUT'
+      }
+    };
+  };
+
+  countable = function() {
+    return {
+      count: {
+        method: 'GET'
+      }
+    };
+  };
+
+}).call(this);
+
+(function() {
   angular.module('Wstat').service('AceService', function() {
     this.initEditor = function(FormService, minLines, id) {
       if (minLines == null) {
@@ -651,16 +651,19 @@
         return true;
       };
       return this.uploader = new this.FileUploader({
+        list: options.list,
         url: "excel/import",
         alias: 'imported_file',
-        autoUpload: true,
         method: 'post',
+        autoUpload: true,
         removeAfterUpload: true,
         onCompleteItem: function(i, response, status) {
           if (status === 200) {
-            notifySuccess('Импортировано');
-          }
-          if (status !== 200) {
+            if (response.length) {
+              this.list.phrases = response;
+            }
+            return notifySuccess('Импортировано');
+          } else {
             return notifyError('Ошибка импорта');
           }
         }

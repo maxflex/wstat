@@ -2,7 +2,7 @@ angular
     .module 'Wstat'
     .controller 'MainCtrl', ($scope, $rootScope, $timeout, ExportService) ->
         $scope.ExportService = ExportService
-        ExportService.init({controller: 'pages'})
+        ExportService.init({list: $rootScope.list})
 
         # tab listener on textarea
         $scope.$on '$viewContentLoaded', ->
