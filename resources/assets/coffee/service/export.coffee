@@ -7,7 +7,7 @@ angular.module 'Wstat'
 				true
 
 			this.uploader = new this.FileUploader
-				url: this.controller + "/import"
+				url: "excel/import"
 				alias: 'imported_file'
 				autoUpload: true
 				method: 'post'
@@ -25,12 +25,7 @@ angular.module 'Wstat'
 			$('#import-button').trigger 'click'
 			return
 
-		this.exportDialog = ->
-			$('#export-modal').modal 'show'
-			return false
-
 		this.export = ->
-			window.location = "/#{ this.controller }/export?field=#{ this.export_field }"
-			$('#export-modal').modal 'hide'
+			window.location = "/excel/export"
 			return false
 		this

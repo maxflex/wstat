@@ -28,11 +28,6 @@
 }).call(this);
 
 (function() {
-
-
-}).call(this);
-
-(function() {
   angular.module('Wstat').controller('LoginCtrl', function($scope, $http) {
     angular.element(document).ready(function() {
       return $scope.l = Ladda.create(document.querySelector('#login-submit'));
@@ -60,7 +55,11 @@
 }).call(this);
 
 (function() {
-  angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $timeout) {
+  angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $timeout, ExportService) {
+    $scope.ExportService = ExportService;
+    ExportService.init({
+      controller: 'pages'
+    });
     $scope.$on('$viewContentLoaded', function() {
       return $("#addwords").off('keydown').keydown(function(e) {
         var $this, end, start, value;
@@ -149,6 +148,32 @@
       return console.log($scope.title);
     });
   });
+
+}).call(this);
+
+(function() {
+
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 
@@ -440,27 +465,6 @@
 }).call(this);
 
 (function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
-
-}).call(this);
-
-(function() {
   angular.module('Wstat').service('AceService', function() {
     this.initEditor = function(FormService, minLines, id) {
       if (minLines == null) {
@@ -474,7 +478,7 @@
       this.editor.getSession().setUseWrapMode(true);
       this.editor.setOptions({
         minLines: minLines,
-        maxLines: Infinity
+        maxLines: 2e308
       });
       return this.editor.commands.addCommand({
         name: 'save',
@@ -647,7 +651,7 @@
         return true;
       };
       return this.uploader = new this.FileUploader({
-        url: this.controller + "/import",
+        url: "excel/import",
         alias: 'imported_file',
         autoUpload: true,
         method: 'post',
@@ -671,13 +675,8 @@
       e.preventDefault();
       $('#import-button').trigger('click');
     };
-    this.exportDialog = function() {
-      $('#export-modal').modal('show');
-      return false;
-    };
     this["export"] = function() {
-      window.location = "/" + this.controller + "/export?field=" + this.export_field;
-      $('#export-modal').modal('hide');
+      window.location = "/excel/export";
       return false;
     };
     return this;

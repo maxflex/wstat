@@ -1,6 +1,9 @@
 angular
     .module 'Wstat'
-    .controller 'MainCtrl', ($scope, $rootScope, $timeout) ->
+    .controller 'MainCtrl', ($scope, $rootScope, $timeout, ExportService) ->
+        $scope.ExportService = ExportService
+        ExportService.init({controller: 'pages'})
+
         # tab listener on textarea
         $scope.$on '$viewContentLoaded', ->
             $("#addwords").off('keydown').keydown (e) ->
