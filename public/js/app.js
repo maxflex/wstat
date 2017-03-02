@@ -1,11 +1,26 @@
 (function() {
-  angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui.sortable', 'ui.bootstrap', 'angular-ladda', 'angularFileUpload']).run(function($rootScope) {
-    $rootScope.list = {
-      title: 'Новый список',
+  angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui.sortable', 'ui.bootstrap', 'angular-ladda', 'angularFileUpload']).constant('DEFAULT_LIST_TITLE', 'Новый список').run(function($rootScope, List, DEFAULT_LIST_TITLE) {
+    $rootScope.list = new List({
+      title: null,
       phrases: []
+    });
+    $rootScope.loading = false;
+    $rootScope.$watch('loading', function(newVal, oldVal) {
+      if (newVal === true) {
+        ajaxStart();
+      }
+      if (newVal === false) {
+        return ajaxEnd();
+      }
+    });
+    $rootScope.formatDateTime = function(date) {
+      return moment(date).format("DD.MM.YY в HH:mm");
     };
     return $rootScope.$on('$routeChangeStart', function(event, next, prev) {
-      return $rootScope.title = next.$$route.title;
+      $rootScope.route = next.$$route;
+      if ($rootScope.route.originalPath === '/') {
+        return $rootScope.route.title = $rootScope.list.title || DEFAULT_LIST_TITLE;
+      }
     });
   });
 
@@ -18,196 +33,13 @@
         controller: 'MainCtrl',
         title: '–',
         templateUrl: 'pages/main'
-      }).when('/wall', {
-        templateUrl: 'wall.html',
-        controller: 'pages/wall'
+      }).when('/lists', {
+        templateUrl: 'pages/lists',
+        title: 'Списки',
+        controller: 'ListsCtrl'
       });
     }
   ]);
-
-}).call(this);
-
-(function() {
-
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').controller('LoginCtrl', function($scope, $http) {
-    angular.element(document).ready(function() {
-      return $scope.l = Ladda.create(document.querySelector('#login-submit'));
-    });
-    return $scope.checkFields = function() {
-      $scope.l.start();
-      ajaxStart();
-      $scope.in_process = true;
-      return $http.post('login', {
-        login: $scope.login,
-        password: $scope.password
-      }).then(function(response) {
-        if (response.data === true) {
-          return location.reload();
-        } else {
-          $scope.in_process = false;
-          ajaxEnd();
-          $scope.l.stop();
-          return notifyError("Неправильная пара логин-пароль");
-        }
-      });
-    };
-  });
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $timeout) {
-    $scope.$on('$viewContentLoaded', function() {
-      return $("#addwords").off('keydown').keydown(function(e) {
-        var $this, end, start, value;
-        if (e.keyCode === 9) {
-          start = this.selectionStart;
-          end = this.selectionEnd;
-          $this = $(this);
-          value = $this.val();
-          $this.val(value.substring(0, start) + "\t" + value.substring(end));
-          this.selectionStart = this.selectionEnd = start + 1;
-          return e.preventDefault();
-        }
-      });
-    });
-    $rootScope.title = $rootScope.list.title;
-    $scope.addWords = function() {
-      var new_phrases;
-      $("#addwords").removeClass('has-error');
-      new_phrases = [];
-      $scope.addwords.split('\n').forEach(function(line) {
-        var frequency, list, list_item;
-        if (line.trim().length) {
-          list = line.split('\t');
-          list_item = {
-            phrase: list[0].trim()
-          };
-          if (list.length > 1) {
-            frequency = list[1];
-            if (!$.isNumeric(frequency)) {
-              $("#addwords").addClass('has-error');
-              $scope.list = [];
-              return;
-            } else {
-              list_item.frequency = parseInt(frequency);
-            }
-          }
-          return new_phrases.push(list_item);
-        }
-      });
-      $scope.addwords = null;
-      $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases);
-      return closeModal('addwords');
-    };
-    $scope.splitPhrasesToWords = function() {
-      var new_phrases;
-      new_phrases = [];
-      $rootScope.list.phrases.forEach(function(list_item) {
-        return list_item.phrase.split(' ').forEach(function(word) {
-          word = word.trim();
-          if (word.length) {
-            return new_phrases.push({
-              phrase: word,
-              frequency: list_item.frequency
-            });
-          }
-        });
-      });
-      return $rootScope.list.phrases = new_phrases;
-    };
-    $scope.uniq = function() {
-      return $rootScope.list.phrases = _.uniq($rootScope.list.phrases, 'phrase');
-    };
-    $scope.lowercase = function() {
-      return $rootScope.list.phrases.forEach(function(list_item) {
-        return list_item.phrase = list_item.phrase.toLowerCase();
-      });
-    };
-    $scope.removeFrequencies = function() {
-      return $rootScope.list.phrases.forEach(function(list_item) {
-        return list_item.frequency = void 0;
-      });
-    };
-    $scope.removeStartingWith = function(sign) {
-      return $rootScope.list.phrases.forEach(function(list_item) {
-        var words;
-        words = [];
-        list_item.phrase.split(' ').forEach(function(word) {
-          if (word.length && word[0] !== sign) {
-            return words.push(word);
-          }
-        });
-        return list_item.phrase = words.join(' ');
-      });
-    };
-    return angular.element(document).ready(function() {
-      return console.log($scope.title);
-    });
-  });
-
-}).call(this);
-
-(function() {
-  var apiPath, countable, updatable;
-
-  angular.module('Wstat').factory('Variable', function($resource) {
-    return $resource(apiPath('variables'), {
-      id: '@id'
-    }, updatable());
-  }).factory('Tag', function($resource) {
-    return $resource(apiPath('tags'), {
-      id: '@id'
-    }, {
-      update: {
-        method: 'PUT'
-      },
-      autocomplete: {
-        method: 'GET',
-        url: apiPath('tags', 'autocomplete'),
-        isArray: true
-      }
-    });
-  }).factory('Page', function($resource) {
-    return $resource(apiPath('pages'), {
-      id: '@id'
-    }, {
-      update: {
-        method: 'PUT'
-      },
-      checkExistance: {
-        method: 'POST',
-        url: apiPath('pages', 'checkExistance')
-      }
-    });
-  });
-
-  apiPath = function(entity, additional) {
-    if (additional == null) {
-      additional = '';
-    }
-    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
-  };
-
-  updatable = function() {
-    return {
-      update: {
-        method: 'PUT'
-      }
-    };
-  };
-
-  countable = function() {
-    return {
-      count: {
-        method: 'GET'
-      }
-    };
-  };
 
 }).call(this);
 
@@ -334,18 +166,10 @@
         $scope.textOnly = $attrs.hasOwnProperty('textOnly');
         $scope.hideZero = $attrs.hasOwnProperty('hideZero');
         return $scope.when = {
-          'age': ['год', 'года', 'лет'],
-          'student': ['ученик', 'ученика', 'учеников'],
           'minute': ['минуту', 'минуты', 'минут'],
           'hour': ['час', 'часа', 'часов'],
           'day': ['день', 'дня', 'дней'],
-          'meeting': ['встреча', 'встречи', 'встреч'],
-          'score': ['балл', 'балла', 'баллов'],
-          'rubbles': ['рубль', 'рубля', 'рублей'],
-          'lesson': ['занятие', 'занятия', 'занятий'],
-          'client': ['клиент', 'клиента', 'клиентов'],
-          'mark': ['оценки', 'оценок', 'оценок'],
-          'request': ['заявка', 'заявки', 'заявок']
+          'phrase': ['фраза', 'фразы', 'фраз']
         };
       }
     };
@@ -440,6 +264,170 @@
 }).call(this);
 
 (function() {
+
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').controller('ListsCtrl', function($scope, $rootScope, $location, $timeout, List) {
+    if ($scope.lists === void 0) {
+      $rootScope.loading = true;
+      $scope.lists = List.query(function() {
+        return $rootScope.loading = false;
+      });
+    }
+    $scope.remove = function(list) {
+      $scope.lists = removeById($scope.lists, list.id);
+      return List["delete"]({
+        id: list.id
+      });
+    };
+    return $scope.open = function(list) {
+      $rootScope.loading = true;
+      return $rootScope.list = List.get({
+        id: list.id
+      }, function() {
+        $rootScope.loading = false;
+        return $location.path('/');
+      });
+    };
+  });
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').controller('LoginCtrl', function($scope, $http) {
+    angular.element(document).ready(function() {
+      return $scope.l = Ladda.create(document.querySelector('#login-submit'));
+    });
+    return $scope.checkFields = function() {
+      $scope.l.start();
+      ajaxStart();
+      $scope.in_process = true;
+      return $http.post('login', {
+        login: $scope.login,
+        password: $scope.password
+      }).then(function(response) {
+        if (response.data === true) {
+          return location.reload();
+        } else {
+          $scope.in_process = false;
+          ajaxEnd();
+          $scope.l.stop();
+          return notifyError("Неправильная пара логин-пароль");
+        }
+      });
+    };
+  });
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $timeout, DEFAULT_LIST_TITLE) {
+    $scope.$on('$viewContentLoaded', function() {
+      return $("#addwords").off('keydown').keydown(function(e) {
+        var $this, end, start, value;
+        if (e.keyCode === 9) {
+          start = this.selectionStart;
+          end = this.selectionEnd;
+          $this = $(this);
+          value = $this.val();
+          $this.val(value.substring(0, start) + "\t" + value.substring(end));
+          this.selectionStart = this.selectionEnd = start + 1;
+          return e.preventDefault();
+        }
+      });
+    });
+    $scope.addWords = function() {
+      var error, new_phrases;
+      $("#addwords").removeClass('has-error');
+      new_phrases = [];
+      error = false;
+      $scope.addwords.split('\n').forEach(function(line) {
+        var frequency, list, list_item;
+        if (line.trim().length) {
+          list = line.split('\t');
+          list_item = {
+            phrase: list[0].trim()
+          };
+          if (list.length > 1) {
+            frequency = list[1];
+            if (!$.isNumeric(frequency)) {
+              $("#addwords").addClass('has-error');
+              $scope.list = [];
+              error = true;
+              return;
+            } else {
+              list_item.frequency = parseInt(frequency);
+            }
+          }
+          return new_phrases.push(list_item);
+        }
+      });
+      if (error) {
+        return;
+      }
+      $scope.addwords = null;
+      $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases);
+      return closeModal('addwords');
+    };
+    $scope.splitPhrasesToWords = function() {
+      var new_phrases;
+      new_phrases = [];
+      $rootScope.list.phrases.forEach(function(list_item) {
+        return list_item.phrase.split(' ').forEach(function(word) {
+          word = word.trim();
+          if (word.length) {
+            return new_phrases.push({
+              phrase: word,
+              frequency: list_item.frequency
+            });
+          }
+        });
+      });
+      return $rootScope.list.phrases = new_phrases;
+    };
+    $scope.uniq = function() {
+      return $rootScope.list.phrases = _.uniq($rootScope.list.phrases, 'phrase');
+    };
+    $scope.lowercase = function() {
+      return $rootScope.list.phrases.forEach(function(list_item) {
+        return list_item.phrase = list_item.phrase.toLowerCase();
+      });
+    };
+    $scope.removeFrequencies = function() {
+      return $rootScope.list.phrases.forEach(function(list_item) {
+        return list_item.frequency = void 0;
+      });
+    };
+    $scope.removeStartingWith = function(sign) {
+      return $rootScope.list.phrases.forEach(function(list_item) {
+        var words;
+        words = [];
+        list_item.phrase.split(' ').forEach(function(word) {
+          if (word.length && word[0] !== sign) {
+            return words.push(word);
+          }
+        });
+        return list_item.phrase = words.join(' ');
+      });
+    };
+    $scope.saveAs = function() {
+      $rootScope.loading = true;
+      $rootScope.title = $rootScope.list.title;
+      $rootScope.list.$save().then(function() {
+        return $rootScope.loading = false;
+      });
+      return closeModal('title');
+    };
+    return angular.element(document).ready(function() {
+      return console.log($scope.title);
+    });
+  });
+
+}).call(this);
+
+(function() {
   angular.module('Wstat').value('Published', [
     {
       id: 0,
@@ -457,6 +445,44 @@
       title: 'внизу'
     }
   ]);
+
+}).call(this);
+
+(function() {
+  var apiPath, countable, updatable;
+
+  angular.module('Wstat').factory('Phrase', function($resource) {
+    return $resource(apiPath('phrases'), {
+      id: '@id'
+    }, updatable());
+  }).factory('List', function($resource) {
+    return $resource(apiPath('lists'), {
+      id: '@id'
+    }, updatable());
+  });
+
+  apiPath = function(entity, additional) {
+    if (additional == null) {
+      additional = '';
+    }
+    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
+  };
+
+  updatable = function() {
+    return {
+      update: {
+        method: 'PUT'
+      }
+    };
+  };
+
+  countable = function() {
+    return {
+      count: {
+        method: 'GET'
+      }
+    };
+  };
 
 }).call(this);
 

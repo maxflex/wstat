@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class List extends Model
+class Lists extends Model
 {
     protected $fillable = [
-        'title',
-        'phrases'
+        'title'
     ];
 
     public function phrases()
@@ -16,11 +15,8 @@ class List extends Model
         return $this->hasMany(Phrase::class);
     }
 
-    public function setPhrasesAttribute()
+    public function getPhrasesCountAttribute()
     {
-        $this->phrases()->delete();
-        foreach($this->attributes['phrases'] as $phrase) {
-
-        }
+        return $this->phrases()->count();
     }
 }

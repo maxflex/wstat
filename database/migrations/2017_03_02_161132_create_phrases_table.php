@@ -15,8 +15,8 @@ class CreatePhrasesTable extends Migration
     {
         Schema::create('phrases', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('list_id')->unsigned();
-            $table->foreign('list_id')->references('id')->on('lists')->onDelte('cascade');
+            $table->integer('lists_id')->unsigned();
+            $table->foreign('lists_id')->references('id')->on('lists')->onDelte('cascade');
             $table->string('phrase');
             $table->integer('frequency')->unsigned()->nullable();
         });

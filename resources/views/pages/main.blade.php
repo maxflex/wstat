@@ -25,3 +25,19 @@
         </div>
     </div>
 </div>
+
+<div class="modal" id='title-modal' tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Сохранить список как...</h4>
+            </div>
+            <div class="modal-body">
+                <input ng-model='list.title' class='form-control mb' placeholder="Новый список">
+            </div>
+            <div class="modal-footer center">
+                <div class="btn btn-primary" ng-disabled="!list.title || $root.saving" ng-click="saveAs()">сохранить</div>
+            </div>
+        </div>
+    </div>
+</div>

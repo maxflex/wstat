@@ -1,22 +1,9 @@
 angular.module('Wstat')
-    .factory 'Variable', ($resource) ->
-        $resource apiPath('variables'), {id: '@id'}, updatable()
-    .factory 'Tag', ($resource) ->
-        $resource apiPath('tags'), {id: '@id'},
-                update:
-                    method: 'PUT'
-                autocomplete:
-                    method: 'GET'
-                    url: apiPath('tags', 'autocomplete')
-                    isArray: true
+    .factory 'Phrase', ($resource) ->
+        $resource apiPath('phrases'), {id: '@id'}, updatable()
 
-    .factory 'Page', ($resource) ->
-        $resource apiPath('pages'), {id: '@id'},
-            update:
-                method: 'PUT'
-            checkExistance:
-                method: 'POST'
-                url: apiPath('pages', 'checkExistance')
+    .factory 'List', ($resource) ->
+        $resource apiPath('lists'), {id: '@id'}, updatable()
 
 apiPath = (entity, additional = '') ->
     "api/#{entity}/" + (if additional then additional + '/' else '') + ":id"

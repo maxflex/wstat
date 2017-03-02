@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Models\List;
+use App\Models\Lists;
 use App\Models\Phrase;
 
 class ListsController extends Controller
@@ -18,7 +18,9 @@ class ListsController extends Controller
      */
     public function index()
     {
-        //
+        return Lists::latest()->get()->each(function($list) {
+            $list->append('phrases_count');
+        });
     }
 
     /**
@@ -39,11 +41,11 @@ class ListsController extends Controller
      */
     public function store(Request $request)
     {
-        $list = List::create($request->input())->fresh();
-        if (isset($request->phrase)) {
-            $list->tags()->sync(Tag::getIds($request->tags));
+        $list = Lists::create($request->input());
+        foreach($request->phrases as $phrase) {
+            $list->phrases()->create($phrase);
         }
-        return $list;
+        return Lists::with(['phrases'])->find($list->id);
     }
 
     /**
@@ -54,7 +56,7 @@ class ListsController extends Controller
      */
     public function show($id)
     {
-        //
+        return Lists::with(['phrases'])->find($id);
     }
 
     /**
@@ -88,6 +90,6 @@ class ListsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Lists::destroy($id);
     }
 }

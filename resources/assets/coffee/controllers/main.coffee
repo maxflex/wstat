@@ -1,6 +1,6 @@
 angular
     .module 'Wstat'
-    .controller 'MainCtrl', ($scope, $rootScope, $timeout) ->
+    .controller 'MainCtrl', ($scope, $rootScope, $timeout, DEFAULT_LIST_TITLE) ->
         # tab listener on textarea
         $scope.$on '$viewContentLoaded', ->
             $("#addwords").off('keydown').keydown (e) ->
@@ -13,11 +13,10 @@ angular
                     this.selectionStart = this.selectionEnd = start + 1
                     e.preventDefault()
 
-        $rootScope.title = $rootScope.list.title
-
         $scope.addWords = ->
             $("#addwords").removeClass('has-error')
             new_phrases = []
+            error = false
             $scope.addwords.split('\n').forEach (line) ->
                 # skip empty lines
                 if line.trim().length
@@ -30,10 +29,12 @@ angular
                         if not $.isNumeric(frequency)
                             $("#addwords").addClass('has-error')
                             $scope.list = []
+                            error = true
                             return
                         else
                             list_item.frequency = parseInt(frequency)
                     new_phrases.push(list_item)
+            return if error
             $scope.addwords = null
             $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases)
             closeModal('addwords')
@@ -67,6 +68,12 @@ angular
                 list_item.phrase.split(' ').forEach (word) ->
                     words.push(word) if word.length and word[0] != sign
                 list_item.phrase = words.join(' ')
+
+        $scope.saveAs = ->
+            $rootScope.loading = true
+            $rootScope.title = $rootScope.list.title
+            $rootScope.list.$save().then -> $rootScope.loading = false
+            closeModal('title')
 
         angular.element(document).ready ->
             console.log $scope.title

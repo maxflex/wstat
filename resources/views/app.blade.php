@@ -32,12 +32,12 @@
         <div class="panel panel-primary">
           <div class="panel-heading panel-heading-main">
               <div class="row">
-                  <div class="col-sm-4">@{{ title }}</div>
+                  <div class="col-sm-4">@{{ $root.route.title }}</div>
                   <div class="col-sm-4 center">
                       @yield('title-center')
                   </div>
                   <div class="col-sm-4 right">
-                      @yield('title-right')
+                     <a href='#' ng-show="$root.route.originalPath != '/'">назад</a>
                   </div>
               </div>
 

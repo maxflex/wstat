@@ -4,7 +4,8 @@ angular.module('Wstat')
             controller : 'MainCtrl'
             title: '–'
             templateUrl: 'pages/main'
-        .when '/wall',
-            templateUrl: 'wall.html'
-            controller : 'pages/wall'
+        .when '/lists',
+            templateUrl: 'pages/lists'
+            title: 'Списки'
+            controller : 'ListsCtrl'
     ])
