@@ -4001,8 +4001,13 @@ label {
 }
 
 .main-menu {
-    & .list-group-item:not(.active) {
-        cursor: pointer;
+    .list-group-item {
+        &:not(.active) {
+            cursor: pointer;
+        }
+        &.disabled {
+            cursor: default;
+        }
     }
 }
 
@@ -4022,4 +4027,12 @@ label {
             }
         }
     }
+}
+
+.menu-col {
+    width: 305px !important;
+}
+.content-col {
+    padding: 0;
+    width: calc(100% - 340px) !important;
 }

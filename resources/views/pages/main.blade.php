@@ -1,12 +1,12 @@
-<div class="full-size-center" ng-show="!list.length">список пуст</div>
+<div class="full-size-center" ng-show="!list.phrases.length">список пуст</div>
 
 <table class="table">
-    <tr ng-repeat="list_item in list">
+    <tr ng-repeat="phrase in list.phrases">
         <td>
-            @{{ list_item.phrase }}
+            @{{ phrase.phrase }}
         </td>
         <td>
-            @{{ list_item.frequency }}
+            @{{ phrase.frequency }}
         </td>
     </tr>
 </table>
@@ -17,7 +17,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
-                <textarea class='form-control' id='addwords' placeholder="список слов..." ng-model='addwords'></textarea>
+                <textarea class='form-control' id='addwords' placeholder="список фраз..." ng-model='addwords'></textarea>
                 <center>
                     <div class="btn btn-primary" ng-click="addWords()">добавить</div>
                 </center>

@@ -15741,6 +15741,9 @@ label {
 .main-menu .list-group-item:not(.active) {
   cursor: pointer; }
 
+.main-menu .list-group-item.disabled {
+  cursor: default; }
+
 #addwords-modal .modal-dialog {
   margin: 5% auto;
   width: 70%;
@@ -15752,6 +15755,13 @@ label {
       #addwords-modal .modal-dialog .modal-content .modal-body textarea {
         height: 90%;
         margin-bottom: 15px; }
+
+.menu-col {
+  width: 305px !important; }
+
+.content-col {
+  padding: 0;
+  width: calc(100% - 340px) !important; }
 
 .list-group-item .search_icon {
   float: right;

@@ -1,5 +1,9 @@
 (function() {
   angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui.sortable', 'ui.bootstrap', 'angular-ladda', 'angularFileUpload']).run(function($rootScope) {
+    $rootScope.list = {
+      title: 'Новый список',
+      phrases: []
+    };
     return $rootScope.$on('$routeChangeStart', function(event, next, prev) {
       return $rootScope.title = next.$$route.title;
     });
@@ -12,7 +16,7 @@
     '$routeProvider', function($routeProvider) {
       return $routeProvider.when('/', {
         controller: 'MainCtrl',
-        title: 'Списки фраз',
+        title: '–',
         templateUrl: 'pages/main'
       }).when('/wall', {
         templateUrl: 'wall.html',
@@ -56,7 +60,7 @@
 }).call(this);
 
 (function() {
-  angular.module('Wstat').controller('MainCtrl', function($scope) {
+  angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $timeout) {
     $scope.$on('$viewContentLoaded', function() {
       return $("#addwords").off('keydown').keydown(function(e) {
         var $this, end, start, value;
@@ -71,11 +75,11 @@
         }
       });
     });
-    $scope.list = [];
+    $rootScope.title = $rootScope.list.title;
     $scope.addWords = function() {
-      var new_list;
+      var new_phrases;
       $("#addwords").removeClass('has-error');
-      new_list = [];
+      new_phrases = [];
       $scope.addwords.split('\n').forEach(function(line) {
         var frequency, list, list_item;
         if (line.trim().length) {
@@ -93,16 +97,117 @@
               list_item.frequency = parseInt(frequency);
             }
           }
-          return new_list.push(list_item);
+          return new_phrases.push(list_item);
         }
       });
-      $scope.list = $scope.list.concat(new_list);
+      $scope.addwords = null;
+      $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases);
       return closeModal('addwords');
+    };
+    $scope.splitPhrasesToWords = function() {
+      var new_phrases;
+      new_phrases = [];
+      $rootScope.list.phrases.forEach(function(list_item) {
+        return list_item.phrase.split(' ').forEach(function(word) {
+          word = word.trim();
+          if (word.length) {
+            return new_phrases.push({
+              phrase: word,
+              frequency: list_item.frequency
+            });
+          }
+        });
+      });
+      return $rootScope.list.phrases = new_phrases;
+    };
+    $scope.uniq = function() {
+      return $rootScope.list.phrases = _.uniq($rootScope.list.phrases, 'phrase');
+    };
+    $scope.lowercase = function() {
+      return $rootScope.list.phrases.forEach(function(list_item) {
+        return list_item.phrase = list_item.phrase.toLowerCase();
+      });
+    };
+    $scope.removeFrequencies = function() {
+      return $rootScope.list.phrases.forEach(function(list_item) {
+        return list_item.frequency = void 0;
+      });
+    };
+    $scope.removeStartingWith = function(sign) {
+      return $rootScope.list.phrases.forEach(function(list_item) {
+        var words;
+        words = [];
+        list_item.phrase.split(' ').forEach(function(word) {
+          if (word.length && word[0] !== sign) {
+            return words.push(word);
+          }
+        });
+        return list_item.phrase = words.join(' ');
+      });
     };
     return angular.element(document).ready(function() {
       return console.log($scope.title);
     });
   });
+
+}).call(this);
+
+(function() {
+  var apiPath, countable, updatable;
+
+  angular.module('Wstat').factory('Variable', function($resource) {
+    return $resource(apiPath('variables'), {
+      id: '@id'
+    }, updatable());
+  }).factory('Tag', function($resource) {
+    return $resource(apiPath('tags'), {
+      id: '@id'
+    }, {
+      update: {
+        method: 'PUT'
+      },
+      autocomplete: {
+        method: 'GET',
+        url: apiPath('tags', 'autocomplete'),
+        isArray: true
+      }
+    });
+  }).factory('Page', function($resource) {
+    return $resource(apiPath('pages'), {
+      id: '@id'
+    }, {
+      update: {
+        method: 'PUT'
+      },
+      checkExistance: {
+        method: 'POST',
+        url: apiPath('pages', 'checkExistance')
+      }
+    });
+  });
+
+  apiPath = function(entity, additional) {
+    if (additional == null) {
+      additional = '';
+    }
+    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
+  };
+
+  updatable = function() {
+    return {
+      update: {
+        method: 'PUT'
+      }
+    };
+  };
+
+  countable = function() {
+    return {
+      count: {
+        method: 'GET'
+      }
+    };
+  };
 
 }).call(this);
 
@@ -352,65 +457,6 @@
       title: 'внизу'
     }
   ]);
-
-}).call(this);
-
-(function() {
-  var apiPath, countable, updatable;
-
-  angular.module('Wstat').factory('Variable', function($resource) {
-    return $resource(apiPath('variables'), {
-      id: '@id'
-    }, updatable());
-  }).factory('Tag', function($resource) {
-    return $resource(apiPath('tags'), {
-      id: '@id'
-    }, {
-      update: {
-        method: 'PUT'
-      },
-      autocomplete: {
-        method: 'GET',
-        url: apiPath('tags', 'autocomplete'),
-        isArray: true
-      }
-    });
-  }).factory('Page', function($resource) {
-    return $resource(apiPath('pages'), {
-      id: '@id'
-    }, {
-      update: {
-        method: 'PUT'
-      },
-      checkExistance: {
-        method: 'POST',
-        url: apiPath('pages', 'checkExistance')
-      }
-    });
-  });
-
-  apiPath = function(entity, additional) {
-    if (additional == null) {
-      additional = '';
-    }
-    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
-  };
-
-  updatable = function() {
-    return {
-      update: {
-        method: 'PUT'
-      }
-    };
-  };
-
-  countable = function() {
-    return {
-      count: {
-        method: 'GET'
-      }
-    };
-  };
 
 }).call(this);
 

@@ -12,11 +12,11 @@ body {
     padding: 50px;
     margin: 0 auto;
     /*background-color: rgba(226, 226, 226, 0.75);*/
-    background-color: #E3ECF1;
+    background-color: rgba(138, 74, 74, 0.06);
     border-radius: 10px;
     margin-top: 140px;
     position: relative;
-    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 10px 1px rgba(154, 104, 104, 0.4);
 }
 .form-signin .form-signin-heading,
 .form-signin .checkbox {

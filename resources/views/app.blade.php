@@ -23,12 +23,12 @@
         @endif
     '>
     <div class="row">
-      <div style="margin-left: 10px" class="col-sm-2">
+      <div style="margin-left: 10px" class="col-sm-2 menu-col">
           <div class="list-group main-menu">
               @include('_menu')
           </div>
       </div>
-      <div style="padding: 0; width: 80.6%;" class="col-sm-9 content-col">
+      <div class="col-sm-9 content-col">
         <div class="panel panel-primary">
           <div class="panel-heading panel-heading-main">
               <div class="row">

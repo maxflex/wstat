@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Service\Api;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Models\Variable;
+use App\Models\List;
+use App\Models\Phrase;
 
-class VariablesController extends Controller
+class ListsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,7 +18,7 @@ class VariablesController extends Controller
      */
     public function index()
     {
-        return Variable::orderBy('name')->paginate(100);
+        //
     }
 
     /**
@@ -39,7 +39,11 @@ class VariablesController extends Controller
      */
     public function store(Request $request)
     {
-        return Variable::create($request->input())->fresh();
+        $list = List::create($request->input())->fresh();
+        if (isset($request->phrase)) {
+            $list->tags()->sync(Tag::getIds($request->tags));
+        }
+        return $list;
     }
 
     /**
@@ -50,7 +54,7 @@ class VariablesController extends Controller
      */
     public function show($id)
     {
-        return Variable::find($id);
+        //
     }
 
     /**
@@ -73,7 +77,7 @@ class VariablesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        Variable::find($id)->update($request->input());
+        //
     }
 
     /**
@@ -84,16 +88,6 @@ class VariablesController extends Controller
      */
     public function destroy($id)
     {
-        Variable::destroy($id);
-    }
-
-    public function sync(Request $request)
-    {
-        if (Api::API_KEY == $request->input('API_KEY')) {
-            \DB::table('variables')->truncate();
-            \DB::table('variables')->insert($request->input('variables'));
-        } else {
-            return false;
-        }
+        //
     }
 }
