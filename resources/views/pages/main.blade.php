@@ -26,7 +26,7 @@
     </div>
 </div>
 
-<div class="modal" id='title-modal' tabindex="-1">
+<div class="modal" id='save-as-modal' tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

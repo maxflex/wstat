@@ -63,17 +63,25 @@ angular
                 list_item.frequency = undefined
 
         $scope.removeStartingWith = (sign) ->
-            $rootScope.list.phrases.forEach (list_item) ->
+            $rootScope.list.phrases.forEach (list_item, index) ->
                 words = []
-                list_item.phrase.split(' ').forEach (word) ->
-                    words.push(word) if word.length and word[0] != sign
-                list_item.phrase = words.join(' ')
+                list_item.phrase.split(' ').forEach (word) -> words.push(word) if word.length and word[0] != sign
+                new_phrase = words.join(' ').trim()
+                # delete list item if word is empty after deletion
+                if not new_phrase.length
+                    $rootScope.list.phrases.splice(index, 1)
+                else
+                    list_item.phrase = new_phrase
 
         $scope.saveAs = ->
             $rootScope.loading = true
             $rootScope.title = $rootScope.list.title
             $rootScope.list.$save().then -> $rootScope.loading = false
-            closeModal('title')
+            closeModal('save-as')
+
+        $scope.save = ->
+            $rootScope.loading = true
+            $rootScope.list.$update().then -> $rootScope.loading = false
 
         angular.element(document).ready ->
             console.log $scope.title

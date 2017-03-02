@@ -79,7 +79,16 @@ class ListsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $list = Lists::find($id);
+        $list->update($request->input());
+
+        foreach($request->phrases as $phrase) {
+            if (isset($phrase['id'])) {
+                Phrase::find($id)->update($phrase);
+            } else {
+                $list->phrases()->create($phrase);
+            }
+        }
     }
 
     /**
