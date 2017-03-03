@@ -2,7 +2,7 @@ angular.module 'Wstat'
     .service 'SmartSort', () ->
         @run = (list) ->
             @list = list
-            return unless @list.phrases.length
+            return unless @list.phrases and @list.phrases.length
 
             @getWords()
             @getWeights()

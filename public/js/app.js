@@ -3,10 +3,14 @@
     $rootScope.ExportService = ExportService;
     $rootScope.SmartSort = SmartSort;
     ExportService.init();
-    $rootScope.list = new List({
-      title: null,
-      phrases: []
+    $rootScope.list = List.get({
+      id: 12
     });
+    $rootScope.removeEmptyWords = function() {
+      return $rootScope.list.phrases = _.filter($rootScope.list.phrases, function(phrase) {
+        return phrase.phrase.trim() !== '';
+      });
+    };
     $rootScope.loading = false;
     $rootScope.$watch('loading', function(newVal, oldVal) {
       if (newVal === true) {
@@ -124,7 +128,7 @@
       $("#addwords").removeClass('has-error');
       new_phrases = [];
       error = false;
-      $scope.addwords.split('\n').forEach(function(line) {
+      $scope.textarea.split('\n').forEach(function(line) {
         var frequency, list, list_item;
         if (line.trim().length) {
           list = line.split('\t');
@@ -148,9 +152,30 @@
       if (error) {
         return;
       }
-      $scope.addwords = null;
+      $scope.textarea = null;
       $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases);
       return closeModal('addwords');
+    };
+    $scope.deleteWordsInsidePhrase = function() {
+      $scope.textarea.split('\n').forEach(function(textarea_phrase) {
+        return $rootScope.list.phrases.forEach(function(phrase) {
+          if (phrase.phrase.indexOf(textarea_phrase) !== -1) {
+            return phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(textarea_phrase, ''));
+          }
+        });
+      });
+      $rootScope.removeEmptyWords();
+      $scope.textarea = null;
+      return closeModal('words-inside-phrase');
+    };
+    $scope.deletePhrasesWithWords = function() {
+      $scope.textarea.split('\n').forEach(function(textarea_phrase) {
+        return $rootScope.list.phrases = _.filter($rootScope.list.phrases, function(phrase) {
+          return phrase.phrase.indexOf(textarea_phrase) === -1;
+        });
+      });
+      $scope.textarea = null;
+      return closeModal('phrases-with-words');
     };
     $scope.splitPhrasesToWords = function() {
       var new_phrases;
@@ -184,7 +209,7 @@
       });
     };
     $scope.removeStartingWith = function(sign) {
-      return $rootScope.list.phrases.forEach(function(list_item, index) {
+      $rootScope.list.phrases.forEach(function(list_item, index) {
         var new_phrase, words;
         words = [];
         list_item.phrase.split(' ').forEach(function(word) {
@@ -192,13 +217,9 @@
             return words.push(word);
           }
         });
-        new_phrase = words.join(' ').trim();
-        if (!new_phrase.length) {
-          return $rootScope.list.phrases.splice(index, 1);
-        } else {
-          return list_item.phrase = new_phrase;
-        }
+        return new_phrase = words.join(' ').trim();
       });
+      return $rootScope.removeEmptyWords();
     };
     $scope.saveAs = function() {
       $rootScope.loading = true;
@@ -223,6 +244,27 @@
 
 (function() {
 
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 
@@ -443,27 +485,6 @@
 
 (function() {
 
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 
@@ -737,7 +758,7 @@
     var splitBySpace;
     this.run = function(list) {
       this.list = list;
-      if (!this.list.phrases.length) {
+      if (!(this.list.phrases && this.list.phrases.length)) {
         return;
       }
       this.getWords();
