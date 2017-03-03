@@ -15744,15 +15744,15 @@ label {
 .main-menu .list-group-item.disabled {
   cursor: default; }
 
-#addwords-modal .modal-dialog {
+.big-modal .modal-dialog {
   margin: 5% auto;
   width: 70%;
   height: 80%; }
-  #addwords-modal .modal-dialog .modal-content {
+  .big-modal .modal-dialog .modal-content {
     height: 100%; }
-    #addwords-modal .modal-dialog .modal-content .modal-body {
+    .big-modal .modal-dialog .modal-content .modal-body {
       height: 100%; }
-      #addwords-modal .modal-dialog .modal-content .modal-body textarea {
+      .big-modal .modal-dialog .modal-content .modal-body textarea {
         height: 90%;
         margin-bottom: 20px; }
 
