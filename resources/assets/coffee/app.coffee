@@ -1,7 +1,8 @@
 angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui.sortable', 'ui.bootstrap', 'angular-ladda', 'angularFileUpload'])
     .constant('DEFAULT_LIST_TITLE', 'Новый список')
-    .run ($rootScope, List, DEFAULT_LIST_TITLE, ExportService) ->
+    .run ($rootScope, List, DEFAULT_LIST_TITLE, ExportService, SmartSort) ->
         $rootScope.ExportService = ExportService
+        $rootScope.SmartSort = SmartSort
         ExportService.init()
         # список слов
         $rootScope.list = new List

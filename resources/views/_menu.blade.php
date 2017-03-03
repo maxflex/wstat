@@ -2,6 +2,7 @@
     <span class="search_icon" id="searchModalOpen"><span class="glyphicon glyphicon-search no-margin-right"></span></span>
 </a>
 <a onclick="showModal('addwords')" class="list-group-item">Добавить слова</a>
+<a ng-click="SmartSort.run(list)" class="list-group-item">Умная сортировка</a>
 <a ng-click='splitPhrasesToWords()' class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Разбить фразы на слова</a>
 <a ng-click='uniq()' class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Удалить дубликаты</a>
 <a ng-click='lowercase()' class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Превратить все буквы в маленькие</a>
