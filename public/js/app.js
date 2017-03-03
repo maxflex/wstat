@@ -182,15 +182,20 @@
       });
     };
     $scope.removeStartingWith = function(sign) {
-      return $rootScope.list.phrases.forEach(function(list_item) {
-        var words;
+      return $rootScope.list.phrases.forEach(function(list_item, index) {
+        var new_phrase, words;
         words = [];
         list_item.phrase.split(' ').forEach(function(word) {
           if (word.length && word[0] !== sign) {
             return words.push(word);
           }
         });
-        return list_item.phrase = words.join(' ');
+        new_phrase = words.join(' ').trim();
+        if (!new_phrase.length) {
+          return $rootScope.list.phrases.splice(index, 1);
+        } else {
+          return list_item.phrase = new_phrase;
+        }
       });
     };
     $scope.saveAs = function() {
@@ -199,7 +204,13 @@
       $rootScope.list.$save().then(function() {
         return $rootScope.loading = false;
       });
-      return closeModal('title');
+      return closeModal('save-as');
+    };
+    $scope.save = function() {
+      $rootScope.loading = true;
+      return $rootScope.list.$update().then(function() {
+        return $rootScope.loading = false;
+      });
     };
     return angular.element(document).ready(function() {
       return console.log($scope.title);

@@ -14,7 +14,7 @@
 <a ng-click="removeStartingWith('+')" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Удалить плюс слова</a>
 <a ng-click="ExportService.export()" class="list-group-item" ng-disabled="{'disabled': !$root.list.id}" ng-class="{'disabled': !$root.list.phrases.length}">Экспорт</a>
 {{--<a ng-click="ExportService.import($event)" class="list-group-item">Импорт</a>--}}
-<a ng-click="removeStartingWith('+')" class="list-group-item" ng-class="{'disabled': !$root.list.id}">Сохранить</a>
-<a onclick="showModal('title')" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Сохранить как...</a>
+<a ng-click="save()" class="list-group-item" ng-class="{'disabled': !$root.list.id}">Сохранить</a>
+<a onclick="showModal('save-as')" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Сохранить как...</a>
 <a href='/#lists' class="list-group-item">Открыть список</a>
 <a href="logout" class="list-group-item">Выход</a>
