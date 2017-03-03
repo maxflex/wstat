@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\Phrase;
 use Schema;
 use Excel;
 
@@ -16,41 +17,26 @@ trait Exportable
     public static function getExportableFields()
     {
         return array_values(
-                    array_merge(
-                        array_diff(
-                            collect(Schema::getColumnListing((new static)->getTable()))->all(),
-                            isset(static::$hidden_on_export) ? static::$hidden_on_export : []
-                        ),
-                        isset(static::$with_comma_on_export) ? static::$with_comma_on_export : []
+                    array_diff(
+                        collect(Schema::getColumnListing((new static)->getTable()))->all(),
+                        isset(static::$hidden_on_export) ? static::$hidden_on_export : []
                     )
-        );
+               );
     }
 
     /**
      * Экспорт данных в excel файл
      *
      */
-    public static function export() {
+    public static function export($lists_id) {
         $table_name = (new static)->getTable();
-        return Excel::create($table_name . '_' . date('Y-m-d_H-i-s'), function($excel) use ($table_name) {
-            $excel->sheet($table_name, function($sheet) {
-                $query = static::query();
-                // если экспортируем HTML, то только длина символов
-                if (isset(static::$with_comma_on_export)) {
-                    $query->with(static::$with_comma_on_export);
-                }
-
+        return Excel::create($table_name . '_' . date('Y-m-d_H-i-s'), function($excel) use ($table_name, $lists_id) {
+            $excel->sheet($table_name, function($sheet) use ($lists_id) {
+                $query = static::query()->where('lists_id', $lists_id);
                 $data = $query->select(static::getExportableFields())->get();
                 $exportData = [];
 
                 $data->map(function ($item, $key) use (&$exportData) {
-                    if (isset(static::$with_comma_on_export)) {
-                        foreach (static::$with_comma_on_export as $field) {
-                            $item->$field = count($ids = $item->$field->pluck('id')) ? implode(',', $ids->all()) : '';
-                            unset($item->relations[$field]);
-                        }
-                    }
-
                     $exportData[$key] = $item->toArray();
                 });
 
@@ -63,28 +49,17 @@ trait Exportable
      * Импорт данных из excel файла
      *
      */
-    public static function import($request) {
+    public static function import($request, $lists_id) {
         if ($request->hasFile('imported_file')) {
             $data = [];
-            Excel::load($request->file('imported_file'), function ($reader) use (&$data) {
-                foreach ($data = $reader->all()->toArray() as $model) {
-                    if (isset(static::$long_fields)) {
-                        foreach (static::$long_fields as $field) {
-                            unset($model[$field]);
-                        }
-                    }
-
-                    if (isset(static::$with_comma_on_export) && $elem = static::find($model['id'])) {
-                        foreach (static::$with_comma_on_export as $field) {
-                            if (array_key_exists($field, $model)) {
-                                $model[$field] && $elem->$field()->sync(explode(',', str_replace('.', ',', $model[$field]))); // 5,6 => 5.6 fix
-                                unset($model[$field]);
-                            }
-                        }
-                    }
-
-                    static::whereId($model['id'])->update($model);
-                }
+            Excel::load($request->file('imported_file'), function ($reader) use (&$data, $lists_id) {
+                $data = $reader->all()->toArray();
+                // если уже существующий список, то обновляем данные.
+//                if ($lists_id) {
+//                    foreach ($data as $item) {
+//                        static::updateOrCreate($item);
+//                    }
+//                }
             });
             return $data;
         } else {

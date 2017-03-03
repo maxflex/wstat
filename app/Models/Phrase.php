@@ -14,7 +14,4 @@ class Phrase extends Model
         'phrase',
         'frequency',
     ];
-    protected static $hidden_on_export = [
-        'list_id'
-    ];
 }

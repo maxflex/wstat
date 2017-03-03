@@ -2,7 +2,7 @@ angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui
     .constant('DEFAULT_LIST_TITLE', 'Новый список')
     .run ($rootScope, List, DEFAULT_LIST_TITLE, ExportService) ->
         $rootScope.ExportService = ExportService
-
+        ExportService.init()
         # список слов
         $rootScope.list = new List
             title: null

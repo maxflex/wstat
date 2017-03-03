@@ -19,6 +19,6 @@ Route::group(['middleware' => ['login']], function () {
         return view("pages.{$page}");
     });
 
-    Route::get('excel/export', 'ExcelController@export');
-    Route::post('excel/import', 'ExcelController@import');
+    Route::get('excel/export/{lists_id}', 'ExcelController@export');
+    Route::post('excel/import/{lists_id?}', 'ExcelController@import');
 });
