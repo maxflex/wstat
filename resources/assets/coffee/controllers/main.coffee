@@ -45,9 +45,10 @@ angular
             $rootScope.list.phrases.forEach (list_item) ->
                 list_item.phrase.split(' ').forEach (word) ->
                     word = word.trim()
-                    if word.length then new_phrases.push
-                        phrase: word
-                        frequency: list_item.frequency
+                    if word.length
+                        item = _.extend _.clone(list_item), {phrase: word}
+                        delete item.id
+                        new_phrases.push item
             $rootScope.list.phrases = new_phrases
 
         # удалить дубликаты

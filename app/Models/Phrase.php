@@ -13,5 +13,15 @@ class Phrase extends Model
     protected $fillable = [
         'phrase',
         'frequency',
+        'original'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function($model) {
+            $model->attributes['original'] = $model->phrase;
+        });
+    }
 }

@@ -157,12 +157,14 @@
       new_phrases = [];
       $rootScope.list.phrases.forEach(function(list_item) {
         return list_item.phrase.split(' ').forEach(function(word) {
+          var item;
           word = word.trim();
           if (word.length) {
-            return new_phrases.push({
-              phrase: word,
-              frequency: list_item.frequency
+            item = _.extend(_.clone(list_item), {
+              phrase: word
             });
+            delete item.id;
+            return new_phrases.push(item);
           }
         });
       });
@@ -221,27 +223,6 @@
 
 (function() {
 
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 
@@ -462,6 +443,27 @@
 
 (function() {
 
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 
