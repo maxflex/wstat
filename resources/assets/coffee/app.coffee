@@ -2,11 +2,17 @@ angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui
     .constant('DEFAULT_LIST_TITLE', 'Новый список')
     .run ($rootScope, List, DEFAULT_LIST_TITLE, ExportService) ->
         $rootScope.ExportService = ExportService
-
+        ExportService.init()
         # список слов
-        $rootScope.list = new List
-            title: null
-            phrases: []
+        # $rootScope.list = new List
+        #     title: null
+        #     phrases: []
+        $rootScope.list = List.get({id: 12})
+
+        # удалить пустые слова из списка
+        $rootScope.removeEmptyWords = ->
+            $rootScope.list.phrases = _.filter $rootScope.list.phrases, (phrase) ->
+                phrase.phrase.trim() isnt ''
 
         $rootScope.loading = false
 

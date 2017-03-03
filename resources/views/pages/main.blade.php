@@ -13,13 +13,39 @@
 
 
 {{-- MODAL --}}
-<div class="modal" id='addwords-modal' tabindex="-1">
+<div class="modal big-modal" id='addwords-modal' tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
-                <textarea class='form-control' id='addwords' placeholder="список фраз..." ng-model='addwords'></textarea>
+                <textarea class='form-control' id='addwords' placeholder="список фраз..." ng-model='textarea'></textarea>
                 <center>
                     <div class="btn btn-primary" ng-click="addWords()">добавить</div>
+                </center>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal big-modal" id='words-inside-phrase-modal' tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <textarea class='form-control' id='addwords' placeholder="список слов или фраз..." ng-model='textarea'></textarea>
+                <center>
+                    <div class="btn btn-primary" ng-click="deleteWordsInsidePhrase()">удалить</div>
+                </center>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal big-modal" id='phrases-with-words-modal' tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <textarea class='form-control' id='addwords' placeholder="список слов или фраз..." ng-model='textarea'></textarea>
+                <center>
+                    <div class="btn btn-primary" ng-click="deletePhrasesWithWords()">удалить</div>
                 </center>
             </div>
         </div>

@@ -9,13 +9,13 @@ use App\Http\Requests;
 
 class ExcelController extends Controller
 {
-    public function export()
+    public function export($lists_id)
     {
-        return Phrase::export();
+        return Phrase::export($lists_id);
     }
 
-    public function import(Request $request)
+    public function import(Request $request, $lists_id = false)
     {
-        return Phrase::import($request);
+        return Phrase::import($request, $lists_id);
     }
 }

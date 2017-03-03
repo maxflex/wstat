@@ -17,7 +17,7 @@ angular
             $("#addwords").removeClass('has-error')
             new_phrases = []
             error = false
-            $scope.addwords.split('\n').forEach (line) ->
+            $scope.textarea.split('\n').forEach (line) ->
                 # skip empty lines
                 if line.trim().length
                     list = line.split('\t')
@@ -35,9 +35,27 @@ angular
                             list_item.frequency = parseInt(frequency)
                     new_phrases.push(list_item)
             return if error
-            $scope.addwords = null
+            $scope.textarea = null
             $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases)
             closeModal('addwords')
+
+        # удалить слова внутри фразы
+        $scope.deleteWordsInsidePhrase = ->
+            $scope.textarea.split('\n').forEach (textarea_phrase) ->
+                $rootScope.list.phrases.forEach (phrase) ->
+                    if phrase.phrase.indexOf(textarea_phrase) isnt -1
+                        phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(textarea_phrase, ''))
+            $rootScope.removeEmptyWords()
+            $scope.textarea = null
+            closeModal('words-inside-phrase')
+
+        # удалить слова, содержащие фразы
+        $scope.deletePhrasesWithWords = ->
+            $scope.textarea.split('\n').forEach (textarea_phrase) ->
+                $rootScope.list.phrases = _.filter $rootScope.list.phrases, (phrase) ->
+                    phrase.phrase.indexOf(textarea_phrase) is -1
+            $scope.textarea = null
+            closeModal('phrases-with-words')
 
         # разбить фразы на слова
         $scope.splitPhrasesToWords = ->
@@ -67,11 +85,7 @@ angular
                 words = []
                 list_item.phrase.split(' ').forEach (word) -> words.push(word) if word.length and word[0] != sign
                 new_phrase = words.join(' ').trim()
-                # delete list item if word is empty after deletion
-                if not new_phrase.length
-                    $rootScope.list.phrases.splice(index, 1)
-                else
-                    list_item.phrase = new_phrase
+            $rootScope.removeEmptyWords()
 
         $scope.saveAs = ->
             $rootScope.loading = true

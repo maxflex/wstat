@@ -338,3 +338,10 @@ function showModal(id) {
 function closeModal(id) {
     $('#' + id + '-modal').modal('hide')
 }
+
+/**
+ * Удалить двойные пробелы и пробелы в начале/конце
+ */
+function removeDoubleSpaces(str) {
+    return str.replace(/\s+/g,' ').trim()
+}
