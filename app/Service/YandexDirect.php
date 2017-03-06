@@ -52,7 +52,7 @@ class YandexDirect
         ]);
 
         if (isset($data->error_code)) {
-            return $data->error_detail;
+            return join('<br>', explode('. ', $data->error_detail));
         } else {
             $forecast_id = $data->data;
         }

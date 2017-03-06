@@ -8,7 +8,7 @@
       phrases: []
     });
     $rootScope.list = List.get({
-      id: 14
+      id: 12
     });
     $rootScope.removeEmptyWords = function() {
       return $rootScope.list.phrases = _.filter($rootScope.list.phrases, function(phrase) {
@@ -546,6 +546,27 @@
 }).call(this);
 
 (function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
+
+}).call(this);
+
+(function() {
   var apiPath, countable, updatable;
 
   angular.module('Wstat').factory('Phrase', function($resource) {
@@ -580,27 +601,6 @@
       }
     };
   };
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 
