@@ -3,7 +3,7 @@ angular
     .controller 'MainCtrl', ($scope, $rootScope, $http) ->
         # tab listener on textarea
         $scope.$on '$viewContentLoaded', ->
-            $("#addwords, #replace-phrases").off('keydown').keydown (e) ->
+            $("#modal-value").off('keydown').keydown (e) ->
                 if e.keyCode is 9
                     start = this.selectionStart
                     end = this.selectionEnd
@@ -14,23 +14,23 @@ angular
                     e.preventDefault()
 
         $scope.replacePhrases = ->
-            $scope.textarea.split('\n').forEach (line) ->
+            $scope.modal.value.split('\n').forEach (line) ->
                 if line.trim().length
                     [key, replacement] = line.split('\t')
+                    key = key.trim()
                     $scope.list.phrases.forEach (phrase) ->
-                        phrase.phrase = phrase.phrase.replace (new RegExp '^' + key + '$', 'g'), replacement
-                                                     .replace (new RegExp ' ' + key + '$', 'g'), ' ' + replacement
-                                                     .replace (new RegExp ' ' + key + ' ', 'g'), ' ' + replacement + ' '
-                                                     .replace (new RegExp '^' + key + ' ', 'g'),  replacement + ' '
+                        phrase.phrase = phrase.phrase.replace (new RegExp '^' + key + '$', 'gi'), replacement
+                                                     .replace (new RegExp ' ' + key + '$', 'gi'), ' ' + replacement
+                                                     .replace (new RegExp ' ' + key + ' ', 'gi'), ' ' + replacement + ' '
+                                                     .replace (new RegExp '^' + key + ' ', 'gi'),  replacement + ' '
                                                      .replace '  ', ' '
-            $scope.textarea = null
-            closeModal 'replace-phrases'
+            closeModal()
 
         $scope.addWords = ->
-            $("#addwords").removeClass('has-error')
+            $("#main-modal").removeClass('has-error')
             new_phrases = []
             error = false
-            $scope.textarea.split('\n').forEach (line) ->
+            $scope.modal.value.split('\n').forEach (line) ->
                 # skip empty lines
                 if line.trim().length
                     list = line.split('\t')
@@ -40,7 +40,7 @@ angular
                         frequency = list[1]
                         # if double tab or not number after tab
                         if not $.isNumeric(frequency)
-                            $("#addwords").addClass('has-error')
+                            $("#main-modal").addClass('has-error')
                             $scope.list = []
                             error = true
                             return
@@ -51,27 +51,24 @@ angular
 
                     new_phrases.push(list_item)
             return if error
-            $scope.textarea = null
             $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases)
-            closeModal('addwords')
+            closeModal()
 
         # удалить слова внутри фразы
         $scope.deleteWordsInsidePhrase = ->
-            $scope.textarea.split('\n').forEach (textarea_phrase) ->
+            $scope.modal.value.split('\n').forEach (textarea_phrase) ->
                 $rootScope.list.phrases.forEach (phrase) ->
                     if phrase.phrase.indexOf(textarea_phrase) isnt -1
                         phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(textarea_phrase, ''))
             $rootScope.removeEmptyWords()
-            $scope.textarea = null
-            closeModal('words-inside-phrase')
+            closeModal()
 
         # удалить слова, содержащие фразы
         $scope.deletePhrasesWithWords = ->
-            $scope.textarea.split('\n').forEach (textarea_phrase) ->
+            $scope.modal.value.split('\n').forEach (textarea_phrase) ->
                 $rootScope.list.phrases = _.filter $rootScope.list.phrases, (phrase) ->
                     phrase.phrase.indexOf(textarea_phrase) is -1
-            $scope.textarea = null
-            closeModal('phrases-with-words')
+            closeModal()
 
         # разбить фразы на слова
         $scope.splitPhrasesToWords = ->
@@ -152,3 +149,7 @@ angular
 
         angular.element(document).ready ->
             console.log $scope.title
+
+        $scope.runModal = (action, title, placeholder = 'список слов или фраз') =>
+            _.extend $scope.modal = {}, value: null, action: action, title: title, placeholder: placeholder
+            showModal 'main'

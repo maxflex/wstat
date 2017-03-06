@@ -336,6 +336,9 @@ function showModal(id) {
     $('#' + id + '-modal').modal('show')
 }
 function closeModal(id) {
+    if (!id) {
+        id = 'main'
+    }
     $('#' + id + '-modal').modal('hide')
 }
 
