@@ -46018,6 +46018,10 @@ function removeDoubleSpaces(str) {
     return str.replace(/\s+/g,' ').trim()
 }
 
+function wordBoundary(word) {
+    return new RegExp('(?:^|\\s)' + word + '(?:$|\\s)', 'g')
+}
+
 /*
  * Input Mask Core
  * http://github.com/RobinHerbots/jquery.inputmask

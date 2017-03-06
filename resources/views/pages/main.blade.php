@@ -90,8 +90,8 @@
             <div class="modal-header">
                 <h4 class="modal-title">@{{ selected_row ? 'Добавьте фразы' : 'Выберите фразу' }}</h4>
             </div>
-            <div class="modal-body">
-                <table class='table table-hover'>
+            <div class="modal-body scrollable-body">
+                <table class='table table-hover table-small'>
                     <tr ng-click="selectRow($index)" ng-repeat='phrase in tmp_phrases' class='pointer'
                         ng-class="{
                             'row-disabled': selected_row == $index,
@@ -104,8 +104,8 @@
                 </table>
             </div>
             <div class="modal-footer center">
-                <div class="btn btn-primary" ng-disabled="!selected_row && !selected_rows && transform_items === undefined" ng-click="cancel()">отмена</div>
-                <div class="btn btn-primary" ng-disabled="!selected_row || !selected_rows || !selected_rows.length" ng-click="addData()">добавить</div>
+                {{-- <div class="btn btn-primary" ng-disabled="!selected_row && !selected_rows && transform_items === undefined" ng-click="cancel()">отмена</div> --}}
+                <div class="btn btn-primary" ng-disabled="selected_row === undefined || selected_rows === undefined || !selected_rows.length" ng-click="addData()">добавить</div>
                 <div class="btn btn-primary" ng-disabled="transform_items === undefined" ng-click="transformGo()">трансформировать</div>
             </div>
         </div>

@@ -4032,8 +4032,8 @@ label {
 .transform-modal {
     .modal-dialog {
         margin: 5% auto;
-        width: 70%;
-        height: 80%;
+        width: 80%;
+        height: 90%;
     }
 }
 
@@ -4048,4 +4048,20 @@ label {
 .row-disabled {
     cursor: default !important;
     background: $hr_gray !important;
+}
+
+.table-small {
+    font-size: 12px;
+    td {
+        padding: 2px 4px !important;
+    }
+}
+
+.scrollable-body {
+    max-height: 600px;
+    overflow-y: scroll;
+}
+
+.modal-open {
+    overflow: hidden !important;
 }

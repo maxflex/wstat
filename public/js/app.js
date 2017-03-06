@@ -7,6 +7,11 @@
       title: null,
       phrases: []
     });
+    if (ENV === 'local') {
+      $rootScope.list = List.get({
+        id: 16
+      });
+    }
     $rootScope.removeEmptyWords = function() {
       return $rootScope.list.phrases = _.filter($rootScope.list.phrases, function(phrase) {
         return phrase.phrase.trim() !== '';
@@ -342,13 +347,17 @@
       if ($scope.selected_row === void 0) {
         return $scope.selected_row = index;
       } else {
-        if ($scope.selected_rows === void 0) {
-          $scope.selected_rows = [];
-        }
-        if ($scope.selected_rows.indexOf(index) === -1) {
-          return $scope.selected_rows.push(index);
+        if ($scope.selected_row === index) {
+          return $scope.selected_row = void 0;
         } else {
-          return $scope.selected_rows.splice($scope.selected_rows.indexOf(index), 1);
+          if ($scope.selected_rows === void 0) {
+            $scope.selected_rows = [];
+          }
+          if ($scope.selected_rows.indexOf(index) === -1) {
+            return $scope.selected_rows.push(index);
+          } else {
+            return $scope.selected_rows.splice($scope.selected_rows.indexOf(index), 1);
+          }
         }
       }
     };
@@ -365,7 +374,7 @@
       $rootScope.list.phrases.forEach(function(phrase) {
         return $.each($scope.transform_items, function(main_index, item_indexes) {
           return item_indexes.forEach(function(item_index) {
-            return phrase.phrase = phrase.phrase.replace(new RegExp('^' + $scope.tmp_phrases[item_index].phrase + '$', 'g'), $scope.tmp_phrases[main_index].phrase);
+            return phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(wordBoundary(scope.tmp_phrases[item_index].phrase), ' ' + $scope.tmp_phrases[main_index].phrase + ' '));
           });
         });
       });
@@ -605,27 +614,6 @@
 }).call(this);
 
 (function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
-
-}).call(this);
-
-(function() {
   var apiPath, countable, updatable;
 
   angular.module('Wstat').factory('Phrase', function($resource) {
@@ -660,6 +648,27 @@
       }
     };
   };
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 

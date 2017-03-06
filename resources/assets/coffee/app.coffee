@@ -8,7 +8,7 @@ angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui
         $rootScope.list = new List
             title: null
             phrases: []
-        # $rootScope.list = List.get({id: 12}) if ENV is 'local'
+        $rootScope.list = List.get({id: 16}) if ENV is 'local'
 
         # удалить пустые слова из списка
         $rootScope.removeEmptyWords = ->

@@ -345,3 +345,7 @@ function closeModal(id) {
 function removeDoubleSpaces(str) {
     return str.replace(/\s+/g,' ').trim()
 }
+
+function wordBoundary(word) {
+    return new RegExp('(?:^|\\s)' + word + '(?:$|\\s)', 'g')
+}

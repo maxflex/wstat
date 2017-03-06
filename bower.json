@@ -60,6 +60,7 @@
     "requirejs": "^2.2.0",
     "angular-file-upload": "^2.3.4",
     "ng-tags-input": "3.1.1",
-    "angular-route": "^1.6.2"
+    "angular-route": "^1.6.2",
+    "xregexp": "^3.1.1"
   }
 }

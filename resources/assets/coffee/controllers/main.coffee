@@ -171,11 +171,15 @@ angular
             if $scope.selected_row is undefined
                 $scope.selected_row = index
             else
-                $scope.selected_rows = [] if $scope.selected_rows is undefined
-                if $scope.selected_rows.indexOf(index) is -1
-                    $scope.selected_rows.push(index)
+                # если выбираем заголовок
+                if $scope.selected_row is index
+                    $scope.selected_row = undefined
                 else
-                    $scope.selected_rows.splice($scope.selected_rows.indexOf(index), 1)
+                    $scope.selected_rows = [] if $scope.selected_rows is undefined
+                    if $scope.selected_rows.indexOf(index) is -1
+                        $scope.selected_rows.push(index)
+                    else
+                        $scope.selected_rows.splice($scope.selected_rows.indexOf(index), 1)
 
         $scope.addData = ->
             $scope.transform_items = {} if $scope.transform_items is undefined
@@ -188,7 +192,7 @@ angular
             $rootScope.list.phrases.forEach (phrase) ->
                 $.each $scope.transform_items, (main_index, item_indexes) ->
                     item_indexes.forEach (item_index) ->
-                        phrase.phrase = phrase.phrase.replace((new RegExp '^' + $scope.tmp_phrases[item_index].phrase + '$', 'g'), $scope.tmp_phrases[main_index].phrase)
+                        phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(wordBoundary(scope.tmp_phrases[item_index].phrase), ' ' + $scope.tmp_phrases[main_index].phrase + ' '))
             $scope.cancel()
             closeModal('transform')
 
