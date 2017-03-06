@@ -4059,6 +4059,7 @@ label {
 
 .scrollable-body {
     max-height: 600px;
+    min-height: 600px;
     overflow-y: scroll;
 }
 
