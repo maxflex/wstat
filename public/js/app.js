@@ -1,6 +1,7 @@
 (function() {
-  angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui.sortable', 'ui.bootstrap', 'angular-ladda', 'angularFileUpload']).constant('DEFAULT_LIST_TITLE', 'Новый список').run(function($rootScope, List, DEFAULT_LIST_TITLE, ExportService) {
+  angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui.sortable', 'ui.bootstrap', 'angular-ladda', 'angularFileUpload']).constant('DEFAULT_LIST_TITLE', 'Новый список').run(function($rootScope, List, DEFAULT_LIST_TITLE, ExportService, SmartSort) {
     $rootScope.ExportService = ExportService;
+    $rootScope.SmartSort = SmartSort;
     ExportService.init();
     $rootScope.list = List.get({
       id: 12
@@ -245,27 +246,6 @@
 }).call(this);
 
 (function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
-
-}).call(this);
-
-(function() {
 
 
 }).call(this);
@@ -482,6 +462,27 @@
 
 (function() {
 
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 
@@ -744,6 +745,99 @@
       if (scope.list.id) {
         window.location = "/excel/export/" + scope.list.id;
       }
+    };
+    return this;
+  });
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').service('SmartSort', function() {
+    var splitBySpace;
+    this.run = function(list) {
+      this.list = list;
+      if (!this.list.phrases.length) {
+        return;
+      }
+      this.getWords();
+      this.getWeights();
+      return this.sortPhraseByWeight();
+    };
+    this.getWords = function() {
+      var index, phrase, ref, results;
+      this.words = [];
+      ref = this.list.phrases;
+      results = [];
+      for (index in ref) {
+        phrase = ref[index];
+        results.push(this.words.push.apply(this.words, splitBySpace(phrase.phrase)));
+      }
+      return results;
+    };
+    this.getWeights = function() {
+      var word_groups;
+      this.word_weights = [];
+      word_groups = _.chain(this.words).groupBy(function(word) {
+        return word;
+      }).sortBy(function(word) {
+        return word.length;
+      }).value();
+      return _.map(word_groups, (function(_this) {
+        return function(group) {
+          return _this.word_weights[group[0]] = group.length;
+        };
+      })(this));
+    };
+    this.sortPhraseByWeight = function() {
+      this.list.phrases.forEach((function(_this) {
+        return function(phrase) {
+          var phrase_weight, words, words_sorted_by_weight;
+          words = splitBySpace(phrase.phrase);
+          words_sorted_by_weight = _.sortBy(words.sort().reverse(), (function(word) {
+            return _this.word_weights[word];
+          })).reverse();
+          phrase_weight = [];
+          words_sorted_by_weight.forEach(function(word) {
+            return phrase_weight.push(_this.word_weights[word]);
+          });
+          phrase.phrase = words_sorted_by_weight.join(' ');
+          return phrase.phrase_weight = phrase_weight;
+        };
+      })(this));
+      return this.list.phrases.sort(function(a, b) {
+        var i, j, length, min, ref;
+        length = Math.min(a.phrase_weight.length, b.phrase_weight.length);
+        min = false;
+        for (i = j = 0, ref = length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+          if (a.phrase_weight[i] === 41 && b.phrase_weight[i] === 124) {
+            debugger;
+          }
+          if (a.phrase_weight[i] < b.phrase_weight[i]) {
+            min = -1;
+          }
+          if (a.phrase_weight[i] > b.phrase_weight[i]) {
+            min = 1;
+          }
+          if (min) {
+            break;
+          }
+        }
+        if (!min) {
+          min = b.phrase_weight.length - a.phrase_weight.length;
+          if (min === 0) {
+            if (a.phrase > b.phrase) {
+              min = -1;
+            }
+            if (a.phrase < b.phrase) {
+              min = 1;
+            }
+          }
+        }
+        return min;
+      }).reverse();
+    };
+    splitBySpace = function(string) {
+      return _.without(string.split(' '), '');
     };
     return this;
   });

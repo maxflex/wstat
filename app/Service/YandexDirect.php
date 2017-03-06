@@ -2,95 +2,67 @@
 
 namespace App\Service;
 
-/**
- * Репетиторы Москвы
- *
- * @author Ivan Sadovoy <igreblin@gmail.com>
- * Модуль работы с API Yandex Direct
- */
-
-class YandexDirect {
-    const YANDEX_DIRECT_URL   = 'https://api.direct.yandex.ru/v4/json/';
+class YandexDirect
+{
+    const API_URL   = 'https://api.direct.yandex.ru/live/v4/json/';
     const LOCALE = 'ru';
+    const MOSCOW_GEO_ID = 213;
+    const TRIALS = 50; // попыток запроса статистики
+    const SLEEP  = 2; // секунд между попытками
 
-    private $connectData;
-    private $curl;
-    private $lastError = null;
+    public static function exec($method, $param = [])
+    {
+        $post_data = [
+            'method' => $method,
+            'locale' => self::LOCALE,
+            'token' => config('direct.token'),
+            'param' => $param,
+        ];
 
-    public function __construct() {
-       $conn = array(
-            "token"             => "15a8371a5523487bb38c0e3782cf995c",
-            "application_id"    => "834c96e2a8694724a796dd87c3ca6adf",
-            "login"             => "elenasivolobceva1502"
-        );
+        $ch = curl_init(self::API_URL);
 
-	/*
-		$conn = array(
-			"token"				=> "b6860ec300864ed79e919b26c5d758ea",
-			"application_id"    => "82e03621f656483fa1aa3930118a2ee2",
-            "login"             => "makcyxa-k"
-		);*/
-        $this->connectData = $conn;
-        $this->curl = Curl::getInstance();
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER 	=> true,
+            CURLOPT_POST			=> true,
+            CURLOPT_POSTFIELDS		=> json_encode($post_data),
+        ]);
+
+        $response = curl_exec($ch);
+        // $code     = curl_getinfo($ch)['http_code'];
+
+        curl_close($ch);
+        \Log::info($response);
+        return json_decode($response);
     }
 
-    public function getLastError() {
-        return $this->lastError;
-    }
+    /**
+     * Получить частотность фраз
+     */
+    public static function getFrequencies($phrases)
+    {
+        # создаем отчет
+        $forecast_id = self::exec('CreateNewForecast', [
+            'GeoID' => [self::MOSCOW_GEO_ID],
+            'Phrases' => $phrases
+        ])->data;
 
-    public function apiRequest($method, $param = null, $decode = true) {
-        $request = $this->connectData;
-        $request['method'] = $method;
-        $request['locale'] = self::LOCALE;
-        if ($param) $request['param'] = $param;
-        $request = json_encode($request);
-        $response = $this->curl->curlRequest(self::YANDEX_DIRECT_URL, array(CURLOPT_POSTFIELDS => $request));
-/*
-       print_r($response);
-       exit("HERE");
-*/
-        if (!$this->curl->getLastError()) {
-            $result = json_decode($response);
-            if (isset($result->error_code)) {
-                $this->lastError = $decode ? $result : $response;
-                return null;
-            } else {
-                $this->lastError = null;
-                return $decode ? $result : $response;
+        # дожидаемся создания отчета и получаем отчет
+        $trial = 1; // первая попытка
+        while ($trial <= static::TRIALS) {
+            $response = self::exec('GetForecast', $forecast_id);
+            if (isset($response->data)) {
+                break;
             }
-        } else {
-            throw new \Exception($this->curl->getLastError(true));
+            $trial++;
+            sleep(static::SLEEP);
         }
-    }
 
-    //получение полной информации по объявлениям кампании
-    public function apiGetBannersByCampaigns($campaign, $GetPhrases = 'WithPrices', $IsActive = 'Yes', $StatusArchive = 'No') {
-        $method = 'GetBanners';
-        return $this->apiRequest($method, array(
-            'CampaignIDS' => is_array($campaign) ? $campaign : array($campaign),
-            'GetPhrases' => $GetPhrases,
-            'Filter' => array(
-                'IsActive' => array($IsActive),
-                'StatusArchive' => array($StatusArchive),
-            )
-        ));
-    }
-
-    //запрос формирования отчёта
-    public function apiCreateNewReport($campaign, $StartDate, $EndDate, $GroupByColumns, $PositionType = null) {
-        $method = 'CreateNewReport';
-        $param = array(
-            'CampaignID' => $campaign,
-            'StartDate' => $StartDate,
-            'EndDate' => $EndDate,
-            'GroupByColumns' => $GroupByColumns
-        );
-        if ($PositionType) {
-            $param['Filter'] = array('PositionType' => $PositionType);
+        $return = [];
+        foreach($response->data->Phrases as $phrase) {
+            $return[] = $phrase->Shows;
         }
-        return $this->apiRequest($method, $param);
+        return $return;
     }
-
 }
 
 ?>
