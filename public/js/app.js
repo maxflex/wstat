@@ -110,7 +110,7 @@
 (function() {
   angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope) {
     $scope.$on('$viewContentLoaded', function() {
-      return $("#addwords,#replace-phrases").off('keydown').keydown(function(e) {
+      return $("#addwords, #replace-phrases").off('keydown').keydown(function(e) {
         var $this, end, start, value;
         if (e.keyCode === 9) {
           start = this.selectionStart;
@@ -157,6 +157,9 @@
               return;
             } else {
               list_item.frequency = parseInt(frequency);
+            }
+            if (list[2]) {
+              list_item.original = list[2];
             }
           }
           return new_phrases.push(list_item);

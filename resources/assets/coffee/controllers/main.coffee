@@ -46,6 +46,10 @@ angular
                             return
                         else
                             list_item.frequency = parseInt(frequency)
+
+                        if list[2]
+                            list_item.original = list[2]
+
                     new_phrases.push(list_item)
             return if error
             $scope.textarea = null
