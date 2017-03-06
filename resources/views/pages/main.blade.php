@@ -9,7 +9,7 @@
             <span class="text-gray">@{{ phrase.original }}</span>
         </td>
         <td style='width: 10%'>
-            <span class="pull-right">@{{ phrase.frequency }}</span>
+            @{{ phrase.frequency }}
         </td>
     </tr>
 </table>
