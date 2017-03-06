@@ -101,6 +101,10 @@ angular
                 list_item.phrase = words.join(' ').trim()
             $rootScope.removeEmptyWords()
 
+        $scope.removePhrase = (phrase) ->
+            $rootScope.list.phrases = _.without $rootScope.list.phrases, phrase
+            console.log $rootScope.list.phrases
+
         # конфигурация минус-слов
         $scope.configureMinus = ->
             $scope.removeStartingWith('-')
@@ -134,8 +138,9 @@ angular
             closeModal('save-as')
 
         $scope.save = ->
-            $rootScope.loading = true
-            $rootScope.list.$update().then -> $rootScope.loading = false
+            if $rootScope.list.phrases.length
+                $rootScope.loading = true
+                $rootScope.list.$update().then -> $rootScope.loading = false
 
         $scope.getFrequencies = ->
             $rootScope.loading = true

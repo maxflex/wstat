@@ -238,6 +238,10 @@
       });
       return $rootScope.removeEmptyWords();
     };
+    $scope.removePhrase = function(phrase) {
+      $rootScope.list.phrases = _.without($rootScope.list.phrases, phrase);
+      return console.log($rootScope.list.phrases);
+    };
     $scope.configureMinus = function() {
       $scope.removeStartingWith('-');
       $rootScope.list.phrases.forEach(function(phrase) {
@@ -287,10 +291,12 @@
       return closeModal('save-as');
     };
     $scope.save = function() {
-      $rootScope.loading = true;
-      return $rootScope.list.$update().then(function() {
-        return $rootScope.loading = false;
-      });
+      if ($rootScope.list.phrases.length) {
+        $rootScope.loading = true;
+        return $rootScope.list.$update().then(function() {
+          return $rootScope.loading = false;
+        });
+      }
     };
     $scope.getFrequencies = function() {
       $rootScope.loading = true;
