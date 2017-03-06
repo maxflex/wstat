@@ -3,8 +3,9 @@
     $rootScope.ExportService = ExportService;
     $rootScope.SmartSort = SmartSort;
     ExportService.init();
-    $rootScope.list = List.get({
-      id: 12
+    $rootScope.list = new List({
+      title: null,
+      phrases: []
     });
     $rootScope.removeEmptyWords = function() {
       return $rootScope.list.phrases = _.filter($rootScope.list.phrases, function(phrase) {
@@ -113,7 +114,9 @@
 }).call(this);
 
 (function() {
-  angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope) {
+  var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $http) {
     $scope.$on('$viewContentLoaded', function() {
       return $("#addwords").off('keydown').keydown(function(e) {
         var $this, end, start, value;
@@ -187,12 +190,14 @@
       new_phrases = [];
       $rootScope.list.phrases.forEach(function(list_item) {
         return list_item.phrase.split(' ').forEach(function(word) {
+          var item;
           word = word.trim();
           if (word.length) {
-            return new_phrases.push({
-              phrase: word,
-              frequency: list_item.frequency
+            item = _.extend(_.clone(list_item), {
+              phrase: word
             });
+            delete item.id;
+            return new_phrases.push(item);
           }
         });
       });
@@ -213,16 +218,56 @@
     };
     $scope.removeStartingWith = function(sign) {
       $rootScope.list.phrases.forEach(function(list_item, index) {
-        var new_phrase, words;
+        var words;
         words = [];
         list_item.phrase.split(' ').forEach(function(word) {
           if (word.length && word[0] !== sign) {
             return words.push(word);
           }
         });
-        return new_phrase = words.join(' ').trim();
+        return list_item.phrase = words.join(' ').trim();
       });
       return $rootScope.removeEmptyWords();
+    };
+    $scope.configureMinus = function() {
+      $scope.removeStartingWith('-');
+      $rootScope.list.phrases.forEach(function(phrase) {
+        var words_list;
+        words_list = phrase.phrase.split(' ');
+        return $rootScope.list.phrases.forEach(function(phrase2) {
+          var flag, words_list2;
+          if (phrase.phrase !== phrase2.phrase) {
+            words_list2 = phrase2.phrase.split(' ');
+            flag = true;
+            words_list.forEach(function(word) {
+              if (indexOf.call(words_list2, word) >= 0) {
+                return words_list2[words_list2.indexOf(word)] = null;
+              } else {
+                return flag = false;
+              }
+            });
+            if (flag && words_list2.length === (words_list.length + 1)) {
+              if (!phrase.hasOwnProperty('minus')) {
+                phrase.minus = [];
+              }
+              return words_list2.forEach(function(word) {
+                if (word) {
+                  return phrase.minus.push("-" + word);
+                }
+              });
+            }
+          }
+        });
+      });
+      return $rootScope.list.phrases.forEach(function(phrase) {
+        var words_list;
+        if (phrase.hasOwnProperty('minus') && phrase.minus.length) {
+          words_list = phrase.phrase.split(' ');
+          words_list = words_list.concat(phrase.minus);
+          phrase.phrase = words_list.join(' ');
+          return phrase.minus = [];
+        }
+      });
     };
     $scope.saveAs = function() {
       $rootScope.loading = true;
@@ -235,6 +280,18 @@
     $scope.save = function() {
       $rootScope.loading = true;
       return $rootScope.list.$update().then(function() {
+        return $rootScope.loading = false;
+      });
+    };
+    $scope.getFrequencies = function() {
+      $rootScope.loading = true;
+      return $http.post('api/getFrequencies', {
+        phrases: $rootScope.list.phrases
+      }).then(function(response) {
+        $rootScope.list.phrases.forEach(function(phrase, index) {
+          console.log(response.data[index]);
+          return phrase.frequency = response.data[index];
+        });
         return $rootScope.loading = false;
       });
     };
@@ -756,7 +813,7 @@
     var splitBySpace;
     this.run = function(list) {
       this.list = list;
-      if (!this.list.phrases.length) {
+      if (!(this.list.phrases && this.list.phrases.length)) {
         return;
       }
       this.getWords();

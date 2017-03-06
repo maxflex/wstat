@@ -1,7 +1,7 @@
 <div class="full-size-center" ng-show="!list.phrases.length">список пуст</div>
 
 <table class="table">
-    <tr ng-repeat="phrase in list.phrases">
+    <tr ng-repeat="phrase in list.phrases track by $index">
         <td>
             @{{ phrase.phrase }}
         </td>

@@ -40,6 +40,11 @@ class YandexDirect
      */
     public static function getFrequencies($phrases)
     {
+        # кодируем фразы в UTF-8
+        foreach ($phrases as &$phrase) {
+            $phrase = utf8_encode($phrase);
+        }
+
         # создаем отчет
         $forecast_id = self::exec('CreateNewForecast', [
             'GeoID' => [self::MOSCOW_GEO_ID],

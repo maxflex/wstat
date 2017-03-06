@@ -1,6 +1,6 @@
 angular
     .module 'Wstat'
-    .controller 'MainCtrl', ($scope, $rootScope) ->
+    .controller 'MainCtrl', ($scope, $rootScope, $http) ->
         # tab listener on textarea
         $scope.$on '$viewContentLoaded', ->
             $("#addwords").off('keydown').keydown (e) ->
@@ -63,9 +63,10 @@ angular
             $rootScope.list.phrases.forEach (list_item) ->
                 list_item.phrase.split(' ').forEach (word) ->
                     word = word.trim()
-                    if word.length then new_phrases.push
-                        phrase: word
-                        frequency: list_item.frequency
+                    if word.length
+                        item = _.extend _.clone(list_item), {phrase: word}
+                        delete item.id
+                        new_phrases.push item
             $rootScope.list.phrases = new_phrases
 
         # удалить дубликаты
@@ -84,8 +85,34 @@ angular
             $rootScope.list.phrases.forEach (list_item, index) ->
                 words = []
                 list_item.phrase.split(' ').forEach (word) -> words.push(word) if word.length and word[0] != sign
-                new_phrase = words.join(' ').trim()
+                list_item.phrase = words.join(' ').trim()
             $rootScope.removeEmptyWords()
+
+        # конфигурация минус-слов
+        $scope.configureMinus = ->
+            $scope.removeStartingWith('-')
+            $rootScope.list.phrases.forEach (phrase) ->
+                words_list = phrase.phrase.split(' ')
+                $rootScope.list.phrases.forEach (phrase2) ->
+                    # самого себя не проверяем
+                    if phrase.phrase isnt phrase2.phrase
+                        words_list2 = phrase2.phrase.split(' ')
+                        flag = true
+                        words_list.forEach (word) ->
+                            if word in words_list2
+                                words_list2[words_list2.indexOf(word)] = null
+                            else
+                                flag = false
+                        if flag and words_list2.length is (words_list.length + 1)
+                            phrase.minus = [] if not phrase.hasOwnProperty('minus')
+                            words_list2.forEach (word) ->
+                                phrase.minus.push("-#{word}") if word
+            $rootScope.list.phrases.forEach (phrase) ->
+                if phrase.hasOwnProperty('minus') and phrase.minus.length
+                    words_list = phrase.phrase.split(' ')
+                    words_list = words_list.concat(phrase.minus)
+                    phrase.phrase = words_list.join(' ')
+                    phrase.minus = []
 
         $scope.saveAs = ->
             $rootScope.loading = true
@@ -96,6 +123,16 @@ angular
         $scope.save = ->
             $rootScope.loading = true
             $rootScope.list.$update().then -> $rootScope.loading = false
+
+        $scope.getFrequencies = ->
+            $rootScope.loading = true
+            $http.post 'api/getFrequencies',
+                phrases: $rootScope.list.phrases
+            .then (response) ->
+                $rootScope.list.phrases.forEach (phrase, index) ->
+                    console.log(response.data[index])
+                    phrase.frequency = response.data[index]
+                $rootScope.loading = false
 
         angular.element(document).ready ->
             console.log $scope.title

@@ -5,10 +5,10 @@ angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui
         $rootScope.SmartSort = SmartSort
         ExportService.init()
         # список слов
-        # $rootScope.list = new List
-        #     title: null
-        #     phrases: []
-        $rootScope.list = List.get({id: 12})
+        $rootScope.list = new List
+            title: null
+            phrases: []
+        # $rootScope.list = List.get({id: 14})
 
         # удалить пустые слова из списка
         $rootScope.removeEmptyWords = ->
