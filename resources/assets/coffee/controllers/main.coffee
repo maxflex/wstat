@@ -3,7 +3,7 @@ angular
     .controller 'MainCtrl', ($scope, $rootScope, $http) ->
         # tab listener on textarea
         $scope.$on '$viewContentLoaded', ->
-            $("#addwords").off('keydown').keydown (e) ->
+            $("#addwords, #replace-phrases").off('keydown').keydown (e) ->
                 if e.keyCode is 9
                     start = this.selectionStart
                     end = this.selectionEnd
@@ -12,6 +12,19 @@ angular
                     $this.val(value.substring(0, start) + "\t" + value.substring(end))
                     this.selectionStart = this.selectionEnd = start + 1
                     e.preventDefault()
+
+        $scope.replacePhrases = ->
+            $scope.textarea.split('\n').forEach (line) ->
+                if line.trim().length
+                    [key, replacement] = line.split('\t')
+                    $scope.list.phrases.forEach (phrase) ->
+                        phrase.phrase = phrase.phrase.replace (new RegExp '^' + key + '$', 'g'), replacement
+                                                     .replace (new RegExp ' ' + key + '$', 'g'), ' ' + replacement
+                                                     .replace (new RegExp ' ' + key + ' ', 'g'), ' ' + replacement + ' '
+                                                     .replace (new RegExp '^' + key + ' ', 'g'),  replacement + ' '
+                                                     .replace '  ', ' '
+            $scope.textarea = null
+            closeModal 'replace-phrases'
 
         $scope.addWords = ->
             $("#addwords").removeClass('has-error')
@@ -33,6 +46,12 @@ angular
                             return
                         else
                             list_item.frequency = parseInt(frequency)
+
+                        if list[2]
+                            list_item.original = list[2].trim()
+                        else
+                            list_item.original = list[0].trim()
+
                     new_phrases.push(list_item)
             return if error
             $scope.textarea = null

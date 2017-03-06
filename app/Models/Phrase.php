@@ -19,7 +19,9 @@ class Phrase extends Model
     protected static function boot()
     {
         static::creating(function($model) {
-            $model->attributes['original'] = $model->phrase;
+            if ($model->attributes && ! isset($model->attributes['original'])) {
+                $model->attributes['original'] = $model->phrase;
+            }
         });
     }
 }

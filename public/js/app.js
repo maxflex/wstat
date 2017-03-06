@@ -118,7 +118,7 @@
 
   angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $http) {
     $scope.$on('$viewContentLoaded', function() {
-      return $("#addwords").off('keydown').keydown(function(e) {
+      return $("#addwords, #replace-phrases").off('keydown').keydown(function(e) {
         var $this, end, start, value;
         if (e.keyCode === 9) {
           start = this.selectionStart;
@@ -131,6 +131,19 @@
         }
       });
     });
+    $scope.replacePhrases = function() {
+      $scope.textarea.split('\n').forEach(function(line) {
+        var key, ref, replacement;
+        if (line.trim().length) {
+          ref = line.split('\t'), key = ref[0], replacement = ref[1];
+          return $scope.list.phrases.forEach(function(phrase) {
+            return phrase.phrase = phrase.phrase.replace(new RegExp('^' + key + '$', 'g'), replacement).replace(new RegExp(' ' + key + '$', 'g'), ' ' + replacement).replace(new RegExp(' ' + key + ' ', 'g'), ' ' + replacement + ' ').replace(new RegExp('^' + key + ' ', 'g'), replacement + ' ').replace('  ', ' ');
+          });
+        }
+      });
+      $scope.textarea = null;
+      return closeModal('replace-phrases');
+    };
     $scope.addWords = function() {
       var error, new_phrases;
       $("#addwords").removeClass('has-error');
@@ -152,6 +165,11 @@
               return;
             } else {
               list_item.frequency = parseInt(frequency);
+            }
+            if (list[2]) {
+              list_item.original = list[2].trim();
+            } else {
+              list_item.original = list[0].trim();
             }
           }
           return new_phrases.push(list_item);
