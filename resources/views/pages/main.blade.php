@@ -1,7 +1,13 @@
 <div class="full-size-center" ng-show="!list.phrases.length">список пуст</div>
 
+<div class="row" ng-show="list.phrases.length">
+    <div class="col-sm-3 pull-right">
+        <input class="form-control" type="text" placeholder="поиск..." ng-model="phrase_search">
+    </div>
+</div>
+
 <table class="table">
-    <tr ng-repeat="phrase in list.phrases track by $index">
+    <tr ng-repeat="phrase in list.phrases | filter : {phrase: phrase_search} as filtered_list_items track by $index">
         <td style='width: 45%'>
             @{{ phrase.phrase }}
         </td>
@@ -10,6 +16,9 @@
         </td>
         <td style='width: 10%'>
             @{{ phrase.frequency }}
+        </td>
+        <td style='width: 20%'>
+            <span class='pull-right link-like link-danger' ng-click='removePhrase(phrase)'>удалить</span>
         </td>
     </tr>
 </table>

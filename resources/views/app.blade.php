@@ -39,6 +39,10 @@
                   </div>
                   <div class="col-sm-4 right">
                      <a href='#' ng-show="$root.route.originalPath != '/'">назад</a>
+                      <span style="text-decoration: none" ng-show="$$childHead.filtered_list_items.length">
+                         количество фраз: @{{ $$childHead.filtered_list_items.length }}
+                         {{-- <plural count='$$childHead.filtered_list_items.length' type='phrase'></plural> --}}
+                     </span>
                   </div>
               </div>
 
