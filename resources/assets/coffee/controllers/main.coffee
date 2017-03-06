@@ -1,6 +1,8 @@
 angular
     .module 'Wstat'
-    .controller 'MainCtrl', ($scope, $rootScope, $http) ->
+    .controller 'MainCtrl', ($scope, $rootScope, $http, TransformService) ->
+        bindArguments($scope, arguments)
+
         # tab listener on textarea
         $scope.$on '$viewContentLoaded', ->
             $("#modal-value").off('keydown').keydown (e) ->
@@ -56,7 +58,7 @@ angular
                 $rootScope.list.phrases.forEach (phrase) ->
                     if phrase.phrase.indexOf(textarea_phrase) isnt -1
                         phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(textarea_phrase, ''))
-            $rootScope.removeEmptyWords()
+            $scope.removeEmptyWords()
             closeModal()
 
         # удалить слова, содержащие фразы
@@ -97,12 +99,21 @@ angular
             $rootScope.list.phrases.forEach (list_item) ->
                 list_item.frequency = undefined
 
-        $scope.removeStartingWith = (sign) ->
-            $rootScope.list.phrases.forEach (list_item, index) ->
+        $scope.removeStartingWith = (sign, phrases = null) ->
+            (phrases or $rootScope.list.phrases).forEach (list_item, index) ->
                 words = []
                 list_item.phrase.split(' ').forEach (word) -> words.push(word) if word.length and word[0] != sign
                 list_item.phrase = words.join(' ').trim()
-            $rootScope.removeEmptyWords()
+            $scope.removeEmptyWords(phrases)
+
+        # удалить пустые слова из списка
+        $scope.removeEmptyWords = (phrases = null)->
+            new_phrases = _.filter (phrases or $rootScope.list.phrases), (phrase) ->
+                phrase.phrase.trim() isnt ''
+            if phrases
+                return new_phrases
+            else
+                $rootScope.list.phrases = new_phrases
 
         # конфигурация минус-слов
         $scope.configureMinus = ->
@@ -154,46 +165,12 @@ angular
                 notifyError(response.data)
 
         $scope.transform = ->
-            $scope.tmp_phrases = angular.copy($rootScope.list.phrases)
-            $scope.tmp_phrases = $scope.splitPhrasesToWords($scope.tmp_phrases)
-            $scope.tmp_phrases = $scope.uniq($scope.tmp_phrases)
-            $scope.tmp_phrases = _.sortBy($scope.tmp_phrases, 'phrase')
+            TransformService.phrases = angular.copy($rootScope.list.phrases)
+            TransformService.phrases = $scope.splitPhrasesToWords(TransformService.phrases)
+            TransformService.phrases = $scope.uniq(TransformService.phrases)
+            TransformService.phrases = _.sortBy(TransformService.phrases, 'phrase')
+            TransformService.phrases = $scope.removeStartingWith('-', TransformService.phrases)
             showModal('transform')
-
-        $scope.selectRow = (index) ->
-            if $scope.selected_row is undefined
-                $scope.selected_row = index
-            else
-                # если выбираем заголовок
-                if $scope.selected_row is index
-                    $scope.selected_row = undefined
-                else
-                    $scope.selected_rows = [] if $scope.selected_rows is undefined
-                    if $scope.selected_rows.indexOf(index) is -1
-                        $scope.selected_rows.push(index)
-                    else
-                        $scope.selected_rows.splice($scope.selected_rows.indexOf(index), 1)
-
-        $scope.addData = ->
-            $scope.transform_items = {} if $scope.transform_items is undefined
-            $scope.transform_items[$scope.selected_row] = $scope.selected_rows
-            $scope.selected_row = undefined
-            $scope.selected_rows = undefined
-            console.log($scope.transform_items)
-
-        $scope.transformGo = ->
-            $rootScope.list.phrases.forEach (phrase) ->
-                $.each $scope.transform_items, (main_index, item_indexes) ->
-                    item_indexes.forEach (item_index) ->
-                        phrase.phrase = replaceWord(phrase.phrase, scope.tmp_phrases[item_index].phrase, $scope.tmp_phrases[main_index].phrase)
-            $scope.cancel()
-            closeModal('transform')
-
-        $scope.cancel = ->
-            $scope.selected_row = undefined
-            $scope.selected_rows = undefined
-            $scope.transform_items = undefined
-
 
         angular.element(document).ready ->
             console.log $scope.title

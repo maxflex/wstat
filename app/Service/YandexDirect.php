@@ -38,40 +38,44 @@ class YandexDirect
     /**
      * Получить частотность фраз
      */
-    public static function getFrequencies($phrases)
+    public static function getFrequencies($all_phrases)
     {
+        $return = [];
+
         # кодируем фразы в UTF-8
-        foreach ($phrases as &$phrase) {
+        foreach ($all_phrases as &$phrase) {
             $phrase = utf8_encode($phrase);
         }
 
-        # создаем отчет
-        $data = self::exec('CreateNewForecast', [
-            'GeoID' => [self::MOSCOW_GEO_ID],
-            'Phrases' => $phrases
-        ]);
+        foreach(array_chunk($all_phrases, 100) as $phrases) {
+            # создаем отчет
+            $data = self::exec('CreateNewForecast', [
+                'GeoID' => [self::MOSCOW_GEO_ID],
+                'Phrases' => $phrases
+            ]);
 
-        if (isset($data->error_code)) {
-            return join('<br>', explode('. ', $data->error_detail));
-        } else {
-            $forecast_id = $data->data;
-        }
-
-        # дожидаемся создания отчета и получаем отчет
-        $trial = 1; // первая попытка
-        while ($trial <= static::TRIALS) {
-            $response = self::exec('GetForecast', $forecast_id);
-            if (isset($response->data)) {
-                break;
+            if (isset($data->error_code)) {
+                return join('<br>', explode('. ', $data->error_detail));
+            } else {
+                $forecast_id = $data->data;
             }
-            $trial++;
-            sleep(static::SLEEP);
+
+            # дожидаемся создания отчета и получаем отчет
+            $trial = 1; // первая попытка
+            while ($trial <= static::TRIALS) {
+                $response = self::exec('GetForecast', $forecast_id);
+                if (isset($response->data)) {
+                    break;
+                }
+                $trial++;
+                sleep(static::SLEEP);
+            }
+
+            foreach($response->data->Phrases as $phrase) {
+                $return[] = $phrase->Shows;
+            }
         }
 
-        $return = [];
-        foreach($response->data->Phrases as $phrase) {
-            $return[] = $phrase->Shows;
-        }
         return $return;
     }
 }

@@ -1,37 +1,28 @@
+// Цвета
+$gray 				: #999999;
+$gray-opacity       : rgba(0, 0, 0, 0.3) !important;
+$gray-high-opacity  : rgba(0, 0, 0, 0.1);
+$blue				: #337AB7;
+$main-color         : #7c4121;
+$green-main			: $main-color; // new bootstrap
+$green-light        : lighten($green-main, 10);
+$green-dark         : darken($green-main, 10);
+$hover_blue			: #23527c;
 
-// Body
-$body-bg: #f5f8fa;
+$promo				: #3A6487;
 
-// Borders
-$laravel-border-color: darken($body-bg, 10%);
-$list-group-border: $laravel-border-color;
-$navbar-default-border: $laravel-border-color;
-$panel-default-border: $laravel-border-color;
-$panel-inner-border: $laravel-border-color;
+$red				: #ff0039;
+$pink				: #ffcccc;
+$orange				: #fbaa33;
+$metro_orange		: rgb(251, 170, 51);
 
-// Brands
-$brand-primary: #3097D1;
-$brand-info: #8eb4cb;
-$brand-success: #2ab27b;
-$brand-warning: #cbb956;
-$brand-danger:  #bf5329;
 
-// Typography
-$font-family-sans-serif: "Raleway", sans-serif;
-$font-size-base: 14px;
-$line-height-base: 1.6;
-$text-color: #636b6f;
+$green				: #5cb85c;
+$metro_green		: #029A55;
+$bright_green		: #5cb85c;
 
-// Navbar
-$navbar-default-bg: #fff;
+$dark_red			: #A94442;
 
-// Buttons
-$btn-default-color: $text-color;
-
-// Inputs
-$input-border: lighten($text-color, 40%);
-$input-border-focus: lighten($brand-primary, 25%);
-$input-color-placeholder: lighten($text-color, 30%);
-
-// Panels
-$panel-default-heading-bg: #fff;
+$hr_gray 			: #eee;
+$half_black			: rgba(0, 0, 0, .5);
+$quater_black 		: rgba(0, 0, 0, .25);

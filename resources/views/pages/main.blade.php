@@ -45,31 +45,18 @@
     </div>
 </div>
 
-<div class="modal big-modal" id='replace-phrases-modal' tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-body">
-                <textarea class='form-control' id='replace-phrases' placeholder="список слов или фраз..." ng-model='textarea'></textarea>
-                <center>
-                    <div class="btn btn-primary" ng-click="replacePhrases()">заменить</div>
-                </center>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="modal transform-modal" id='transform-modal' tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">@{{ selected_row ? 'Добавьте фразы' : 'Выберите фразу' }}</h4>
+                <h4 class="modal-title">@{{ TransformService.selected_row ? 'Добавьте слова' : 'Выберите слово' }}</h4>
             </div>
             <div class="modal-body scrollable-body">
                 <table class='table table-hover table-small'>
-                    <tr ng-click="selectRow($index)" ng-repeat='phrase in tmp_phrases' class='pointer'
+                    <tr ng-click="TransformService.selectRow($index)" ng-repeat='phrase in TransformService.phrases' class='pointer'
                         ng-class="{
-                            'row-disabled': selected_row == $index,
-                            'success': selected_rows && selected_rows.indexOf($index) != -1
+                            'row-disabled': TransformService.selected_row == $index,
+                            'success': TransformService.selected_rows && TransformService.selected_rows.indexOf($index) != -1
                         }">
                         <td>
                             @{{ phrase.phrase }}
@@ -78,9 +65,11 @@
                 </table>
             </div>
             <div class="modal-footer center">
-                {{-- <div class="btn btn-primary" ng-disabled="!selected_row && !selected_rows && transform_items === undefined" ng-click="cancel()">отмена</div> --}}
-                <div class="btn btn-primary" ng-disabled="selected_row === undefined || selected_rows === undefined || !selected_rows.length" ng-click="addData()">добавить</div>
-                <div class="btn btn-primary" ng-disabled="transform_items === undefined" ng-click="transformGo()">трансформировать</div>
+                {{-- <div class="btn btn-primary" ng-disabled="!TransformService.selected_row && !TransformService.selected_rows && TransformService.transform_items === undefined" ng-click="cancel()">отмена</div> --}}
+                <button class="btn btn-primary" ng-disabled="TransformService.selected_row === undefined || TransformService.selected_rows === undefined || !TransformService.selected_rows.length" ng-click="TransformService.add()">добавить</button>
+                <button class="btn btn-primary" ng-disabled="TransformService.transform_items === undefined" ng-click="TransformService.transform()">
+                    трансформировать <span ng-if='TransformService.transform_items !== undefined'>(@{{ TransformService.itemsCount() }})</span>
+                </button>
             </div>
         </div>
     </div>

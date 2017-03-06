@@ -9,14 +9,9 @@
     });
     if (ENV === 'local') {
       $rootScope.list = List.get({
-        id: 16
+        id: 12
       });
     }
-    $rootScope.removeEmptyWords = function() {
-      return $rootScope.list.phrases = _.filter($rootScope.list.phrases, function(phrase) {
-        return phrase.phrase.trim() !== '';
-      });
-    };
     $rootScope.loading = false;
     $rootScope.$watch('loading', function(newVal, oldVal) {
       if (newVal === true) {
@@ -121,7 +116,8 @@
 (function() {
   var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $http) {
+  angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $http, TransformService) {
+    bindArguments($scope, arguments);
     $scope.$on('$viewContentLoaded', function() {
       return $("#modal-value").off('keydown').keydown(function(e) {
         var $this, end, start, value;
@@ -193,7 +189,7 @@
           }
         });
       });
-      $rootScope.removeEmptyWords();
+      $scope.removeEmptyWords();
       return closeModal();
     };
     $scope.deletePhrasesWithWords = function() {
@@ -251,8 +247,11 @@
         return list_item.frequency = void 0;
       });
     };
-    $scope.removeStartingWith = function(sign) {
-      $rootScope.list.phrases.forEach(function(list_item, index) {
+    $scope.removeStartingWith = function(sign, phrases) {
+      if (phrases == null) {
+        phrases = null;
+      }
+      (phrases || $rootScope.list.phrases).forEach(function(list_item, index) {
         var words;
         words = [];
         list_item.phrase.split(' ').forEach(function(word) {
@@ -262,7 +261,21 @@
         });
         return list_item.phrase = words.join(' ').trim();
       });
-      return $rootScope.removeEmptyWords();
+      return $scope.removeEmptyWords(phrases);
+    };
+    $scope.removeEmptyWords = function(phrases) {
+      var new_phrases;
+      if (phrases == null) {
+        phrases = null;
+      }
+      new_phrases = _.filter(phrases || $rootScope.list.phrases, function(phrase) {
+        return phrase.phrase.trim() !== '';
+      });
+      if (phrases) {
+        return new_phrases;
+      } else {
+        return $rootScope.list.phrases = new_phrases;
+      }
     };
     $scope.configureMinus = function() {
       $scope.removeStartingWith('-');
@@ -334,54 +347,12 @@
       });
     };
     $scope.transform = function() {
-      $scope.tmp_phrases = angular.copy($rootScope.list.phrases);
-      $scope.tmp_phrases = $scope.splitPhrasesToWords($scope.tmp_phrases);
-      $scope.tmp_phrases = $scope.uniq($scope.tmp_phrases);
-      $scope.tmp_phrases = _.sortBy($scope.tmp_phrases, 'phrase');
+      TransformService.phrases = angular.copy($rootScope.list.phrases);
+      TransformService.phrases = $scope.splitPhrasesToWords(TransformService.phrases);
+      TransformService.phrases = $scope.uniq(TransformService.phrases);
+      TransformService.phrases = _.sortBy(TransformService.phrases, 'phrase');
+      TransformService.phrases = $scope.removeStartingWith('-', TransformService.phrases);
       return showModal('transform');
-    };
-    $scope.selectRow = function(index) {
-      if ($scope.selected_row === void 0) {
-        return $scope.selected_row = index;
-      } else {
-        if ($scope.selected_row === index) {
-          return $scope.selected_row = void 0;
-        } else {
-          if ($scope.selected_rows === void 0) {
-            $scope.selected_rows = [];
-          }
-          if ($scope.selected_rows.indexOf(index) === -1) {
-            return $scope.selected_rows.push(index);
-          } else {
-            return $scope.selected_rows.splice($scope.selected_rows.indexOf(index), 1);
-          }
-        }
-      }
-    };
-    $scope.addData = function() {
-      if ($scope.transform_items === void 0) {
-        $scope.transform_items = {};
-      }
-      $scope.transform_items[$scope.selected_row] = $scope.selected_rows;
-      $scope.selected_row = void 0;
-      $scope.selected_rows = void 0;
-      return console.log($scope.transform_items);
-    };
-    $scope.transformGo = function() {
-      $rootScope.list.phrases.forEach(function(phrase) {
-        return $.each($scope.transform_items, function(main_index, item_indexes) {
-          return item_indexes.forEach(function(item_index) {
-            return phrase.phrase = replaceWord(phrase.phrase, scope.tmp_phrases[item_index].phrase, $scope.tmp_phrases[main_index].phrase);
-          });
-        });
-      });
-      $scope.cancel();
-      return closeModal('transform');
-    };
-    $scope.cancel = function() {
-      $scope.selected_row = void 0;
-      $scope.selected_rows = void 0;
-      return $scope.transform_items = void 0;
     };
     angular.element(document).ready(function() {
       return console.log($scope.title);
@@ -399,27 +370,6 @@
       return showModal('main');
     };
   });
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 
@@ -640,6 +590,27 @@
 
 (function() {
 
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 
@@ -995,6 +966,61 @@
     };
     splitBySpace = function(string) {
       return _.without(string.split(' '), '');
+    };
+    return this;
+  });
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').service('TransformService', function($rootScope) {
+    this.selectRow = function(index) {
+      if (this.selected_row === void 0) {
+        return this.selected_row = index;
+      } else {
+        if (this.selected_row === index) {
+          return this.selected_row = void 0;
+        } else {
+          if (this.selected_rows === void 0) {
+            this.selected_rows = [];
+          }
+          if (this.selected_rows.indexOf(index) === -1) {
+            return this.selected_rows.push(index);
+          } else {
+            return this.selected_rows.splice(this.selected_rows.indexOf(index), 1);
+          }
+        }
+      }
+    };
+    this.add = function() {
+      if (this.transform_items === void 0) {
+        this.transform_items = {};
+      }
+      this.transform_items[this.selected_row] = this.selected_rows;
+      this.selected_row = void 0;
+      this.selected_rows = void 0;
+      return console.log(this.transform_items);
+    };
+    this.transform = function() {
+      $rootScope.list.phrases.forEach((function(_this) {
+        return function(phrase) {
+          return $.each(_this.transform_items, function(main_index, item_indexes) {
+            return item_indexes.forEach(function(item_index) {
+              return phrase.phrase = replaceWord(phrase.phrase, _this.phrases[item_index].phrase, _this.phrases[main_index].phrase);
+            });
+          });
+        };
+      })(this));
+      this.cancel();
+      return closeModal('transform');
+    };
+    this.cancel = function() {
+      this.selected_row = void 0;
+      this.selected_rows = void 0;
+      return this.transform_items = void 0;
+    };
+    this.itemsCount = function() {
+      return Object.keys(this.transform_items).length;
     };
     return this;
   });

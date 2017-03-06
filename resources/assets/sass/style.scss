@@ -1,55 +1,3 @@
-// Цвета
-$gray 				: #999999;
-$gray-opacity       : rgba(0, 0, 0, 0.3) !important;
-$gray-high-opacity  : rgba(0, 0, 0, 0.1);
-$blue				: #337AB7;
-$green-main			: #8a4a4a; // new bootstrap
-$green-light        : lighten($green-main, 10);
-$green-dark         : darken($green-main, 10);
-$hover_blue			: #23527c;
-
-$promo				: #3A6487;
-
-$red				: #ff0039;
-$pink				: #ffcccc;
-$orange				: #fbaa33;
-$metro_orange		: rgb(251, 170, 51);
-
-
-$green				: #5cb85c;
-$metro_green		: #029A55;
-$bright_green		: #5cb85c;
-
-$dark_red			: #A94442;
-
-$hr_gray 			: #eee;
-$half_black			: rgba(0, 0, 0, .5);
-$quater_black 		: rgba(0, 0, 0, .25);
-
-
-.place_mark {
-    display: inline-block;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 6px;
-    padding: 4px;
-    margin-right: 1px;
-}
-.place_mark.line1 {background-color: #ca5948; border-color: #ca5948;}
-.place_mark.line2 {background-color: #528c5d; border-color: #528c5d;}
-.place_mark.line3 {background-color: #5a68a0; border-color: #5a68a0;}
-.place_mark.line4 {background-color: #4babd8; border-color: #4babd8;}
-.place_mark.line5 {background-color: #9b6144; border-color: #9b6144;}
-.place_mark.line6 {background-color: #d78a4b; border-color: #d78a4b;}
-.place_mark.line7 {background-color: #a25980; border-color: #a25980;}
-.place_mark.line8 {background-color: #ebe457; border-color: #ebe457;}
-.place_mark.line9 {background-color: #838382; border-color: #838382;}
-.place_mark.line10 {background-color: #79b872; border-color: #79b872;}
-.place_mark.line11 {background-color: #4c7ea9; border-color: #4c7ea9;}
-.place_mark.line12 {background-color: #b0cccb; border-color: #b0cccb;}
-
-
-
 .gmnoprint:not(.gm-bundled-control) {
     display: none;
 }
@@ -4038,23 +3986,16 @@ label {
 }
 
 .menu-col {
-    width: 305px !important;
+    width: 275px !important;
 }
 .content-col {
     padding: 0;
-    width: calc(100% - 340px) !important;
+    width: calc(100% - 310px) !important;
 }
 
 .row-disabled {
     cursor: default !important;
     background: $hr_gray !important;
-}
-
-.table-small {
-    font-size: 12px;
-    td {
-        padding: 2px 4px !important;
-    }
 }
 
 .scrollable-body {
@@ -4065,4 +4006,8 @@ label {
 
 .modal-open {
     overflow: hidden !important;
+}
+
+.btn[disabled] {
+    cursor: default !important;
 }
