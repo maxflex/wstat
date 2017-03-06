@@ -67,3 +67,16 @@
         </div>
     </div>
 </div>
+
+<div class="modal big-modal" id='replace-phrases-modal' tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <textarea class='form-control' id='replace-phrases' placeholder="список слов или фраз..." ng-model='textarea'></textarea>
+                <center>
+                    <div class="btn btn-primary" ng-click="replacePhrases()">замена</div>
+                </center>
+            </div>
+        </div>
+    </div>
+</div>

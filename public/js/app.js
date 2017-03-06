@@ -110,7 +110,7 @@
 (function() {
   angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope) {
     $scope.$on('$viewContentLoaded', function() {
-      return $("#addwords").off('keydown').keydown(function(e) {
+      return $("#addwords,#replace-phrases").off('keydown').keydown(function(e) {
         var $this, end, start, value;
         if (e.keyCode === 9) {
           start = this.selectionStart;
@@ -123,6 +123,19 @@
         }
       });
     });
+    $scope.replacePhrases = function() {
+      $scope.textarea.split('\n').forEach(function(line) {
+        var key, ref, replacement;
+        if (line.trim().length) {
+          ref = line.split('\t'), key = ref[0], replacement = ref[1];
+          return $scope.list.phrases.forEach(function(phrase) {
+            return phrase.phrase = phrase.phrase.replace(new RegExp('^' + key + '$', 'g'), replacement).replace(new RegExp(' ' + key + '$', 'g'), ' ' + replacement).replace(new RegExp(' ' + key + ' ', 'g'), ' ' + replacement + ' ').replace(new RegExp('^' + key + ' ', 'g'), replacement + ' ').replace('  ', ' ');
+          });
+        }
+      });
+      $scope.textarea = null;
+      return closeModal('replace-phrases');
+    };
     $scope.addWords = function() {
       var error, new_phrases;
       $("#addwords").removeClass('has-error');
@@ -244,27 +257,6 @@
 
 (function() {
 
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 
@@ -485,6 +477,27 @@
 
 (function() {
 
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 
