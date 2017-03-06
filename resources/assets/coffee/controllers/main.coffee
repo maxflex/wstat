@@ -34,7 +34,7 @@ angular
                 # skip empty lines
                 if line.trim().length
                     list = line.split('\t')
-                    list_item = {phrase: list[0].trim()}
+                    list_item = {phrase: list[0].trim(), original: list[0].trim()}
                     # if has tabs
                     if list.length > 1
                         frequency = list[1]
@@ -47,10 +47,7 @@ angular
                         else
                             list_item.frequency = parseInt(frequency)
 
-                        if list[2]
-                            list_item.original = list[2].trim()
-                        else
-                            list_item.original = list[0].trim()
+                        list_item.original = list[2].trim() if list[2]
 
                     new_phrases.push(list_item)
             return if error

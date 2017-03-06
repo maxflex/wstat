@@ -154,7 +154,8 @@
         if (line.trim().length) {
           list = line.split('\t');
           list_item = {
-            phrase: list[0].trim()
+            phrase: list[0].trim(),
+            original: list[0].trim()
           };
           if (list.length > 1) {
             frequency = list[1];
@@ -168,8 +169,6 @@
             }
             if (list[2]) {
               list_item.original = list[2].trim();
-            } else {
-              list_item.original = list[0].trim();
             }
           }
           return new_phrases.push(list_item);
@@ -317,6 +316,27 @@
       return console.log($scope.title);
     });
   });
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 
@@ -537,27 +557,6 @@
 
 (function() {
 
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 
