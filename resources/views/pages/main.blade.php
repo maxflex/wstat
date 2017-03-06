@@ -83,3 +83,31 @@
         </div>
     </div>
 </div>
+
+<div class="modal transform-modal" id='transform-modal' tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@{{ selected_row ? 'Добавьте фразы' : 'Выберите фразу' }}</h4>
+            </div>
+            <div class="modal-body">
+                <table class='table table-hover'>
+                    <tr ng-click="selectRow($index)" ng-repeat='phrase in tmp_phrases' class='pointer'
+                        ng-class="{
+                            'row-disabled': selected_row == $index,
+                            'success': selected_rows && selected_rows.indexOf($index) != -1
+                        }">
+                        <td>
+                            @{{ phrase.phrase }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer center">
+                <div class="btn btn-primary" ng-disabled="!selected_row && !selected_rows && transform_items === undefined" ng-click="cancel()">отмена</div>
+                <div class="btn btn-primary" ng-disabled="!selected_row || !selected_rows || !selected_rows.length" ng-click="addData()">добавить</div>
+                <div class="btn btn-primary" ng-disabled="transform_items === undefined" ng-click="transformGo()">трансформировать</div>
+            </div>
+        </div>
+    </div>
+</div>

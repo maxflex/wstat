@@ -74,20 +74,27 @@ angular
             closeModal('phrases-with-words')
 
         # разбить фразы на слова
-        $scope.splitPhrasesToWords = ->
+        $scope.splitPhrasesToWords = (phrases = null) ->
             new_phrases = []
-            $rootScope.list.phrases.forEach (list_item) ->
+            (phrases or $rootScope.list.phrases).forEach (list_item) ->
                 list_item.phrase.split(' ').forEach (word) ->
                     word = word.trim()
                     if word.length
                         item = _.extend _.clone(list_item), {phrase: word}
                         delete item.id
                         new_phrases.push item
-            $rootScope.list.phrases = new_phrases
+            if phrases
+                return new_phrases
+            else
+                $rootScope.list.phrases = new_phrases
 
         # удалить дубликаты
-        $scope.uniq = ->
-            $rootScope.list.phrases = _.uniq($rootScope.list.phrases, 'phrase')
+        $scope.uniq = (phrases = null) ->
+            new_phrases = _.uniq((phrases or $rootScope.list.phrases), 'phrase')
+            if phrases
+                return new_phrases
+            else
+                $rootScope.list.phrases = new_phrases
 
         $scope.lowercase = ->
             $rootScope.list.phrases.forEach (list_item) ->
@@ -152,6 +159,45 @@ angular
             , (response) ->
                 $rootScope.loading = false
                 notifyError(response.data)
+
+        $scope.transform = ->
+            $scope.tmp_phrases = angular.copy($rootScope.list.phrases)
+            $scope.tmp_phrases = $scope.splitPhrasesToWords($scope.tmp_phrases)
+            $scope.tmp_phrases = $scope.uniq($scope.tmp_phrases)
+            $scope.tmp_phrases = _.sortBy($scope.tmp_phrases, 'phrase')
+            showModal('transform')
+
+        $scope.selectRow = (index) ->
+            if $scope.selected_row is undefined
+                $scope.selected_row = index
+            else
+                $scope.selected_rows = [] if $scope.selected_rows is undefined
+                if $scope.selected_rows.indexOf(index) is -1
+                    $scope.selected_rows.push(index)
+                else
+                    $scope.selected_rows.splice($scope.selected_rows.indexOf(index), 1)
+
+        $scope.addData = ->
+            $scope.transform_items = {} if $scope.transform_items is undefined
+            $scope.transform_items[$scope.selected_row] = $scope.selected_rows
+            $scope.selected_row = undefined
+            $scope.selected_rows = undefined
+            console.log($scope.transform_items)
+
+        $scope.transformGo = ->
+            $rootScope.list.phrases.forEach (phrase) ->
+                $.each $scope.transform_items, (main_index, item_indexes) ->
+                    item_indexes.forEach (item_index) ->
+                        phrase.phrase = phrase.phrase.replace($scope.tmp_phrases[item_index].phrase, $scope.tmp_phrases[main_index].phrase)
+                        console.log("replacing #{$scope.tmp_phrases[item_index].phrase} with #{$scope.tmp_phrases[main_index].phrase} in '#{phrase.phrase}'")
+            $scope.cancel()
+            closeModal('transform')
+
+        $scope.cancel = ->
+            $scope.selected_row = undefined
+            $scope.selected_rows = undefined
+            $scope.transform_items = undefined
+
 
         angular.element(document).ready ->
             console.log $scope.title

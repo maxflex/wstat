@@ -4029,10 +4029,23 @@ label {
     }
 }
 
+.transform-modal {
+    .modal-dialog {
+        margin: 5% auto;
+        width: 70%;
+        height: 80%;
+    }
+}
+
 .menu-col {
     width: 305px !important;
 }
 .content-col {
     padding: 0;
     width: calc(100% - 340px) !important;
+}
+
+.row-disabled {
+    cursor: default !important;
+    background: $hr_gray !important;
 }

@@ -207,10 +207,13 @@
       $scope.textarea = null;
       return closeModal('phrases-with-words');
     };
-    $scope.splitPhrasesToWords = function() {
+    $scope.splitPhrasesToWords = function(phrases) {
       var new_phrases;
+      if (phrases == null) {
+        phrases = null;
+      }
       new_phrases = [];
-      $rootScope.list.phrases.forEach(function(list_item) {
+      (phrases || $rootScope.list.phrases).forEach(function(list_item) {
         return list_item.phrase.split(' ').forEach(function(word) {
           var item;
           word = word.trim();
@@ -223,10 +226,23 @@
           }
         });
       });
-      return $rootScope.list.phrases = new_phrases;
+      if (phrases) {
+        return new_phrases;
+      } else {
+        return $rootScope.list.phrases = new_phrases;
+      }
     };
-    $scope.uniq = function() {
-      return $rootScope.list.phrases = _.uniq($rootScope.list.phrases, 'phrase');
+    $scope.uniq = function(phrases) {
+      var new_phrases;
+      if (phrases == null) {
+        phrases = null;
+      }
+      new_phrases = _.uniq(phrases || $rootScope.list.phrases, 'phrase');
+      if (phrases) {
+        return new_phrases;
+      } else {
+        return $rootScope.list.phrases = new_phrases;
+      }
     };
     $scope.lowercase = function() {
       return $rootScope.list.phrases.forEach(function(list_item) {
@@ -319,6 +335,53 @@
         $rootScope.loading = false;
         return notifyError(response.data);
       });
+    };
+    $scope.transform = function() {
+      $scope.tmp_phrases = angular.copy($rootScope.list.phrases);
+      $scope.tmp_phrases = $scope.splitPhrasesToWords($scope.tmp_phrases);
+      $scope.tmp_phrases = $scope.uniq($scope.tmp_phrases);
+      $scope.tmp_phrases = _.sortBy($scope.tmp_phrases, 'phrase');
+      return showModal('transform');
+    };
+    $scope.selectRow = function(index) {
+      if ($scope.selected_row === void 0) {
+        return $scope.selected_row = index;
+      } else {
+        if ($scope.selected_rows === void 0) {
+          $scope.selected_rows = [];
+        }
+        if ($scope.selected_rows.indexOf(index) === -1) {
+          return $scope.selected_rows.push(index);
+        } else {
+          return $scope.selected_rows.splice($scope.selected_rows.indexOf(index), 1);
+        }
+      }
+    };
+    $scope.addData = function() {
+      if ($scope.transform_items === void 0) {
+        $scope.transform_items = {};
+      }
+      $scope.transform_items[$scope.selected_row] = $scope.selected_rows;
+      $scope.selected_row = void 0;
+      $scope.selected_rows = void 0;
+      return console.log($scope.transform_items);
+    };
+    $scope.transformGo = function() {
+      $rootScope.list.phrases.forEach(function(phrase) {
+        return $.each($scope.transform_items, function(main_index, item_indexes) {
+          return item_indexes.forEach(function(item_index) {
+            phrase.phrase = phrase.phrase.replace($scope.tmp_phrases[item_index].phrase, $scope.tmp_phrases[main_index].phrase);
+            return console.log("replacing " + $scope.tmp_phrases[item_index].phrase + " with " + $scope.tmp_phrases[main_index].phrase + " in '" + phrase.phrase + "'");
+          });
+        });
+      });
+      $scope.cancel();
+      return closeModal('transform');
+    };
+    $scope.cancel = function() {
+      $scope.selected_row = void 0;
+      $scope.selected_rows = void 0;
+      return $scope.transform_items = void 0;
     };
     return angular.element(document).ready(function() {
       return console.log($scope.title);
