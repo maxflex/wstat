@@ -188,8 +188,7 @@ angular
             $rootScope.list.phrases.forEach (phrase) ->
                 $.each $scope.transform_items, (main_index, item_indexes) ->
                     item_indexes.forEach (item_index) ->
-                        phrase.phrase = phrase.phrase.replace($scope.tmp_phrases[item_index].phrase, $scope.tmp_phrases[main_index].phrase)
-                        console.log("replacing #{$scope.tmp_phrases[item_index].phrase} with #{$scope.tmp_phrases[main_index].phrase} in '#{phrase.phrase}'")
+                        phrase.phrase = phrase.phrase.replace((new RegExp '^' + $scope.tmp_phrases[item_index].phrase + '$', 'g'), $scope.tmp_phrases[main_index].phrase)
             $scope.cancel()
             closeModal('transform')
 
