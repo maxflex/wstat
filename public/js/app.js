@@ -123,7 +123,7 @@
 
   angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $http) {
     $scope.$on('$viewContentLoaded', function() {
-      return $("#addwords, #replace-phrases").off('keydown').keydown(function(e) {
+      return $("#modal-value").off('keydown').keydown(function(e) {
         var $this, end, start, value;
         if (e.keyCode === 9) {
           start = this.selectionStart;
@@ -137,24 +137,24 @@
       });
     });
     $scope.replacePhrases = function() {
-      $scope.textarea.split('\n').forEach(function(line) {
+      $scope.modal.value.split('\n').forEach(function(line) {
         var key, ref, replacement;
         if (line.trim().length) {
           ref = line.split('\t'), key = ref[0], replacement = ref[1];
+          key = key.trim();
           return $scope.list.phrases.forEach(function(phrase) {
-            return phrase.phrase = phrase.phrase.replace(new RegExp('^' + key + '$', 'g'), replacement).replace(new RegExp(' ' + key + '$', 'g'), ' ' + replacement).replace(new RegExp(' ' + key + ' ', 'g'), ' ' + replacement + ' ').replace(new RegExp('^' + key + ' ', 'g'), replacement + ' ').replace('  ', ' ');
+            return phrase.phrase = replaceWord(phrase.phrase, key, replacement);
           });
         }
       });
-      $scope.textarea = null;
-      return closeModal('replace-phrases');
+      return closeModal();
     };
     $scope.addWords = function() {
       var error, new_phrases;
-      $("#addwords").removeClass('has-error');
+      $("#main-modal").removeClass('has-error');
       new_phrases = [];
       error = false;
-      $scope.textarea.split('\n').forEach(function(line) {
+      $scope.modal.value.split('\n').forEach(function(line) {
         var frequency, list, list_item;
         if (line.trim().length) {
           list = line.split('\t');
@@ -165,7 +165,7 @@
           if (list.length > 1) {
             frequency = list[1];
             if (!$.isNumeric(frequency)) {
-              $("#addwords").addClass('has-error');
+              $("#main-modal").addClass('has-error');
               $scope.list = [];
               error = true;
               return;
@@ -182,12 +182,11 @@
       if (error) {
         return;
       }
-      $scope.textarea = null;
       $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases);
-      return closeModal('addwords');
+      return closeModal();
     };
     $scope.deleteWordsInsidePhrase = function() {
-      $scope.textarea.split('\n').forEach(function(textarea_phrase) {
+      $scope.modal.value.split('\n').forEach(function(textarea_phrase) {
         return $rootScope.list.phrases.forEach(function(phrase) {
           if (phrase.phrase.indexOf(textarea_phrase) !== -1) {
             return phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(textarea_phrase, ''));
@@ -195,17 +194,15 @@
         });
       });
       $rootScope.removeEmptyWords();
-      $scope.textarea = null;
-      return closeModal('words-inside-phrase');
+      return closeModal();
     };
     $scope.deletePhrasesWithWords = function() {
-      $scope.textarea.split('\n').forEach(function(textarea_phrase) {
+      $scope.modal.value.split('\n').forEach(function(textarea_phrase) {
         return $rootScope.list.phrases = _.filter($rootScope.list.phrases, function(phrase) {
           return phrase.phrase.indexOf(textarea_phrase) === -1;
         });
       });
-      $scope.textarea = null;
-      return closeModal('phrases-with-words');
+      return closeModal();
     };
     $scope.splitPhrasesToWords = function(phrases) {
       var new_phrases;
@@ -374,7 +371,7 @@
       $rootScope.list.phrases.forEach(function(phrase) {
         return $.each($scope.transform_items, function(main_index, item_indexes) {
           return item_indexes.forEach(function(item_index) {
-            return phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(wordBoundary(scope.tmp_phrases[item_index].phrase), ' ' + $scope.tmp_phrases[main_index].phrase + ' '));
+            return phrase.phrase = replaceWord(phrase.phrase, scope.tmp_phrases[item_index].phrase, $scope.tmp_phrases[main_index].phrase);
           });
         });
       });
@@ -386,10 +383,43 @@
       $scope.selected_rows = void 0;
       return $scope.transform_items = void 0;
     };
-    return angular.element(document).ready(function() {
+    angular.element(document).ready(function() {
       return console.log($scope.title);
     });
+    return $scope.runModal = function(action, title, placeholder) {
+      if (placeholder == null) {
+        placeholder = 'список слов или фраз';
+      }
+      _.extend($scope.modal = {}, {
+        value: null,
+        action: action,
+        title: title,
+        placeholder: placeholder
+      });
+      return showModal('main');
+    };
   });
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 
@@ -648,27 +678,6 @@
       }
     };
   };
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 

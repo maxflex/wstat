@@ -336,6 +336,9 @@ function showModal(id) {
     $('#' + id + '-modal').modal('show')
 }
 function closeModal(id) {
+    if (!id) {
+        id = 'main'
+    }
     $('#' + id + '-modal').modal('hide')
 }
 
@@ -343,9 +346,9 @@ function closeModal(id) {
  * Удалить двойные пробелы и пробелы в начале/конце
  */
 function removeDoubleSpaces(str) {
-    return str.replace(/\s+/g,' ').trim()
+    return str.replace('  ', ' ').trim()
 }
 
-function wordBoundary(word) {
-    return new RegExp('(?:^|\\s)' + word + '(?:$|\\s)', 'g')
+function replaceWord(str, word, replacement) {
+    return removeDoubleSpaces(str.replace(new RegExp('(?:^|\\s)' + word + '(?:$|\\s)', 'g'), ' ' + replacement + ' '))
 }
