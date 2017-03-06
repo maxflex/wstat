@@ -82,12 +82,9 @@ class ListsController extends Controller
         $list = Lists::find($id);
         $list->update($request->input());
 
+        $list->phrases()->delete();
         foreach($request->phrases as $phrase) {
-            if (isset($phrase['id'])) {
-                Phrase::find($id)->update($phrase);
-            } else {
-                $list->phrases()->create($phrase);
-            }
+            $list->phrases()->create($phrase);
         }
     }
 

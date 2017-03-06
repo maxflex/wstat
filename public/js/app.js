@@ -7,6 +7,9 @@
       title: null,
       phrases: []
     });
+    $rootScope.list = List.get({
+      id: 14
+    });
     $rootScope.removeEmptyWords = function() {
       return $rootScope.list.phrases = _.filter($rootScope.list.phrases, function(phrase) {
         return phrase.phrase.trim() !== '';
@@ -310,33 +313,15 @@
           return phrase.frequency = response.data[index];
         });
         return $rootScope.loading = false;
+      }, function(response) {
+        $rootScope.loading = false;
+        return notifyError(response.data);
       });
     };
     return angular.element(document).ready(function() {
       return console.log($scope.title);
     });
   });
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 
@@ -595,6 +580,27 @@
       }
     };
   };
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 

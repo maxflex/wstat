@@ -46,10 +46,16 @@ class YandexDirect
         }
 
         # создаем отчет
-        $forecast_id = self::exec('CreateNewForecast', [
+        $data = self::exec('CreateNewForecast', [
             'GeoID' => [self::MOSCOW_GEO_ID],
             'Phrases' => $phrases
-        ])->data;
+        ]);
+
+        if (isset($data->error_code)) {
+            return $data->error_detail;
+        } else {
+            $forecast_id = $data->data;
+        }
 
         # дожидаемся создания отчета и получаем отчет
         $trial = 1; // первая попытка

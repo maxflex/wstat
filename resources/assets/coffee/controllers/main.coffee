@@ -149,6 +149,9 @@ angular
                     console.log(response.data[index])
                     phrase.frequency = response.data[index]
                 $rootScope.loading = false
+            , (response) ->
+                $rootScope.loading = false
+                notifyError(response.data)
 
         angular.element(document).ready ->
             console.log $scope.title
