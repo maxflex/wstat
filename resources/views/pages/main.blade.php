@@ -74,7 +74,7 @@
             <div class="modal-body">
                 <textarea class='form-control' id='replace-phrases' placeholder="список слов или фраз..." ng-model='textarea'></textarea>
                 <center>
-                    <div class="btn btn-primary" ng-click="replacePhrases()">замена</div>
+                    <div class="btn btn-primary" ng-click="replacePhrases()">заменить</div>
                 </center>
             </div>
         </div>
