@@ -55,11 +55,6 @@
 }).call(this);
 
 (function() {
-
-
-}).call(this);
-
-(function() {
   angular.module('Wstat').controller('ListsCtrl', function($scope, $rootScope, $location, $timeout, List) {
     if ($scope.lists === void 0) {
       $rootScope.loading = true;
@@ -117,7 +112,7 @@
   var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $http, TransformService) {
-    var buildPhraseValue, getFrequencies, parsePhrases, separateMinuses;
+    var getFrequencies, parsePhrases, separateMinuses;
     bindArguments($scope, arguments);
     $scope.$on('$viewContentLoaded', function() {
       return $("#modal-value").off('keydown').keydown(function(e) {
@@ -141,18 +136,16 @@
       $scope.replace_phrase = void 0;
       return closeModal('replace');
     };
-    $scope.endEditing = function() {
-      var edited_phrase, phrase_index;
-      edited_phrase = parsePhrases();
-      if (edited_phrase.length) {
-        phrase_index = _.findIndex($scope.list.phrases, $scope.editing_phrase);
-        $scope.list.phrases[phrase_index] = edited_phrase[0];
-      }
-      return closeModal();
+    $scope.editPhrase = function() {
+      var phrase_index;
+      phrase_index = _.findIndex($scope.list.phrases, $scope.original_phrase);
+      _.extend($scope.list.phrases[phrase_index] = $scope.editing_phrase);
+      return closeModal('edit-phrase');
     };
-    $scope.editPhrase = function(phrase) {
-      $scope.editing_phrase = phrase;
-      return $scope.runModal($scope.endEditing, 'cохранить', 'изменение записи', buildPhraseValue(phrase));
+    $scope.startEditing = function(phrase) {
+      $scope.original_phrase = _.clone(phrase);
+      $scope.editing_phrase = _.clone(phrase);
+      return showModal('edit-phrase');
     };
     $scope.addWords = function() {
       var new_phrases;
@@ -421,7 +414,7 @@
     $scope.filterItems = function(value) {
       return value.phrase.match($scope.phrase_search);
     };
-    separateMinuses = function(phrase) {
+    return separateMinuses = function(phrase) {
       var minus, words;
       minus = [];
       words = [];
@@ -434,40 +427,12 @@
       });
       return [words.join(' '), minus.join(' ')];
     };
-    return buildPhraseValue = function(phrase) {
-      var result;
-      result = '';
-      result += phrase.phrase;
-      if (phrase.minuses.length) {
-        result += ' -' + phrase.minuses.join(' -');
-      }
-      if (phrase.frequency) {
-        result += '\t' + phrase.frequency;
-      }
-      return result;
-    };
   });
 
 }).call(this);
 
 (function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
+
 
 }).call(this);
 
@@ -693,6 +658,27 @@
 }).call(this);
 
 (function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
+
+}).call(this);
+
+(function() {
   var apiPath, countable, updatable;
 
   angular.module('Wstat').factory('Phrase', function($resource) {
@@ -744,7 +730,7 @@
       this.editor.getSession().setUseWrapMode(true);
       this.editor.setOptions({
         minLines: minLines,
-        maxLines: Infinity
+        maxLines: 2e308
       });
       return this.editor.commands.addCommand({
         name: 'save',

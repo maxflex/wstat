@@ -26,7 +26,7 @@
             @{{ phrase.frequency }}
         </td>
         <td style='width: 15%'>
-            <span class='pull-right link-like link-danger' ng-click='editPhrase(phrase)'>редактировать</span>
+            <span class='pull-right link-like link-danger' ng-click='startEditing(phrase)'>редактировать</span>
         </td>
         <td style='width: 15%'>
             <span class='pull-right link-like link-danger' ng-click='removePhrase(phrase)'>удалить</span>
@@ -44,6 +44,30 @@
                 <center>
                     <div class="btn btn-primary" ng-click="(modal.action)()">@{{modal.title}}</div>
                 </center>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id='edit-phrase-modal' tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Редактирование фразы</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input ng-model='editing_phrase.phrase' class='form-control mb' placeholder="фраза">
+                </div>
+                <div class="form-group">
+                    <input ng-model='editing_phrase.frequency' class='form-control mb' placeholder="частота">
+                </div>
+                <div class="form-group">
+                    <input ng-model='editing_phrase.minus' class='form-control mb' placeholder="минус слова">
+                </div>
+            </div>
+            <div class="modal-footer center">
+                <div class="btn btn-primary" ng-click="editPhrase()">сохранить</div>
             </div>
         </div>
     </div>

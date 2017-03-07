@@ -22,16 +22,15 @@ angular
             $scope.replace_phrase = undefined
             closeModal('replace')
 
-        $scope.endEditing = ->
-            edited_phrase = parsePhrases()
-            if edited_phrase.length
-                phrase_index = _.findIndex $scope.list.phrases, $scope.editing_phrase
-                $scope.list.phrases[phrase_index] = edited_phrase[0]
-            closeModal()
+        $scope.editPhrase = ->
+            phrase_index = _.findIndex $scope.list.phrases, $scope.original_phrase
+            _.extend $scope.list.phrases[phrase_index] = $scope.editing_phrase
+            closeModal 'edit-phrase'
 
-        $scope.editPhrase = (phrase) ->
-            $scope.editing_phrase = phrase
-            $scope.runModal $scope.endEditing, 'cохранить', 'изменение записи', buildPhraseValue phrase
+        $scope.startEditing = (phrase) ->
+            $scope.original_phrase = _.clone phrase
+            $scope.editing_phrase  = _.clone phrase
+            showModal 'edit-phrase'
 
         $scope.addWords = ->
             new_phrases = parsePhrases()
@@ -224,10 +223,3 @@ angular
                 else
                     words.push(value)
             [words.join(' '), minus.join(' ')]
-
-        buildPhraseValue = (phrase) ->
-            result = ''
-            result += phrase.phrase
-            result += ' -' + phrase.minuses.join(' -') if phrase.minuses.length
-            result += '\t' + phrase.frequency if phrase.frequency
-            result
