@@ -718,7 +718,7 @@ margin: 0 auto;
 
 .tutor-state-0 {
 color: $gray;
-background-color: $hr_gray;
+background-color: $gray-main;
 }
 .tutor-state-1 {
 color: white;
@@ -1232,12 +1232,12 @@ line-height: 26px;
 text-align: center;
 border-radius: 50% !important;
 display: inline-block;
-border: 1px solid $hr_gray;
+border: 1px solid $gray-main;
 cursor: pointer;
 margin: 10px 0;
 font-weight: bold;
 &:hover {
-    background-color: $hr_gray;
+    background-color: $gray-main;
 }
 &.active {
     background-color: $green !important;
@@ -2825,7 +2825,7 @@ color: $dark_red;
 .comment-add-field {
 outline: none;
 border: 0;
-// border-bottom: 1px solid $hr_gray;
+// border-bottom: 1px solid $gray-main;
 // width: calc(100% - 20px);
 width: 50%;
 background-color: transparent;
@@ -3318,7 +3318,7 @@ transition: all linear .5s;
 }
 
 .timepair {
-//	border-top: 1px dashed $hr_gray;
+//	border-top: 1px dashed $gray-main;
 //	margin-top: 20px;
 //	padding-top: 10px;
 & span {
@@ -3643,7 +3643,7 @@ color: $gray;
 color: $blue;
 }
 .left-border {
-border-left: 1px solid $hr_gray;
+border-left: 1px solid $gray-main;
 }
 
 .cropper-line, .cropper-point {
@@ -3995,7 +3995,7 @@ label {
 
 .row-disabled {
     cursor: default !important;
-    background: $hr_gray !important;
+    background: $gray-main !important;
 }
 
 .scrollable-body {
@@ -4032,4 +4032,15 @@ a.disabled {
 
 .hint--multiline:hover:before, .hint--multiline:hover:after {
   white-space: pre;
+}
+
+.hint--bottom-right:before {
+    border-bottom-color: $gray-main;
+}
+
+[class*="hint--"]:after {
+    color: black;
+    background: $gray-main;
+    text-shadow: none;
+    border-radius: 4px;
 }

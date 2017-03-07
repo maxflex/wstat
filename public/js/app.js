@@ -298,7 +298,7 @@
       return $rootScope.list.phrases = _.without($rootScope.list.phrases, phrase);
     };
     $scope.configureMinus = function() {
-      $scope.removeStartingWith('-');
+      $scope.removeMinuses();
       $rootScope.list.phrases.forEach(function(phrase) {
         var words_list;
         words_list = phrase.phrase.split(' ');
@@ -315,12 +315,12 @@
               }
             });
             if (flag && words_list2.length === (words_list.length + 1)) {
-              if (!phrase.hasOwnProperty('minus')) {
-                phrase.minus = [];
+              if (!phrase.hasOwnProperty('minuses')) {
+                phrase.minuses = [];
               }
               return words_list2.forEach(function(word) {
                 if (word) {
-                  return phrase.minus.push("-" + word);
+                  return phrase.minuses.push("-" + word);
                 }
               });
             }
@@ -328,12 +328,12 @@
         });
       });
       return $rootScope.list.phrases.forEach(function(phrase) {
-        var words_list;
-        if (phrase.hasOwnProperty('minus') && phrase.minus.length) {
-          words_list = phrase.phrase.split(' ');
-          words_list = words_list.concat(phrase.minus);
-          phrase.phrase = words_list.join(' ');
-          return phrase.minus = [];
+        var minus_list;
+        if (phrase.hasOwnProperty('minuses') && phrase.minuses.length) {
+          minus_list = phrase.minus.split(' ');
+          minus_list = minus_list.concat(phrase.minuses);
+          phrase.minus = minus_list.join(' ').trim();
+          return phrase.minuses = [];
         }
       });
     };
@@ -393,7 +393,6 @@
       TransformService.phrases = $scope.splitPhrasesToWords(TransformService.phrases);
       TransformService.phrases = $scope.uniq(TransformService.phrases);
       TransformService.phrases = _.sortBy(TransformService.phrases, 'phrase');
-      TransformService.phrases = $scope.removeStartingWith('-', TransformService.phrases);
       return showModal('transform');
     };
     angular.element(document).ready(function() {
@@ -448,6 +447,27 @@
       return result;
     };
   });
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 
@@ -669,27 +689,6 @@
 
 (function() {
 
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 

@@ -18,8 +18,8 @@
             <span class="text-gray">@{{ phrase.original }}</span>
         </td>
         <td style='width: 15%'>
-            <span aria-label="@{{ phrase.minus }}" class="hint--bottom-right cursor-default">
-                <plural count="phrase.minus.split(' ').length" type="minus" hide-zero></plural>
+            <span ng-if='phrase.minus' aria-label="@{{ phrase.minus }}" class="hint--bottom-right cursor-default">
+                <plural count="phrase.minus.split(' ').length" type='minus'></plural>
             </span>
         </td>
         <td style='width: 5%'>

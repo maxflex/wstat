@@ -15746,6 +15746,15 @@ a.disabled {
 .hint--multiline:hover:before, .hint--multiline:hover:after {
   white-space: pre; }
 
+.hint--bottom-right:before {
+  border-bottom-color: #eee; }
+
+[class*="hint--"]:after {
+  color: black;
+  background: #eee;
+  text-shadow: none;
+  border-radius: 4px; }
+
 .list-group-item .search_icon {
   float: right;
   cursor: pointer; }

@@ -128,7 +128,7 @@ angular
 
         # конфигурация минус-слов
         $scope.configureMinus = ->
-            $scope.removeStartingWith('-')
+            $scope.removeMinuses()
             $rootScope.list.phrases.forEach (phrase) ->
                 words_list = phrase.phrase.split(' ')
                 $rootScope.list.phrases.forEach (phrase2) ->
@@ -142,15 +142,15 @@ angular
                             else
                                 flag = false
                         if flag and words_list2.length is (words_list.length + 1)
-                            phrase.minus = [] if not phrase.hasOwnProperty('minus')
+                            phrase.minuses = [] if not phrase.hasOwnProperty('minuses')
                             words_list2.forEach (word) ->
-                                phrase.minus.push("-#{word}") if word
+                                phrase.minuses.push("-#{word}") if word
             $rootScope.list.phrases.forEach (phrase) ->
-                if phrase.hasOwnProperty('minus') and phrase.minus.length
-                    words_list = phrase.phrase.split(' ')
-                    words_list = words_list.concat(phrase.minus)
-                    phrase.phrase = words_list.join(' ')
-                    phrase.minus = []
+                if phrase.hasOwnProperty('minuses') and phrase.minuses.length
+                    minus_list = phrase.minus.split(' ')
+                    minus_list = minus_list.concat(phrase.minuses)
+                    phrase.minus = minus_list.join(' ').trim()
+                    phrase.minuses = []
 
         $scope.clear = ->
             $rootScope.list.phrases = []
@@ -200,7 +200,6 @@ angular
             TransformService.phrases = $scope.splitPhrasesToWords(TransformService.phrases)
             TransformService.phrases = $scope.uniq(TransformService.phrases)
             TransformService.phrases = _.sortBy(TransformService.phrases, 'phrase')
-            TransformService.phrases = $scope.removeStartingWith('-', TransformService.phrases)
             showModal('transform')
 
         angular.element(document).ready ->
