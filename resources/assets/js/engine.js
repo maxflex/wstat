@@ -209,11 +209,11 @@
 	function notifySuccess(message) {
 		$.notify({'message': message, icon: "glyphicon glyphicon-ok"}, {
 			type : "success",
-			allow_dismiss : false,
+			allow_dismiss : true,
 			placement: {
 				from: "top",
 			},
-			delay: 5000
+			delay: 0
 		});
 	}
 
