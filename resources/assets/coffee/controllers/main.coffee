@@ -40,22 +40,20 @@ angular
 
         parsePhrases = ->
             new_phrases = []
-            $scope.modal.value and $scope.modal.value.split('\n').forEach (line) ->
-            # skip empty lines
+            if $scope.modal.value then $scope.modal.value.split('\n').forEach (line) ->
+                # skip empty lines
                 if line.trim().length
                     list = line.split('\t').map (str) -> return str.trim()
-                    [phrase, minuses] = separateMinuses list[0]
+                    [phrase, minus] = separateMinuses(list[0])
                     if phrase
-                        list_item = {phrase: phrase, minuses: minuses, original: list[0]}
+                        list_item = {phrase: phrase, minus: minus, original: list[0]}
                         # if has tabs
                         if list.length > 1
                             frequency = list[1]
                             # if double tab or not number after tab
                             if $.isNumeric(frequency)
                                 list_item.frequency = parseInt(frequency)
-
                             list_item.original = list[2].trim() if list[2]
-
                         new_phrases.push(list_item)
             new_phrases
 
@@ -107,7 +105,7 @@ angular
                 list_item.frequency = undefined
 
         $scope.removeMinuses = ->
-            $rootScope.list.phrases.forEach (phrase) -> phrase.minuses = []
+            $rootScope.list.phrases.forEach (phrase) -> phrase.minus = ''
 
         $scope.removeStartingWith = (sign, phrases = null) ->
             (phrases or $rootScope.list.phrases).forEach (list_item, index) ->
@@ -219,15 +217,14 @@ angular
             value.phrase.match $scope.phrase_search
 
         separateMinuses = (phrase) ->
-            minuses = []
-            words   = []
-            phrase.split ' '
-                  .forEach (value) ->
-                      if value[0] is '-' and value.length > 1
-                          minuses.push value.substr 1
-                      else
-                          words.push value
-            [words.join(' '), minuses]
+            minus = []
+            words = []
+            phrase.split(' ').forEach (value) ->
+                if value[0] is '-' and value.length
+                    minus.push(value)
+                else
+                    words.push(value)
+            [words.join(' '), minus.join(' ')]
 
         buildPhraseValue = (phrase) ->
             result = ''

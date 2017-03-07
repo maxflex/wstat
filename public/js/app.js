@@ -163,32 +163,34 @@
     parsePhrases = function() {
       var new_phrases;
       new_phrases = [];
-      $scope.modal.value && $scope.modal.value.split('\n').forEach(function(line) {
-        var frequency, list, list_item, minuses, phrase, ref;
-        if (line.trim().length) {
-          list = line.split('\t').map(function(str) {
-            return str.trim();
-          });
-          ref = separateMinuses(list[0]), phrase = ref[0], minuses = ref[1];
-          if (phrase) {
-            list_item = {
-              phrase: phrase,
-              minuses: minuses,
-              original: list[0]
-            };
-            if (list.length > 1) {
-              frequency = list[1];
-              if ($.isNumeric(frequency)) {
-                list_item.frequency = parseInt(frequency);
+      if ($scope.modal.value) {
+        $scope.modal.value.split('\n').forEach(function(line) {
+          var frequency, list, list_item, minus, phrase, ref;
+          if (line.trim().length) {
+            list = line.split('\t').map(function(str) {
+              return str.trim();
+            });
+            ref = separateMinuses(list[0]), phrase = ref[0], minus = ref[1];
+            if (phrase) {
+              list_item = {
+                phrase: phrase,
+                minus: minus,
+                original: list[0]
+              };
+              if (list.length > 1) {
+                frequency = list[1];
+                if ($.isNumeric(frequency)) {
+                  list_item.frequency = parseInt(frequency);
+                }
+                if (list[2]) {
+                  list_item.original = list[2].trim();
+                }
               }
-              if (list[2]) {
-                list_item.original = list[2].trim();
-              }
+              return new_phrases.push(list_item);
             }
-            return new_phrases.push(list_item);
           }
-        }
-      });
+        });
+      }
       return new_phrases;
     };
     $scope.deleteWordsInsidePhrase = function() {
@@ -259,7 +261,7 @@
     };
     $scope.removeMinuses = function() {
       return $rootScope.list.phrases.forEach(function(phrase) {
-        return phrase.minuses = [];
+        return phrase.minus = '';
       });
     };
     $scope.removeStartingWith = function(sign, phrases) {
@@ -421,17 +423,17 @@
       return value.phrase.match($scope.phrase_search);
     };
     separateMinuses = function(phrase) {
-      var minuses, words;
-      minuses = [];
+      var minus, words;
+      minus = [];
       words = [];
       phrase.split(' ').forEach(function(value) {
-        if (value[0] === '-' && value.length > 1) {
-          return minuses.push(value.substr(1));
+        if (value[0] === '-' && value.length) {
+          return minus.push(value);
         } else {
           return words.push(value);
         }
       });
-      return [words.join(' '), minuses];
+      return [words.join(' '), minus.join(' ')];
     };
     return buildPhraseValue = function(phrase) {
       var result;

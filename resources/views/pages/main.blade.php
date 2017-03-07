@@ -18,8 +18,8 @@
             <span class="text-gray">@{{ phrase.original }}</span>
         </td>
         <td style='width: 15%'>
-            <span aria-label="@{{ phrase.minuses.join('\n') }}" class="hint--bottom-right cursor-default hint--multiline">
-                <plural count="phrase.minuses.length" type="minus" hide-zero></plural>
+            <span aria-label="@{{ phrase.minus }}" class="hint--bottom-right cursor-default">
+                <plural count="phrase.minus.split(' ').length" type="minus" hide-zero></plural>
             </span>
         </td>
         <td style='width: 5%'>
