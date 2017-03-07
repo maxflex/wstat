@@ -194,7 +194,7 @@
 	function notifyError(message) {
 		$.notify({'message': message, icon: "glyphicon glyphicon-remove"}, {
 			type : "danger",
-			allow_dismiss : false,
+			allow_dismiss : true,
 			placement: {
 				from: "top",
 			},
@@ -213,7 +213,7 @@
 			placement: {
 				from: "top",
 			},
-			delay: 0
+			delay: 5000
 		});
 	}
 
