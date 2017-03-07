@@ -662,27 +662,6 @@
 }).call(this);
 
 (function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
-
-}).call(this);
-
-(function() {
   var apiPath, countable, updatable;
 
   angular.module('Wstat').factory('Phrase', function($resource) {
@@ -717,6 +696,27 @@
       }
     };
   };
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 
@@ -1076,7 +1076,7 @@
       this.transform_items[index].forEach((function(_this) {
         return function(position) {
           _this.phrases[position].added = false;
-          return _this.phrases[position].words = void 0;
+          return _this.phrases[index].words = void 0;
         };
       })(this));
       return this.transform_items[index] = void 0;

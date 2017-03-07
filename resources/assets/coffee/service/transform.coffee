@@ -25,7 +25,7 @@ angular.module 'Wstat'
         this.remove = (index) ->
             this.transform_items[index].forEach (position) =>
                 this.phrases[position].added = false
-                this.phrases[position].words = undefined
+                this.phrases[index].words = undefined
             this.transform_items[index] = undefined
 
 
