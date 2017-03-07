@@ -193,7 +193,7 @@ angular
             phrase.split ' '
                   .forEach (value) ->
                       if value[0] is '-'
-                          minuses.push value
+                          minuses.push value.substr 1
                       else
                           words.push value
             [words.join(' '), minuses]

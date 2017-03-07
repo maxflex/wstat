@@ -381,7 +381,7 @@
       words = [];
       phrase.split(' ').forEach(function(value) {
         if (value[0] === '-') {
-          return minuses.push(value);
+          return minuses.push(value.substr(1));
         } else {
           return words.push(value);
         }
