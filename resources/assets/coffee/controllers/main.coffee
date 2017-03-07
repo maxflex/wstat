@@ -152,7 +152,7 @@ angular
             closeModal('save-as')
 
         $scope.save = ->
-            if $rootScope.list.phrases.length
+            if $rootScope.list.id and $rootScope.list.phrases.length
                 $rootScope.loading = true
                 $rootScope.list.$update().then -> $rootScope.loading = false
 

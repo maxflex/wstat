@@ -4017,3 +4017,7 @@ label {
     height: 30px;
     padding: 4px 8px;
 }
+
+a.disabled {
+    pointer-events: none;
+}

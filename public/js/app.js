@@ -50,11 +50,6 @@
 }).call(this);
 
 (function() {
-
-
-}).call(this);
-
-(function() {
   angular.module('Wstat').controller('ListsCtrl', function($scope, $rootScope, $location, $timeout, List) {
     if ($scope.lists === void 0) {
       $rootScope.loading = true;
@@ -325,7 +320,7 @@
       return closeModal('save-as');
     };
     $scope.save = function() {
-      if ($rootScope.list.phrases.length) {
+      if ($rootScope.list.id && $rootScope.list.phrases.length) {
         $rootScope.loading = true;
         return $rootScope.list.$update().then(function() {
           return $rootScope.loading = false;
@@ -371,6 +366,32 @@
       return showModal('main');
     };
   });
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
+
+}).call(this);
+
+(function() {
+
 
 }).call(this);
 
@@ -667,7 +688,7 @@
       this.editor.getSession().setUseWrapMode(true);
       this.editor.setOptions({
         minLines: minLines,
-        maxLines: Infinity
+        maxLines: 2e308
       });
       return this.editor.commands.addCommand({
         name: 'save',
