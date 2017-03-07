@@ -7,11 +7,6 @@
       title: null,
       phrases: []
     });
-    if (ENV === 'local') {
-      $rootScope.list = List.get({
-        id: 12
-      });
-    }
     $rootScope.loading = false;
     $rootScope.$watch('loading', function(newVal, oldVal) {
       if (newVal === true) {
@@ -380,6 +375,27 @@
 }).call(this);
 
 (function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
+
+}).call(this);
+
+(function() {
 
 
 }).call(this);
@@ -596,27 +612,6 @@
 
 (function() {
 
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 
