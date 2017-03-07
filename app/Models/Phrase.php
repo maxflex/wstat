@@ -15,10 +15,8 @@ class Phrase extends Model
         'phrase',
         'frequency',
         'original',
-        'minuses'
+        'minus'
     ];
-
-    protected $commaSeparated = ['minuses'];
 
     protected static function boot()
     {
