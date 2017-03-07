@@ -125,37 +125,37 @@
 	function rebindMasks(delay) {
 		// Немного ждем, чтобы новые элементы успели добавиться в DOM
 		setTimeout(function() {
-			$('.sp').selectpicker()
-
-			// Дата
-			$('.bs-date').datepicker({
-				language	: 'ru',
-				orientation	: 'top left',
-				autoclose	: true
-			})
-
-			// Дата, начиная с нынчашнего дня
-			$('.bs-date-now').datepicker({
-				language	: 'ru',
-				orientation	: 'top left',
-				startDate: '-0d',
-				autoclose	: true
-			})
-
-			// Дата вверху
-			$(".bs-date-top").datepicker({
-				language	: 'ru',
-				autoclose	: true,
-				orientation	: 'bottom auto',
-			})
-
-			// С очисткой даты
-			$(".bs-date-clear").datepicker({
-				language	: 'ru',
-				autoclose	: true,
-				orientation	: 'bottom auto',
-				clearBtn    : true
-			})
+			// $('.sp').selectpicker()
+            //
+			// // Дата
+			// $('.bs-date').datepicker({
+			// 	language	: 'ru',
+			// 	orientation	: 'top left',
+			// 	autoclose	: true
+			// })
+            //
+			// // Дата, начиная с нынчашнего дня
+			// $('.bs-date-now').datepicker({
+			// 	language	: 'ru',
+			// 	orientation	: 'top left',
+			// 	startDate: '-0d',
+			// 	autoclose	: true
+			// })
+            //
+			// // Дата вверху
+			// $(".bs-date-top").datepicker({
+			// 	language	: 'ru',
+			// 	autoclose	: true,
+			// 	orientation	: 'bottom auto',
+			// })
+            //
+			// // С очисткой даты
+			// $(".bs-date-clear").datepicker({
+			// 	language	: 'ru',
+			// 	autoclose	: true,
+			// 	orientation	: 'bottom auto',
+			// 	clearBtn    : true
+			// })
 
 			// $(".bs-datetime").datetimepicker({
 			// 	format: 'YYYY-MM-DD HH:mm',
@@ -167,8 +167,8 @@
 			// 	locale: 'ru',
 			// })
 
-			$(".passport-number").inputmask("Regex", {regex: "[a-zA-Z0-9]{0,12}"});
-			$(".digits-year").inputmask("Regex", {regex: "[0-9]{0,4}"});
+			// $(".passport-number").inputmask("Regex", {regex: "[a-zA-Z0-9]{0,12}"});
+			// $(".digits-year").inputmask("Regex", {regex: "[0-9]{0,4}"});
 
 			// REGEX для полей типа "число" и "1-5"
 			$(".digits-only-float").inputmask("Regex", {regex: "[0-9]*[.]?[0-9]+"});
@@ -182,8 +182,8 @@
 			$(".timemask").mask("Hh:Mm", {clearIfNotMatch: true});
 
 			// Маска телефонов
-			$(".phone-masked")
-				.mask("+7 (999) 999-99-99", { autoclear: false })
+			// $(".phone-masked")
+			// 	.mask("+7 (999) 999-99-99", { autoclear: false })
 		}, (delay === undefined ? 100 : delay)  )
 	}
 

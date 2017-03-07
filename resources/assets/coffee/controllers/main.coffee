@@ -31,6 +31,7 @@ angular
             $scope.original_phrase = _.clone phrase
             $scope.editing_phrase  = _.clone phrase
             showModal 'edit-phrase'
+            rebindMasks()
 
         $scope.addWords = ->
             new_phrases = parsePhrases()

@@ -8,16 +8,16 @@
 
 <table class="table">
     <tr ng-repeat="phrase in list.phrases | filter : filterItems as filtered_list_items track by $index">
-        <td style="width:3%">
-            @{{ getHardIndex(phrase) }}
+        <td style="width:3%" class="text-gray">
+            @{{ getHardIndex(phrase) }}.
         </td>
-        <td style='width: 30%'>
+        <td style='width: 35%'>
             @{{ phrase.phrase }}
         </td>
-        <td style='width: 30%'>
+        <td style='width: 35%'>
             <span class="text-gray">@{{ phrase.original }}</span>
         </td>
-        <td style='width: 15%'>
+        <td style='width: 7%'>
             <span ng-if='phrase.minus' aria-label="@{{ phrase.minus }}" class="hint--bottom-right cursor-default">
                 <plural count="phrase.minus.split(' ').length" type='minus'></plural>
             </span>
@@ -25,11 +25,11 @@
         <td style='width: 5%'>
             @{{ phrase.frequency }}
         </td>
-        <td style='width: 15%'>
-            <span class='pull-right link-like link-danger' ng-click='startEditing(phrase)'>редактировать</span>
+        <td style='width: 10%'>
+            <span class='link-like link-danger' ng-click='startEditing(phrase)'>редактировать</span>
         </td>
-        <td style='width: 15%'>
-            <span class='pull-right link-like link-danger' ng-click='removePhrase(phrase)'>удалить</span>
+        <td style='width: 5%'>
+            <span class='link-like link-danger' ng-click='removePhrase(phrase)'>удалить</span>
         </td>
     </tr>
 </table>
@@ -60,7 +60,7 @@
                     <input ng-model='editing_phrase.phrase' class='form-control mb' placeholder="фраза">
                 </div>
                 <div class="form-group">
-                    <input ng-model='editing_phrase.frequency' class='form-control mb' placeholder="частота">
+                    <input ng-model='editing_phrase.frequency' class='form-control mb digits-only' placeholder="частота">
                 </div>
                 <div class="form-group">
                     <input ng-model='editing_phrase.minus' class='form-control mb' placeholder="минус слова">

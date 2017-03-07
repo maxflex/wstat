@@ -55,6 +55,11 @@
 }).call(this);
 
 (function() {
+
+
+}).call(this);
+
+(function() {
   angular.module('Wstat').controller('ListsCtrl', function($scope, $rootScope, $location, $timeout, List) {
     if ($scope.lists === void 0) {
       $rootScope.loading = true;
@@ -145,7 +150,8 @@
     $scope.startEditing = function(phrase) {
       $scope.original_phrase = _.clone(phrase);
       $scope.editing_phrase = _.clone(phrase);
-      return showModal('edit-phrase');
+      showModal('edit-phrase');
+      return rebindMasks();
     };
     $scope.addWords = function() {
       var new_phrases;
@@ -445,11 +451,6 @@
 }).call(this);
 
 (function() {
-
-
-}).call(this);
-
-(function() {
   angular.module('Wstat').directive('ngCounter', function($timeout) {
     return {
       restrict: 'A',
@@ -733,7 +734,7 @@
       this.editor.getSession().setUseWrapMode(true);
       this.editor.setOptions({
         minLines: minLines,
-        maxLines: 2e308
+        maxLines: Infinity
       });
       return this.editor.commands.addCommand({
         name: 'save',
