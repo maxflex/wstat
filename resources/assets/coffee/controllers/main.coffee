@@ -38,6 +38,7 @@ angular
             new_phrases = []
             $scope.addwords_error = false
             if $scope.modal.value then $scope.modal.value.split('\n').forEach (line, index) ->
+                return if $scope.addwords_error # one error at a time
                 # skip empty lines
                 if line.trim().length
                     # parse tabs
@@ -71,7 +72,7 @@ angular
 
         addWordsError = (index, line, message) ->
             $scope.addwords_error = true
-            notifyError("Строка #{index + 1}: #{message}<br>#{line}")
+            notifyError("#{message}<br>строка #{index + 1}: <i>#{line}</i>")
             return false
 
 

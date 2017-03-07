@@ -161,6 +161,9 @@
       if ($scope.modal.value) {
         $scope.modal.value.split('\n').forEach(function(line, index) {
           var frequency, list_item, minus, original, parsed_line, phrase, ref;
+          if ($scope.addwords_error) {
+            return;
+          }
           if (line.trim().length) {
             parsed_line = line.split('\t');
             if (parsed_line.length > 3) {
@@ -203,7 +206,7 @@
     };
     addWordsError = function(index, line, message) {
       $scope.addwords_error = true;
-      notifyError("Строка " + (index + 1) + ": " + message + "<br>" + line);
+      notifyError(message + "<br>строка " + (index + 1) + ": <i>" + line + "</i>");
       return false;
     };
     $scope.deleteWordsInsidePhrase = function() {
@@ -695,27 +698,6 @@
 }).call(this);
 
 (function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
-
-}).call(this);
-
-(function() {
   var apiPath, countable, updatable;
 
   angular.module('Wstat').factory('Phrase', function($resource) {
@@ -750,6 +732,27 @@
       }
     };
   };
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
 
 }).call(this);
 
