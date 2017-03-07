@@ -117,7 +117,7 @@
   var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $http, TransformService) {
-    var addWordsError, getFrequencies, separateMinuses;
+    var addWordsError, convertToMinus, getFrequencies, separateMinuses;
     bindArguments($scope, arguments);
     $scope.$on('$viewContentLoaded', function() {
       return $("#modal-value").off('keydown').keydown(function(e) {
@@ -142,7 +142,8 @@
       return closeModal('replace');
     };
     $scope.editPhrase = function() {
-      var phrase_index;
+      var phrase_index, ref;
+      ref = separateMinuses($scope.editing_phrase.phrase, convertToMinus($scope.editing_phrase.minus)), $scope.editing_phrase.phrase = ref[0], $scope.editing_phrase.minus = ref[1];
       phrase_index = _.findIndex($scope.list.phrases, $scope.original_phrase);
       _.extend($scope.list.phrases[phrase_index] = $scope.editing_phrase);
       return closeModal('edit-phrase');
@@ -433,8 +434,11 @@
     $scope.filterItems = function(value) {
       return value.phrase.match($scope.phrase_search);
     };
-    separateMinuses = function(phrase) {
+    separateMinuses = function(phrase, existing_minuses) {
       var minus, words;
+      if (existing_minuses == null) {
+        existing_minuses = '';
+      }
       minus = [];
       words = [];
       phrase.split(' ').forEach(function(value) {
@@ -444,71 +448,28 @@
           return words.push(value);
         }
       });
-      return [words.join(' '), minus.join(' ')];
+      if (minus.length) {
+        existing_minuses += ' ';
+      }
+      existing_minuses += minus.join(' ');
+      return [words.join(' '), existing_minuses];
+    };
+    convertToMinus = function(phrase) {
+      var minus;
+      minus = [];
+      phrase.split(' ').forEach(function(value) {
+        if (value[0] === '-' && value.length) {
+          return minus.push(value);
+        } else {
+          return minus.push('-' + value);
+        }
+      });
+      return minus.join(' ');
     };
     return $scope.getHardIndex = function(phrase) {
       return 1 + _.findIndex($scope.list.phrases, phrase);
     };
   });
-
-}).call(this);
-
-(function() {
-  var apiPath, countable, updatable;
-
-  angular.module('Wstat').factory('Phrase', function($resource) {
-    return $resource(apiPath('phrases'), {
-      id: '@id'
-    }, updatable());
-  }).factory('List', function($resource) {
-    return $resource(apiPath('lists'), {
-      id: '@id'
-    }, updatable());
-  });
-
-  apiPath = function(entity, additional) {
-    if (additional == null) {
-      additional = '';
-    }
-    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
-  };
-
-  updatable = function() {
-    return {
-      update: {
-        method: 'PUT'
-      }
-    };
-  };
-
-  countable = function() {
-    return {
-      count: {
-        method: 'GET'
-      }
-    };
-  };
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 
@@ -730,6 +691,65 @@
 
 (function() {
 
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
+
+}).call(this);
+
+(function() {
+  var apiPath, countable, updatable;
+
+  angular.module('Wstat').factory('Phrase', function($resource) {
+    return $resource(apiPath('phrases'), {
+      id: '@id'
+    }, updatable());
+  }).factory('List', function($resource) {
+    return $resource(apiPath('lists'), {
+      id: '@id'
+    }, updatable());
+  });
+
+  apiPath = function(entity, additional) {
+    if (additional == null) {
+      additional = '';
+    }
+    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
+  };
+
+  updatable = function() {
+    return {
+      update: {
+        method: 'PUT'
+      }
+    };
+  };
+
+  countable = function() {
+    return {
+      count: {
+        method: 'GET'
+      }
+    };
+  };
 
 }).call(this);
 

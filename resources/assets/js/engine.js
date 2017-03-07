@@ -192,9 +192,9 @@
 	 *
 	 */
 	function notifyError(message) {
-		$.notify({'message': message, icon: "glyphicon glyphicon-remove"}, {
+		$.notify({'message': message, icon: "glyphicon glyphicon-remove no-margin-right"}, {
 			type : "danger",
-			allow_dismiss : false,
+			allow_dismiss : true,
 			placement: {
 				from: "top",
 			},
@@ -207,9 +207,9 @@
 	 *
 	 */
 	function notifySuccess(message) {
-		$.notify({'message': message, icon: "glyphicon glyphicon-ok"}, {
+		$.notify({'message': message, icon: "glyphicon glyphicon-ok no-margin-right"}, {
 			type : "success",
-			allow_dismiss : false,
+			allow_dismiss : true,
 			placement: {
 				from: "top",
 			},

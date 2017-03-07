@@ -23,6 +23,7 @@ angular
             closeModal('replace')
 
         $scope.editPhrase = ->
+            [$scope.editing_phrase.phrase, $scope.editing_phrase.minus] = separateMinuses($scope.editing_phrase.phrase, convertToMinus($scope.editing_phrase.minus))
             phrase_index = _.findIndex $scope.list.phrases, $scope.original_phrase
             _.extend $scope.list.phrases[phrase_index] = $scope.editing_phrase
             closeModal 'edit-phrase'
@@ -232,7 +233,7 @@ angular
         $scope.filterItems = (value) ->
             value.phrase.match $scope.phrase_search
 
-        separateMinuses = (phrase) ->
+        separateMinuses = (phrase, existing_minuses = '') ->
             minus = []
             words = []
             phrase.split(' ').forEach (value) ->
@@ -240,7 +241,19 @@ angular
                     minus.push(value)
                 else
                     words.push(value)
-            [words.join(' '), minus.join(' ')]
+
+            existing_minuses += ' ' if minus.length
+            existing_minuses += minus.join ' '
+            [words.join(' '), existing_minuses]
+
+        convertToMinus = (phrase) ->
+            minus = []
+            phrase.split(' ').forEach (value) ->
+                if value[0] is '-' and value.length
+                    minus.push value
+                else
+                    minus.push '-' + value
+            minus.join ' '
 
         $scope.getHardIndex = (phrase) ->
             1 + _.findIndex $scope.list.phrases, phrase

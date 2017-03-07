@@ -60,7 +60,6 @@ const elixir = require('laravel-elixir');
              'ladda/dist/spin.min',
              'ladda/dist/ladda.min',
              'angular-ladda/dist/angular-ladda.min',
-             'remarkable-bootstrap-notify/dist/bootstrap-notify.min',
              'StickyTableHeaders/js/jquery.stickytableheaders',
              'jquery.floatThead/dist/jquery.floatThead.min',
              'jsSHA/src/sha256',
