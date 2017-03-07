@@ -11,13 +11,13 @@
         <td style="width:3%" class="text-gray">
             @{{ getHardIndex(phrase) }}.
         </td>
-        <td style='width: 35%'>
+        <td style='width: 33%'>
             @{{ phrase.phrase }}
         </td>
-        <td style='width: 35%'>
+        <td style='width: 33%'>
             <span class="text-gray">@{{ phrase.original }}</span>
         </td>
-        <td style='width: 7%'>
+        <td style='width: 11%'>
             <span ng-if='phrase.minus' aria-label="@{{ phrase.minus }}" class="hint--bottom-right cursor-default">
                 <plural count="phrase.minus.split(' ').length" type='minus'></plural>
             </span>
