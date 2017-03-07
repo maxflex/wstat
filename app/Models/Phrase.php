@@ -3,18 +3,22 @@
 namespace App\Models;
 
 use App\Traits\Exportable;
-use Illuminate\Database\Eloquent\Model;
+use Shared\Model;
 
 class Phrase extends Model
 {
     use Exportable;
 
     public $timestamps = false;
+
     protected $fillable = [
         'phrase',
         'frequency',
-        'original'
+        'original',
+        'minuses'
     ];
+
+    protected $commaSeparated = ['minuses'];
 
     protected static function boot()
     {

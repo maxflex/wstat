@@ -32,7 +32,8 @@ angular
                 # skip empty lines
                 if line.trim().length
                     list = line.split('\t')
-                    list_item = {phrase: list[0].trim(), original: list[0].trim()}
+                    [phrase, minuses] = removeMinuses list[0].trim()
+                    list_item = {phrase: phrase, minuses: minuses, original: list[0].trim()}
                     # if has tabs
                     if list.length > 1
                         frequency = list[1]
@@ -117,7 +118,6 @@ angular
 
         $scope.removePhrase = (phrase) ->
             $rootScope.list.phrases = _.without $rootScope.list.phrases, phrase
-            console.log $rootScope.list.phrases
 
         # конфигурация минус-слов
         $scope.configureMinus = ->
@@ -183,3 +183,17 @@ angular
         $scope.runModal = (action, title, placeholder = 'список слов или фраз') ->
             _.extend $scope.modal = {}, value: null, action: action, title: title, placeholder: placeholder
             showModal 'main'
+
+        $scope.filterItems = (value) ->
+            value.phrase.match $scope.phrase_search
+
+        removeMinuses = (phrase) ->
+            minuses = []
+            words   = []
+            phrase.split ' '
+                  .forEach (value) ->
+                      if value[0] is '-'
+                          minuses.push value
+                      else
+                          words.push value
+            [words.join(' '), minuses]

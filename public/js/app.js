@@ -112,6 +112,7 @@
   var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $http, TransformService) {
+    var removeMinuses;
     bindArguments($scope, arguments);
     $scope.$on('$viewContentLoaded', function() {
       return $("#modal-value").off('keydown').keydown(function(e) {
@@ -146,11 +147,13 @@
       new_phrases = [];
       error = false;
       $scope.modal.value.split('\n').forEach(function(line) {
-        var frequency, list, list_item;
+        var frequency, list, list_item, minuses, phrase, ref;
         if (line.trim().length) {
           list = line.split('\t');
+          ref = removeMinuses(list[0].trim()), phrase = ref[0], minuses = ref[1];
           list_item = {
-            phrase: list[0].trim(),
+            phrase: phrase,
+            minuses: minuses,
             original: list[0].trim()
           };
           if (list.length > 1) {
@@ -273,8 +276,7 @@
       }
     };
     $scope.removePhrase = function(phrase) {
-      $rootScope.list.phrases = _.without($rootScope.list.phrases, phrase);
-      return console.log($rootScope.list.phrases);
+      return $rootScope.list.phrases = _.without($rootScope.list.phrases, phrase);
     };
     $scope.configureMinus = function() {
       $scope.removeStartingWith('-');
@@ -358,7 +360,7 @@
     angular.element(document).ready(function() {
       return console.log($scope.title);
     });
-    return $scope.runModal = function(action, title, placeholder) {
+    $scope.runModal = function(action, title, placeholder) {
       if (placeholder == null) {
         placeholder = 'список слов или фраз';
       }
@@ -369,6 +371,22 @@
         placeholder: placeholder
       });
       return showModal('main');
+    };
+    $scope.filterItems = function(value) {
+      return value.phrase.match($scope.phrase_search);
+    };
+    return removeMinuses = function(phrase) {
+      var minuses, words;
+      minuses = [];
+      words = [];
+      phrase.split(' ').forEach(function(value) {
+        if (value[0] === '-') {
+          return minuses.push(value);
+        } else {
+          return words.push(value);
+        }
+      });
+      return [words.join(' '), minuses];
     };
   });
 
@@ -526,7 +544,8 @@
           'minute': ['минуту', 'минуты', 'минут'],
           'hour': ['час', 'часа', 'часов'],
           'day': ['день', 'дня', 'дней'],
-          'phrase': ['фраза', 'фразы', 'фраз']
+          'phrase': ['фраза', 'фразы', 'фраз'],
+          'minus': ['минус слово', 'минус слова', 'минус слов']
         };
       }
     };

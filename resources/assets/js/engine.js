@@ -208,7 +208,8 @@
 			allow_dismiss : false,
 			placement: {
 				from: "top",
-			}
+			},
+			delay: 0
 		});
 	}
 
@@ -222,7 +223,8 @@
 			allow_dismiss : false,
 			placement: {
 				from: "top",
-			}
+			},
+			delay: 0
 		});
 	}
 

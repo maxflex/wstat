@@ -19934,6 +19934,10 @@ a.disabled {
   pointer-events: none;
 }
 
+.hint--multiline:hover:before, .hint--multiline:hover:after {
+  white-space: pre;
+}
+
 .list-group-item .search_icon {
   float: right;
   cursor: pointer;

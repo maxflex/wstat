@@ -19,7 +19,7 @@
 <a ng-click="runModal(deletePhrasesWithWords, 'удалить')" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Удалить фразы, содержащие слова</a>
 
 <a class="list-group-item active">Список</a>
-<a ng-click="ExportService.export()" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Экспорт</a>
+<a ng-click="ExportService.export()" class="list-group-item" ng-class="{'disabled': !$root.list.id}">Экспорт</a>
 {{-- <a ng-click="ExportService.import($event)" class="list-group-item">Импорт</a> --}}
 <a ng-click="save()" class="list-group-item" ng-class="{'disabled': !$root.list.id}">Сохранить</a>
 <a onclick="showModal('save-as')" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Сохранить как...</a>

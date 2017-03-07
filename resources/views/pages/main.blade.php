@@ -2,22 +2,30 @@
 
 <div class="row" ng-show="list.phrases.length">
     <div class="col-sm-3 pull-right">
-        <input class="form-control" type="text" placeholder="поиск..." ng-model="phrase_search">
+        <input class="form-control" type="text" placeholder="поиск..." ng-model="phrase_search" ng-model-options="{debounce: 300}">
     </div>
 </div>
 
 <table class="table">
-    <tr ng-repeat="phrase in list.phrases | filter : {phrase: phrase_search} as filtered_list_items track by $index">
-        <td style='width: 45%'>
+    <tr ng-repeat="phrase in list.phrases | filter : filterItems as filtered_list_items track by $index">
+        <td style="width:3%">
+            @{{ $index + 1 }}
+        </td>
+        <td style='width: 30%'>
             @{{ phrase.phrase }}
         </td>
-        <td style='width: 45%'>
+        <td style='width: 30%'>
             <span class="text-gray">@{{ phrase.original }}</span>
         </td>
-        <td style='width: 10%'>
+        <td style='width: 15%'>
+            <span aria-label="@{{ phrase.minuses.join('\n') }}" class="hint--bottom-right cursor-default hint--multiline">
+                <plural count="phrase.minuses.length" type="minus" hide-zero></plural>
+            </span>
+        </td>
+        <td style='width: 5%'>
             @{{ phrase.frequency }}
         </td>
-        <td style='width: 20%'>
+        <td style='width: 15%'>
             <span class='pull-right link-like link-danger' ng-click='removePhrase(phrase)'>удалить</span>
         </td>
     </tr>
