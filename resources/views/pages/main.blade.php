@@ -9,7 +9,7 @@
 <table class="table">
     <tr ng-repeat="phrase in list.phrases | filter : filterItems as filtered_list_items track by $index">
         <td style="width:3%">
-            @{{ $index + 1 }}
+            @{{ getHardIndex(phrase) }}
         </td>
         <td style='width: 30%'>
             @{{ phrase.phrase }}

@@ -414,7 +414,7 @@
     $scope.filterItems = function(value) {
       return value.phrase.match($scope.phrase_search);
     };
-    return separateMinuses = function(phrase) {
+    separateMinuses = function(phrase) {
       var minus, words;
       minus = [];
       words = [];
@@ -426,6 +426,9 @@
         }
       });
       return [words.join(' '), minus.join(' ')];
+    };
+    return $scope.getHardIndex = function(phrase) {
+      return 1 + _.findIndex($scope.list.phrases, phrase);
     };
   });
 

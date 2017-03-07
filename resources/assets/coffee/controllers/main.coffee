@@ -223,3 +223,6 @@ angular
                 else
                     words.push(value)
             [words.join(' '), minus.join(' ')]
+
+        $scope.getHardIndex = (phrase) ->
+            1 + _.findIndex $scope.list.phrases, phrase
