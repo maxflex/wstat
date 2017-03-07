@@ -4029,3 +4029,7 @@ a.disabled {
     top: 6px;
     position: relative;
 }
+
+.hint--multiline:hover:before, .hint--multiline:hover:after {
+  white-space: pre;
+}

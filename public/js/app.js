@@ -117,7 +117,7 @@
   var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $http, TransformService) {
-    var getFrequencies;
+    var buildPhraseValue, getFrequencies, parsePhrases, separateMinuses;
     bindArguments($scope, arguments);
     $scope.$on('$viewContentLoaded', function() {
       return $("#modal-value").off('keydown').keydown(function(e) {
@@ -141,47 +141,61 @@
       $scope.replace_phrase = void 0;
       return closeModal('replace');
     };
-    $scope.addWords = function() {
-      var error, new_phrases;
-      $("#main-modal").removeClass('has-error');
-      new_phrases = [];
-      error = false;
-      $scope.modal.value.split('\n').forEach(function(line) {
-        var frequency, list, list_item;
-        if (line.trim().length) {
-          list = line.split('\t');
-          list_item = {
-            phrase: list[0].trim(),
-            original: list[0].trim()
-          };
-          if (list.length > 1) {
-            frequency = list[1];
-            if (!$.isNumeric(frequency)) {
-              $("#main-modal").addClass('has-error');
-              $scope.list = [];
-              error = true;
-              return;
-            } else {
-              list_item.frequency = parseInt(frequency);
-            }
-            if (list[2]) {
-              list_item.original = list[2].trim();
-            }
-          }
-          return new_phrases.push(list_item);
-        }
-      });
-      if (error) {
-        return;
+    $scope.endEditing = function() {
+      var edited_phrase, phrase_index;
+      edited_phrase = parsePhrases();
+      if (edited_phrase.length) {
+        phrase_index = _.findIndex($scope.list.phrases, $scope.editing_phrase);
+        $scope.list.phrases[phrase_index] = edited_phrase[0];
       }
+      return closeModal();
+    };
+    $scope.editPhrase = function(phrase) {
+      $scope.editing_phrase = phrase;
+      return $scope.runModal($scope.endEditing, 'cохранить', 'изменение записи', buildPhraseValue(phrase));
+    };
+    $scope.addWords = function() {
+      var new_phrases;
+      new_phrases = parsePhrases();
       $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases);
       return closeModal();
+    };
+    parsePhrases = function() {
+      var new_phrases;
+      new_phrases = [];
+      $scope.modal.value && $scope.modal.value.split('\n').forEach(function(line) {
+        var frequency, list, list_item, minuses, phrase, ref;
+        if (line.trim().length) {
+          list = line.split('\t').map(function(str) {
+            return str.trim();
+          });
+          ref = separateMinuses(list[0]), phrase = ref[0], minuses = ref[1];
+          if (phrase) {
+            list_item = {
+              phrase: phrase,
+              minuses: minuses,
+              original: list[0]
+            };
+            if (list.length > 1) {
+              frequency = list[1];
+              if ($.isNumeric(frequency)) {
+                list_item.frequency = parseInt(frequency);
+              }
+              if (list[2]) {
+                list_item.original = list[2].trim();
+              }
+            }
+            return new_phrases.push(list_item);
+          }
+        }
+      });
+      return new_phrases;
     };
     $scope.deleteWordsInsidePhrase = function() {
       $scope.modal.value.split('\n').forEach(function(textarea_phrase) {
         return $rootScope.list.phrases.forEach(function(phrase) {
-          if (phrase.phrase.indexOf(textarea_phrase) !== -1) {
-            return phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(textarea_phrase, ''));
+          if (phrase.phrase.match(exactMatch(textarea_phrase))) {
+            return phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase), ' ')).trim();
           }
         });
       });
@@ -191,7 +205,7 @@
     $scope.deletePhrasesWithWords = function() {
       $scope.modal.value.split('\n').forEach(function(textarea_phrase) {
         return $rootScope.list.phrases = _.filter($rootScope.list.phrases, function(phrase) {
-          return phrase.phrase.indexOf(textarea_phrase) === -1;
+          return !phrase.phrase.match(exactMatch(textarea_phrase));
         });
       });
       return closeModal();
@@ -243,6 +257,11 @@
         return list_item.frequency = void 0;
       });
     };
+    $scope.removeMinuses = function() {
+      return $rootScope.list.phrases.forEach(function(phrase) {
+        return phrase.minuses = [];
+      });
+    };
     $scope.removeStartingWith = function(sign, phrases) {
       if (phrases == null) {
         phrases = null;
@@ -274,8 +293,7 @@
       }
     };
     $scope.removePhrase = function(phrase) {
-      $rootScope.list.phrases = _.without($rootScope.list.phrases, phrase);
-      return console.log($rootScope.list.phrases);
+      return $rootScope.list.phrases = _.without($rootScope.list.phrases, phrase);
     };
     $scope.configureMinus = function() {
       $scope.removeStartingWith('-');
@@ -384,17 +402,48 @@
         return func();
       }
     };
-    return $scope.runModal = function(action, title, placeholder) {
+    $scope.runModal = function(action, title, placeholder, value) {
       if (placeholder == null) {
         placeholder = 'список слов или фраз';
       }
-      _.extend($scope.modal = {}, {
-        value: null,
+      if (value == null) {
+        value = null;
+      }
+      $scope.modal = {
+        value: value,
         action: action,
         title: title,
         placeholder: placeholder
-      });
+      };
       return showModal('main');
+    };
+    $scope.filterItems = function(value) {
+      return value.phrase.match($scope.phrase_search);
+    };
+    separateMinuses = function(phrase) {
+      var minuses, words;
+      minuses = [];
+      words = [];
+      phrase.split(' ').forEach(function(value) {
+        if (value[0] === '-' && value.length > 1) {
+          return minuses.push(value.substr(1));
+        } else {
+          return words.push(value);
+        }
+      });
+      return [words.join(' '), minuses];
+    };
+    return buildPhraseValue = function(phrase) {
+      var result;
+      result = '';
+      result += phrase.phrase;
+      if (phrase.minuses.length) {
+        result += ' -' + phrase.minuses.join(' -');
+      }
+      if (phrase.frequency) {
+        result += '\t' + phrase.frequency;
+      }
+      return result;
     };
   });
 
@@ -526,7 +575,8 @@
           'minute': ['минуту', 'минуты', 'минут'],
           'hour': ['час', 'часа', 'часов'],
           'day': ['день', 'дня', 'дней'],
-          'phrase': ['фраза', 'фразы', 'фраз']
+          'phrase': ['фраза', 'фразы', 'фраз'],
+          'minus': ['минус слово', 'минус слова', 'минус слов']
         };
       }
     };
