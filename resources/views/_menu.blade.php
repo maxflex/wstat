@@ -1,5 +1,6 @@
 <a class="list-group-item active">Операции</a>
 <a ng-click="runModal(addWords, 'добавить')" class="list-group-item">Добавить слова</a>
+<a ng-click="runModal(addMinuses, 'добавить')" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Добавить минус слова</a>
 <a ng-click='splitPhrasesToWords()' class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Разбить фразы на слова</a>
 <a onclick="showModal('replace')" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Поиск и замена</a>
 <a ng-click='lowercase()' class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Превратить все буквы в маленькие</a>

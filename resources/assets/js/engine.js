@@ -1,12 +1,22 @@
 	angular.element(document).ready(function() {
 		setTimeout(function() {
-			moment.locale('ru-RU')
+			// moment.locale('ru-RU')
 			NProgress.settings.showSpinner = false
 			rebindMasks()
 			setScope()
 			configurePlugins()
 		}, 50)
 	})
+
+    $(document).ready(function() {
+        String.prototype.toWords = function() {
+            if (this.trim().length) {
+                return this.trim().split(' ')
+            } else {
+                return []
+            }
+        }
+    })
 
 	/**
 	 * Remove by id
@@ -319,12 +329,4 @@ function wrapWithSpace(word) {
 
 function replaceWord(str, word, replacement) {
     return removeDoubleSpaces(str.replace(exactMatch(word), wrapWithSpace(word)))
-}
-
-function chunk(arr, size) {
-    a = arr.slice(0)
-    arrays = []
-    while (a.length > 0)
-        arrays.push(a.splice(0, size));
-    return arrays
 }

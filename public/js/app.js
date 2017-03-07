@@ -38,6 +38,11 @@
 }).call(this);
 
 (function() {
+
+
+}).call(this);
+
+(function() {
   angular.module('Wstat').config([
     '$routeProvider', function($routeProvider) {
       return $routeProvider.when('/', {
@@ -158,46 +163,44 @@
       var new_phrases;
       new_phrases = [];
       $scope.addwords_error = false;
-      if ($scope.modal.value) {
-        $scope.modal.value.split('\n').forEach(function(line, index) {
-          var frequency, list_item, minus, original, parsed_line, phrase, ref;
-          if ($scope.addwords_error) {
-            return;
+      $scope.modal.value.split('\n').forEach(function(line, index) {
+        var frequency, list_item, minus, original, parsed_line, phrase, ref;
+        if ($scope.addwords_error) {
+          return;
+        }
+        if (line.trim().length) {
+          parsed_line = line.split('\t');
+          if (parsed_line.length > 3) {
+            return addWordsError(index, line, 'некорректрое форматирование');
           }
-          if (line.trim().length) {
-            parsed_line = line.split('\t');
-            if (parsed_line.length > 3) {
-              return addWordsError(index, line, 'некорректрое форматирование');
-            }
-            phrase = parsed_line[0], frequency = parsed_line[1], original = parsed_line[2];
+          phrase = parsed_line[0], frequency = parsed_line[1], original = parsed_line[2];
 
-            /* PHRASE */
-            if (!phrase) {
-              return addWordsError(index, line, 'отсутствует основная фраза');
-            }
-            ref = separateMinuses(phrase), phrase = ref[0], minus = ref[1];
-            list_item = {
-              phrase: phrase,
-              minus: minus,
-              original: phrase
-            };
-
-            /* FREQUENCY */
-            if (frequency) {
-              if (!$.isNumeric(frequency)) {
-                return addWordsError(index, line, 'частота должна быть числом');
-              }
-              list_item.frequency = parseInt(frequency);
-            }
-
-            /* ORIGINAL */
-            if (original) {
-              list_item.original = original;
-            }
-            return new_phrases.push(list_item);
+          /* PHRASE */
+          if (!phrase) {
+            return addWordsError(index, line, 'отсутствует основная фраза');
           }
-        });
-      }
+          ref = separateMinuses(phrase), phrase = ref[0], minus = ref[1];
+          list_item = {
+            phrase: phrase,
+            minus: minus,
+            original: phrase
+          };
+
+          /* FREQUENCY */
+          if (frequency) {
+            if (!$.isNumeric(frequency)) {
+              return addWordsError(index, line, 'частота должна быть числом');
+            }
+            list_item.frequency = parseInt(frequency);
+          }
+
+          /* ORIGINAL */
+          if (original) {
+            list_item.original = original;
+          }
+          return new_phrases.push(list_item);
+        }
+      });
       if ($scope.addwords_error) {
         return;
       }
@@ -208,6 +211,29 @@
       $scope.addwords_error = true;
       notifyError(message + "<br>строка " + (index + 1) + ": <i>" + line + "</i>");
       return false;
+    };
+    $scope.addMinuses = function() {
+      var minuses;
+      minuses = [];
+      $scope.modal.value.split('\n').forEach(function(line) {
+        var words;
+        if (line.trim().length) {
+          words = line.trim().split(' ');
+          return minuses = minuses.concat(words);
+        }
+      });
+      minuses.forEach(function(word) {
+        if (word[0] !== '-') {
+          word = "-" + word;
+        }
+        return $rootScope.list.phrases.forEach(function(phrase) {
+          var minus_array;
+          minus_array = !phrase.minus ? [] : phrase.minus.split(' ');
+          minus_array.push(word);
+          return phrase.minus = minus_array.join(' ');
+        });
+      });
+      return closeModal();
     };
     $scope.deleteWordsInsidePhrase = function() {
       $scope.modal.value.split('\n').forEach(function(textarea_phrase) {
@@ -437,25 +463,23 @@
     $scope.filterItems = function(value) {
       return value.phrase.match($scope.phrase_search);
     };
-    separateMinuses = function(phrase, existing_minuses) {
-      var minus, words;
-      if (existing_minuses == null) {
-        existing_minuses = '';
+    separateMinuses = function(phrase, minus) {
+      var words;
+      if (minus == null) {
+        minus = [];
       }
-      minus = [];
+      if (!$.isArray(minus)) {
+        minus = minus.split(' ');
+      }
       words = [];
       phrase.split(' ').forEach(function(value) {
-        if (value[0] === '-' && value.length) {
+        if (value[0] === '-' && value.trim().length) {
           return minus.push(value);
         } else {
           return words.push(value);
         }
       });
-      if (minus.length) {
-        existing_minuses += ' ';
-      }
-      existing_minuses += minus.join(' ');
-      return [words.join(' '), existing_minuses];
+      return [words.join(' '), minus.join(' ')];
     };
     convertToMinus = function(phrase) {
       var minus;
@@ -698,12 +722,42 @@
 }).call(this);
 
 (function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
+
+}).call(this);
+
+(function() {
   var apiPath, countable, updatable;
 
   angular.module('Wstat').factory('Phrase', function($resource) {
     return $resource(apiPath('phrases'), {
       id: '@id'
-    }, updatable());
+    }, {
+      update: {
+        method: 'PUT'
+      },
+      addMinus: function(words) {
+        words = words["if"](!$.isArray(words));
+        this.minus = this.minus ? this.minus.split(' ') : [];
+        return this.minus;
+      }
+    });
   }).factory('List', function($resource) {
     return $resource(apiPath('lists'), {
       id: '@id'
@@ -732,27 +786,6 @@
       }
     };
   };
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 

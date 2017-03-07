@@ -40,9 +40,9 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
-                <textarea class='form-control' id='modal-value' placeholder="@{{modal.placeholder}}..." ng-model='modal.value'></textarea>
+                <textarea class='form-control' id='modal-value' placeholder="@{{ modal.placeholder }}..." ng-model='modal.value'></textarea>
                 <center>
-                    <div class="btn btn-primary" ng-click="(modal.action)()">@{{modal.title}}</div>
+                    <div class="btn btn-primary" ng-click="(modal.action)()" ng-disabled="!modal.value">@{{ modal.title }}</div>
                 </center>
             </div>
         </div>

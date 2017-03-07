@@ -37,7 +37,7 @@ angular
         $scope.addWords = ->
             new_phrases = []
             $scope.addwords_error = false
-            if $scope.modal.value then $scope.modal.value.split('\n').forEach (line, index) ->
+            $scope.modal.value.split('\n').forEach (line, index) ->
                 return if $scope.addwords_error # one error at a time
                 # skip empty lines
                 if line.trim().length
@@ -75,6 +75,20 @@ angular
             notifyError("#{message}<br>строка #{index + 1}: <i>#{line}</i>")
             return false
 
+        $scope.addMinuses = ->
+            minuses = []
+            $scope.modal.value.split('\n').forEach (line) ->
+                # skip empty lines
+                if line.trim().length
+                    words = line.trim().split(' ')
+                    minuses = minuses.concat(words)
+            minuses.forEach (word) ->
+                word = "-#{word}" if word[0] isnt '-'
+                $rootScope.list.phrases.forEach (phrase) ->
+                    minus_array = if not phrase.minus then [] else phrase.minus.split(' ')
+                    minus_array.push(word)
+                    phrase.minus = minus_array.join(' ')
+            closeModal()
 
         # удалить слова внутри фразы
         $scope.deleteWordsInsidePhrase = ->
@@ -234,18 +248,15 @@ angular
         $scope.filterItems = (value) ->
             value.phrase.match $scope.phrase_search
 
-        separateMinuses = (phrase, existing_minuses = '') ->
-            minus = []
+        separateMinuses = (phrase, minus = []) ->
+            minus = minus.split(' ') if not $.isArray(minus)
             words = []
             phrase.split(' ').forEach (value) ->
-                if value[0] is '-' and value.length
+                if value[0] is '-' and value.trim().length
                     minus.push(value)
                 else
                     words.push(value)
-
-            existing_minuses += ' ' if minus.length
-            existing_minuses += minus.join ' '
-            [words.join(' '), existing_minuses]
+            [words.join(' '), minus.join(' ')]
 
         convertToMinus = (phrase) ->
             minus = []
