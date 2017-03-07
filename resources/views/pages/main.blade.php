@@ -26,6 +26,9 @@
             @{{ phrase.frequency }}
         </td>
         <td style='width: 15%'>
+            <span class='pull-right link-like link-danger' ng-click='editPhrase(phrase)'>редактировать</span>
+        </td>
+        <td style='width: 15%'>
             <span class='pull-right link-like link-danger' ng-click='removePhrase(phrase)'>удалить</span>
         </td>
     </tr>

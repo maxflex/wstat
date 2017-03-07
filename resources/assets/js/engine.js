@@ -342,6 +342,7 @@ function closeModal(id) {
         id = 'main'
     }
     $('#' + id + '-modal').modal('hide')
+    $("#main-modal").removeClass('has-error')
 }
 
 /**
@@ -351,6 +352,14 @@ function removeDoubleSpaces(str) {
     return str.replace('  ', ' ').trim()
 }
 
+function exactMatch(word) {
+    return new RegExp('(?:^|\\s)' + word + '(?:$|\\s)', 'g')
+}
+
+function wrapWithSpace(word) {
+	return ' ' + word + ' '
+}
+
 function replaceWord(str, word, replacement) {
-    return removeDoubleSpaces(str.replace(new RegExp('(?:^|\\s)' + word + '(?:$|\\s)', 'g'), ' ' + replacement + ' '))
+    return removeDoubleSpaces(str.replace(exactMatch(word), wrapWithSpace(word)))
 }

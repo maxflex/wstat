@@ -24,41 +24,49 @@ angular
                         phrase.phrase = replaceWord(phrase.phrase, key, replacement)
             closeModal()
 
+        $scope.endEditing = ->
+            edited_phrase = parsePhrases()
+            if edited_phrase.length
+                phrase_index = _.findIndex $scope.list.phrases, $scope.editing_phrase
+                $scope.list.phrases[phrase_index] = edited_phrase[0]
+            closeModal()
+
+        $scope.editPhrase = (phrase) ->
+            $scope.editing_phrase = phrase
+            $scope.runModal $scope.endEditing, 'cохранить', 'изменение записи', buildPhraseValue phrase
+
         $scope.addWords = ->
-            $("#main-modal").removeClass('has-error')
-            new_phrases = []
-            error = false
-            $scope.modal.value.split('\n').forEach (line) ->
-                # skip empty lines
-                if line.trim().length
-                    list = line.split('\t')
-                    [phrase, minuses] = removeMinuses list[0].trim()
-                    list_item = {phrase: phrase, minuses: minuses, original: list[0].trim()}
-                    # if has tabs
-                    if list.length > 1
-                        frequency = list[1]
-                        # if double tab or not number after tab
-                        if not $.isNumeric(frequency)
-                            $("#main-modal").addClass('has-error')
-                            $scope.list = []
-                            error = true
-                            return
-                        else
-                            list_item.frequency = parseInt(frequency)
-
-                        list_item.original = list[2].trim() if list[2]
-
-                    new_phrases.push(list_item)
-            return if error
+            new_phrases = parsePhrases()
             $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases)
             closeModal()
+
+        parsePhrases = ->
+            new_phrases = []
+            $scope.modal.value and $scope.modal.value.split('\n').forEach (line) ->
+            # skip empty lines
+                if line.trim().length
+                    list = line.split('\t').map (str) -> return str.trim()
+                    [phrase, minuses] = separateMinuses list[0]
+                    if phrase
+                        list_item = {phrase: phrase, minuses: minuses, original: list[0]}
+                        # if has tabs
+                        if list.length > 1
+                            frequency = list[1]
+                            # if double tab or not number after tab
+                            if $.isNumeric(frequency)
+                                list_item.frequency = parseInt(frequency)
+
+                            list_item.original = list[2].trim() if list[2]
+
+                        new_phrases.push(list_item)
+            new_phrases
 
         # удалить слова внутри фразы
         $scope.deleteWordsInsidePhrase = ->
             $scope.modal.value.split('\n').forEach (textarea_phrase) ->
                 $rootScope.list.phrases.forEach (phrase) ->
-                    if phrase.phrase.indexOf(textarea_phrase) isnt -1
-                        phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(textarea_phrase, ''))
+                    if phrase.phrase.match exactMatch(textarea_phrase)
+                        phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase), ' ')).trim()
             $scope.removeEmptyWords()
             closeModal()
 
@@ -66,7 +74,7 @@ angular
         $scope.deletePhrasesWithWords = ->
             $scope.modal.value.split('\n').forEach (textarea_phrase) ->
                 $rootScope.list.phrases = _.filter $rootScope.list.phrases, (phrase) ->
-                    phrase.phrase.indexOf(textarea_phrase) is -1
+                    not phrase.phrase.match exactMatch(textarea_phrase)
             closeModal()
 
         # разбить фразы на слова
@@ -99,6 +107,9 @@ angular
         $scope.removeFrequencies = ->
             $rootScope.list.phrases.forEach (list_item) ->
                 list_item.frequency = undefined
+
+        $scope.removeMinuses = ->
+            $rootScope.list.phrases.forEach (phrase) -> phrase.minuses = []
 
         $scope.removeStartingWith = (sign, phrases = null) ->
             (phrases or $rootScope.list.phrases).forEach (list_item, index) ->
@@ -180,20 +191,27 @@ angular
         angular.element(document).ready ->
             console.log $scope.title
 
-        $scope.runModal = (action, title, placeholder = 'список слов или фраз') ->
-            _.extend $scope.modal = {}, value: null, action: action, title: title, placeholder: placeholder
+        $scope.runModal = (action, title, placeholder = 'список слов или фраз', value = null) ->
+            $scope.modal = value: value, action: action, title: title, placeholder: placeholder
             showModal 'main'
 
         $scope.filterItems = (value) ->
             value.phrase.match $scope.phrase_search
 
-        removeMinuses = (phrase) ->
+        separateMinuses = (phrase) ->
             minuses = []
             words   = []
             phrase.split ' '
                   .forEach (value) ->
-                      if value[0] is '-'
+                      if value[0] is '-' and value.length > 1
                           minuses.push value.substr 1
                       else
                           words.push value
             [words.join(' '), minuses]
+
+        buildPhraseValue = (phrase) ->
+            result = ''
+            result += phrase.phrase
+            result += ' -' + phrase.minuses.join(' -') if phrase.minuses.length
+            result += '\t' + phrase.frequency if phrase.frequency
+            result
