@@ -35,7 +35,7 @@
               <div class="row">
                   <div class="col-sm-4">@{{ $root.route.title }}</div>
                   <div class="col-sm-4 center">
-                      @yield('title-center')
+                      @{{ $root.center_title }}
                   </div>
                   <div class="col-sm-4 right">
                      <a href='#' ng-show="$root.route.originalPath != '/'">назад</a>

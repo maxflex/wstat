@@ -1,9 +1,7 @@
-<a class="list-group-item active">Операции
-    <span class="search_icon" id="searchModalOpen"><span class="glyphicon glyphicon-search no-margin-right"></span></span>
-</a>
+<a class="list-group-item active">Операции</a>
 <a ng-click="runModal(addWords, 'добавить')" class="list-group-item">Добавить слова</a>
 <a ng-click='splitPhrasesToWords()' class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Разбить фразы на слова</a>
-<a ng-click="runModal(replacePhrases, 'заменить')" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Поиск и замена</a>
+<a onclick="showModal('replace')" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Поиск и замена</a>
 <a ng-click='lowercase()' class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Превратить все буквы в маленькие</a>
 <a ng-click='getFrequencies()' class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Проставить частоты</a>
 <a ng-click="SmartSort.run($root.list)" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Умная сортировка</a>
@@ -19,6 +17,7 @@
 <a ng-click="runModal(deletePhrasesWithWords, 'удалить')" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Удалить фразы, содержащие слова</a>
 
 <a class="list-group-item active">Список</a>
+<a ng-click="clear()" ng-class="{'disabled': !$root.list.phrases.length}" class="list-group-item">Очистить</a>
 <a ng-click="ExportService.export()" class="list-group-item" ng-class="{'disabled': !$root.list.phrases.length}">Экспорт</a>
 {{-- <a ng-click="ExportService.import($event)" class="list-group-item">Импорт</a> --}}
 <a ng-click="save()" class="list-group-item" ng-class="{'disabled': !$root.list.id}">Сохранить</a>

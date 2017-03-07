@@ -1,5 +1,6 @@
 <script>
-    ENV = '{!! app()->env !!}';
+    ENV = '{!! app()->env !!}'
+    DEBUG_LIST_ID = '{!! env('DEBUG_LIST_ID') !!}'
 </script>
 {{-- <script>
     angular.module('Egerep')

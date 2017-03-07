@@ -7,6 +7,11 @@
       title: null,
       phrases: []
     });
+    if (ENV === 'local' && DEBUG_LIST_ID) {
+      $rootScope.list = List.get({
+        id: DEBUG_LIST_ID
+      });
+    }
     $rootScope.loading = false;
     $rootScope.$watch('loading', function(newVal, oldVal) {
       if (newVal === true) {
@@ -46,6 +51,11 @@
       });
     }
   ]);
+
+}).call(this);
+
+(function() {
+
 
 }).call(this);
 
@@ -107,6 +117,7 @@
   var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $http, TransformService) {
+    var getFrequencies;
     bindArguments($scope, arguments);
     $scope.$on('$viewContentLoaded', function() {
       return $("#modal-value").off('keydown').keydown(function(e) {
@@ -122,18 +133,13 @@
         }
       });
     });
-    $scope.replacePhrases = function() {
-      $scope.modal.value.split('\n').forEach(function(line) {
-        var key, ref, replacement;
-        if (line.trim().length) {
-          ref = line.split('\t'), key = ref[0], replacement = ref[1];
-          key = key.trim();
-          return $scope.list.phrases.forEach(function(phrase) {
-            return phrase.phrase = replaceWord(phrase.phrase, key, replacement);
-          });
-        }
+    $scope.replace = function() {
+      $rootScope.list.phrases.forEach(function(phrase) {
+        return phrase.phrase = replaceWord(phrase.phrase, $scope.find_phrase, $scope.replace_phrase);
       });
-      return closeModal();
+      $scope.find_phrase = void 0;
+      $scope.replace_phrase = void 0;
+      return closeModal('replace');
     };
     $scope.addWords = function() {
       var error, new_phrases;
@@ -311,34 +317,54 @@
         }
       });
     };
+    $scope.clear = function() {
+      return $rootScope.list.phrases = [];
+    };
     $scope.saveAs = function() {
       $rootScope.loading = true;
-      $rootScope.title = $rootScope.list.title;
-      $rootScope.list.$save().then(function() {
-        return $rootScope.loading = false;
-      });
-      return closeModal('save-as');
-    };
-    $scope.save = function() {
-      if ($rootScope.list.id && $rootScope.list.phrases.length) {
-        $rootScope.loading = true;
-        return $rootScope.list.$update().then(function() {
+      $rootScope.route.title = $rootScope.list.title;
+      if ($rootScope.list.id) {
+        $rootScope.list.$update().then(function() {
+          return $rootScope.loading = false;
+        });
+      } else {
+        $rootScope.list.$save().then(function() {
           return $rootScope.loading = false;
         });
       }
+      return closeModal('save-as');
+    };
+    $scope.save = function() {
+      $rootScope.loading = true;
+      return $rootScope.list.$update().then(function() {
+        return $rootScope.loading = false;
+      });
     };
     $scope.getFrequencies = function() {
-      $rootScope.loading = true;
+      $scope.frequencies = [];
+      return getFrequencies();
+    };
+    getFrequencies = function(step) {
+      var length, phrases;
+      if (step == null) {
+        step = 0;
+      }
+      phrases = $rootScope.list.phrases.slice(step * 100, (step * 100) + 100);
+      length = $rootScope.list.phrases.length / 10 * 10 + 100;
+      $rootScope.center_title = Math.round(step / length * 10000) + '%';
       return $http.post('api/getFrequencies', {
-        phrases: $rootScope.list.phrases
+        phrases: _.pluck(phrases, 'phrase')
       }).then(function(response) {
-        $rootScope.list.phrases.forEach(function(phrase, index) {
-          console.log(response.data[index]);
-          return phrase.frequency = response.data[index];
-        });
-        return $rootScope.loading = false;
+        $scope.frequencies = $scope.frequencies.concat(response.data);
+        if (phrases.length === 100) {
+          return getFrequencies(step + 1);
+        } else {
+          $rootScope.list.phrases.forEach(function(phrase, index) {
+            return phrase.frequency = $scope.frequencies[index];
+          });
+          return $rootScope.center_title = void 0;
+        }
       }, function(response) {
-        $rootScope.loading = false;
         return notifyError(response.data);
       });
     };
@@ -353,6 +379,11 @@
     angular.element(document).ready(function() {
       return console.log($scope.title);
     });
+    $scope.onEnter = function(func, event) {
+      if (event.keyCode === 13) {
+        return func();
+      }
+    };
     return $scope.runModal = function(action, title, placeholder) {
       if (placeholder == null) {
         placeholder = 'список слов или фраз';
@@ -366,53 +397,6 @@
       return showModal('main');
     };
   });
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
-
-}).call(this);
-
-(function() {
-
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 
@@ -637,6 +621,27 @@
 }).call(this);
 
 (function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
+
+}).call(this);
+
+(function() {
   var apiPath, countable, updatable;
 
   angular.module('Wstat').factory('Phrase', function($resource) {
@@ -688,7 +693,7 @@
       this.editor.getSession().setUseWrapMode(true);
       this.editor.setOptions({
         minLines: minLines,
-        maxLines: 2e308
+        maxLines: Infinity
       });
       return this.editor.commands.addCommand({
         name: 'save',
@@ -997,31 +1002,43 @@
 (function() {
   angular.module('Wstat').service('TransformService', function($rootScope) {
     this.selectRow = function(index) {
-      if (this.selected_row === void 0) {
-        return this.selected_row = index;
+      if (this.selected_rows === void 0) {
+        this.selected_rows = [];
+      }
+      if (this.selected_rows.indexOf(index) === -1) {
+        return this.selected_rows.push(index);
       } else {
-        if (this.selected_row === index) {
-          return this.selected_row = void 0;
-        } else {
-          if (this.selected_rows === void 0) {
-            this.selected_rows = [];
-          }
-          if (this.selected_rows.indexOf(index) === -1) {
-            return this.selected_rows.push(index);
-          } else {
-            return this.selected_rows.splice(this.selected_rows.indexOf(index), 1);
-          }
-        }
+        return this.selected_rows.splice(this.selected_rows.indexOf(index), 1);
       }
     };
-    this.add = function() {
+    this.add = function(index) {
       if (this.transform_items === void 0) {
         this.transform_items = {};
       }
-      this.transform_items[this.selected_row] = this.selected_rows;
-      this.selected_row = void 0;
+      if (this.phrases[index].words === void 0) {
+        this.phrases[index].words = [];
+      }
+      this.selected_rows.forEach((function(_this) {
+        return function(position) {
+          _this.phrases[position].added = true;
+          return _this.phrases[index].words.push(_this.phrases[position].phrase);
+        };
+      })(this));
+      if (this.transform_items[index] === void 0) {
+        this.transform_items[index] = [];
+      }
+      this.transform_items[index] = this.transform_items[index].concat(this.selected_rows);
       this.selected_rows = void 0;
       return console.log(this.transform_items);
+    };
+    this.remove = function(index) {
+      this.transform_items[index].forEach((function(_this) {
+        return function(position) {
+          _this.phrases[position].added = false;
+          return _this.phrases[position].words = void 0;
+        };
+      })(this));
+      return this.transform_items[index] = void 0;
     };
     this.transform = function() {
       $rootScope.list.phrases.forEach((function(_this) {
@@ -1037,12 +1054,9 @@
       return closeModal('transform');
     };
     this.cancel = function() {
-      this.selected_row = void 0;
+      this.phrases = void 0;
       this.selected_rows = void 0;
       return this.transform_items = void 0;
-    };
-    this.itemsCount = function() {
-      return Object.keys(this.transform_items).length;
     };
     return this;
   });

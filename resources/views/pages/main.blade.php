@@ -45,10 +45,33 @@
                 <h4 class="modal-title">Сохранить список как...</h4>
             </div>
             <div class="modal-body">
-                <input ng-model='list.title' class='form-control mb' placeholder="Новый список">
+                <input ng-model='list.title' ng-keydown="onEnter(saveAs, $event)" class='form-control mb' placeholder="Новый список">
             </div>
             <div class="modal-footer center">
                 <div class="btn btn-primary" ng-disabled="!list.title || $root.saving" ng-click="saveAs()">сохранить</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id='replace-modal' tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Поиск и замена
+                    {{-- <span class="text-gray span-in-h4">найдено 58 совпадений</span> --}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input class='form-control mb' ng-model='find_phrase' placeholder="найти">
+                </div>
+                <div class="form-group">
+                    <input class='form-control mb' ng-model='replace_phrase' placeholder="заменить">
+                </div>
+            </div>
+            <div class="modal-footer center">
+                <div class="btn btn-primary" ng-disabled="!find_phrase || !replace_phrase" ng-click="replace()">Заменить</div>
             </div>
         </div>
     </div>
@@ -62,22 +85,34 @@
             </div>
             <div class="modal-body scrollable-body">
                 <table class='table table-hover table-small'>
-                    <tr ng-click="TransformService.selectRow($index)" ng-repeat='phrase in TransformService.phrases' class='pointer'
+                    <tr ng-repeat='phrase in TransformService.phrases' class='pointer'
+                        ng-hide='phrase.added'
                         ng-class="{
                             'row-disabled': TransformService.selected_row == $index,
                             'success': TransformService.selected_rows && TransformService.selected_rows.indexOf($index) != -1
                         }">
-                        <td>
+                        <td ng-click="TransformService.selectRow($index)" style='width: 15%'>
                             @{{ phrase.phrase }}
+                        </td>
+                        <td ng-click="TransformService.selectRow($index)" class='text-gray' style='width: 70%'>
+                            <span ng-if-'phrase.words' ng-repeat="word in phrase.words">@{{ word }}@{{ $last ? '' : ', ' }}</span>
+                        </td>
+                        <td style='width: 7.5%'>
+                            <span ng-show='TransformService.transform_items[$index] !== undefined'
+                                class='pull-right link-like' ng-click='TransformService.remove($index)'>вернуть</span>
+                        </td>
+                        <td style='width: 7.5%'>
+                            <span ng-show='TransformService.selected_rows !== undefined && TransformService.selected_rows.indexOf($index) === -1'
+                                class='pull-right link-like' ng-click='TransformService.add($index)'>выбрать</span>
                         </td>
                     </tr>
                 </table>
             </div>
             <div class="modal-footer center">
                 {{-- <div class="btn btn-primary" ng-disabled="!TransformService.selected_row && !TransformService.selected_rows && TransformService.transform_items === undefined" ng-click="cancel()">отмена</div> --}}
-                <button class="btn btn-primary" ng-disabled="TransformService.selected_row === undefined || TransformService.selected_rows === undefined || !TransformService.selected_rows.length" ng-click="TransformService.add()">добавить</button>
+                {{-- <button class="btn btn-primary" ng-disabled="TransformService.selected_row === undefined || TransformService.selected_rows === undefined || !TransformService.selected_rows.length" ng-click="TransformService.add()">добавить</button> --}}
                 <button class="btn btn-primary" ng-disabled="TransformService.transform_items === undefined" ng-click="TransformService.transform()">
-                    трансформировать <span ng-if='TransformService.transform_items !== undefined'>(@{{ TransformService.itemsCount() }})</span>
+                    трансформировать
                 </button>
             </div>
         </div>

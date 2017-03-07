@@ -15,14 +15,12 @@ angular
                     this.selectionStart = this.selectionEnd = start + 1
                     e.preventDefault()
 
-        $scope.replacePhrases = ->
-            $scope.modal.value.split('\n').forEach (line) ->
-                if line.trim().length
-                    [key, replacement] = line.split('\t')
-                    key = key.trim()
-                    $scope.list.phrases.forEach (phrase) ->
-                        phrase.phrase = replaceWord(phrase.phrase, key, replacement)
-            closeModal()
+        $scope.replace = ->
+            $rootScope.list.phrases.forEach (phrase) ->
+                phrase.phrase = replaceWord(phrase.phrase, $scope.find_phrase, $scope.replace_phrase)
+            $scope.find_phrase = undefined
+            $scope.replace_phrase = undefined
+            closeModal('replace')
 
         $scope.addWords = ->
             $("#main-modal").removeClass('has-error')
@@ -145,28 +143,47 @@ angular
                     phrase.phrase = words_list.join(' ')
                     phrase.minus = []
 
+        $scope.clear = ->
+            $rootScope.list.phrases = []
+
         $scope.saveAs = ->
             $rootScope.loading = true
-            $rootScope.title = $rootScope.list.title
-            $rootScope.list.$save().then -> $rootScope.loading = false
+            $rootScope.route.title = $rootScope.list.title
+            if $rootScope.list.id
+                $rootScope.list.$update().then -> $rootScope.loading = false
+            else
+                $rootScope.list.$save().then -> $rootScope.loading = false
             closeModal('save-as')
 
         $scope.save = ->
-            if $rootScope.list.id and $rootScope.list.phrases.length
-                $rootScope.loading = true
-                $rootScope.list.$update().then -> $rootScope.loading = false
-
-        $scope.getFrequencies = ->
             $rootScope.loading = true
+            $rootScope.list.$update().then -> $rootScope.loading = false
+
+        # проставить частоты
+        $scope.getFrequencies = ->
+            $scope.frequencies = []
+            getFrequencies()
+
+        getFrequencies = (step = 0) ->
+            phrases = $rootScope.list.phrases.slice(step * 100, (step * 100) + 100)
+
+            # для подсчета кол-ва процентов
+            length = $rootScope.list.phrases.length / 10 * 10 + 100
+            $rootScope.center_title = Math.round(step / length * 10000) + '%'
+
             $http.post 'api/getFrequencies',
-                phrases: $rootScope.list.phrases
+                phrases: _.pluck(phrases, 'phrase')
             .then (response) ->
-                $rootScope.list.phrases.forEach (phrase, index) ->
-                    console.log(response.data[index])
-                    phrase.frequency = response.data[index]
-                $rootScope.loading = false
+                $scope.frequencies = $scope.frequencies.concat(response.data)
+                if phrases.length is 100
+                    # console.log("(#{step} / #{length} * 10000)")
+                    getFrequencies(step + 1)
+                else
+                    # завершено
+                    $rootScope.list.phrases.forEach (phrase, index) ->
+                        phrase.frequency = $scope.frequencies[index]
+                    $rootScope.center_title = undefined
             , (response) ->
-                $rootScope.loading = false
                 notifyError(response.data)
 
         $scope.transform = ->
@@ -179,6 +196,10 @@ angular
 
         angular.element(document).ready ->
             console.log $scope.title
+
+
+        $scope.onEnter = (func, event) ->
+            func() if event.keyCode is 13
 
         $scope.runModal = (action, title, placeholder = 'список слов или фраз') ->
             _.extend $scope.modal = {}, value: null, action: action, title: title, placeholder: placeholder

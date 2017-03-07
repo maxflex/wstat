@@ -38,40 +38,40 @@ class YandexDirect
     /**
      * Получить частотность фраз
      */
-    public static function getFrequencies($all_phrases)
+    public static function getFrequencies($phrases)
     {
         $return = [];
-        foreach(array_chunk($all_phrases, 100) as $phrases) {
-            # кодируем фразы в UTF-8
-            foreach ($phrases as &$phrase) {
-                $phrase = utf8_encode($phrase);
-            }
-            # создаем отчет
-            $data = self::exec('CreateNewForecast', [
-                'GeoID' => [self::MOSCOW_GEO_ID],
-                'Phrases' => $phrases
-            ]);
 
-            if (isset($data->error_code)) {
-                return join('<br>', explode('. ', $data->error_detail));
-            } else {
-                $forecast_id = $data->data;
-            }
+        # кодируем фразы в UTF-8
+        foreach ($phrases as &$phrase) {
+            $phrase = utf8_encode($phrase);
+        }
+        
+        # создаем отчет
+        $data = self::exec('CreateNewForecast', [
+            'GeoID' => [self::MOSCOW_GEO_ID],
+            'Phrases' => $phrases
+        ]);
 
-            # дожидаемся создания отчета и получаем отчет
-            $trial = 1; // первая попытка
-            while ($trial <= static::TRIALS) {
-                $response = self::exec('GetForecast', $forecast_id);
-                if (isset($response->data)) {
-                    break;
-                }
-                $trial++;
-                sleep(static::SLEEP);
-            }
+        if (isset($data->error_code)) {
+            return join('<br>', explode('. ', $data->error_detail));
+        } else {
+            $forecast_id = $data->data;
+        }
 
-            foreach($response->data->Phrases as $phrase) {
-                $return[] = $phrase->Shows;
+        # дожидаемся создания отчета и получаем отчет
+        $trial = 1; // первая попытка
+        while ($trial <= static::TRIALS) {
+            $response = self::exec('GetForecast', $forecast_id);
+            if (isset($response->data)) {
+                break;
             }
+            $trial++;
+            sleep(static::SLEEP);
+        }
+
+        foreach($response->data->Phrases as $phrase) {
+            $return[] = $phrase->Shows;
         }
 
         return $return;
