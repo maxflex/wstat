@@ -117,7 +117,7 @@
   var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   angular.module('Wstat').controller('MainCtrl', function($scope, $rootScope, $http, TransformService) {
-    var getFrequencies, parsePhrases, separateMinuses;
+    var addWordsError, getFrequencies, separateMinuses;
     bindArguments($scope, arguments);
     $scope.$on('$viewContentLoaded', function() {
       return $("#modal-value").off('keydown').keydown(function(e) {
@@ -155,42 +155,55 @@
     };
     $scope.addWords = function() {
       var new_phrases;
-      new_phrases = parsePhrases();
-      $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases);
-      return closeModal();
-    };
-    parsePhrases = function() {
-      var new_phrases;
       new_phrases = [];
+      $scope.addwords_error = false;
       if ($scope.modal.value) {
-        $scope.modal.value.split('\n').forEach(function(line) {
-          var frequency, list, list_item, minus, phrase, ref;
+        $scope.modal.value.split('\n').forEach(function(line, index) {
+          var frequency, list_item, minus, original, parsed_line, phrase, ref;
           if (line.trim().length) {
-            list = line.split('\t').map(function(str) {
-              return str.trim();
-            });
-            ref = separateMinuses(list[0]), phrase = ref[0], minus = ref[1];
-            if (phrase) {
-              list_item = {
-                phrase: phrase,
-                minus: minus,
-                original: list[0]
-              };
-              if (list.length > 1) {
-                frequency = list[1];
-                if ($.isNumeric(frequency)) {
-                  list_item.frequency = parseInt(frequency);
-                }
-                if (list[2]) {
-                  list_item.original = list[2].trim();
-                }
-              }
-              return new_phrases.push(list_item);
+            parsed_line = line.split('\t');
+            if (parsed_line.length > 3) {
+              return addWordsError(index, line, 'некорректрое форматирование');
             }
+            phrase = parsed_line[0], frequency = parsed_line[1], original = parsed_line[2];
+
+            /* PHRASE */
+            if (!phrase) {
+              return addWordsError(index, line, 'отсутствует основная фраза');
+            }
+            ref = separateMinuses(phrase), phrase = ref[0], minus = ref[1];
+            list_item = {
+              phrase: phrase,
+              minus: minus,
+              original: phrase
+            };
+
+            /* FREQUENCY */
+            if (frequency) {
+              if (!$.isNumeric(frequency)) {
+                return addWordsError(index, line, 'частота должна быть числом');
+              }
+              list_item.frequency = parseInt(frequency);
+            }
+
+            /* ORIGINAL */
+            if (original) {
+              list_item.original = original;
+            }
+            return new_phrases.push(list_item);
           }
         });
       }
-      return new_phrases;
+      if ($scope.addwords_error) {
+        return;
+      }
+      $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases);
+      return closeModal();
+    };
+    addWordsError = function(index, line, message) {
+      $scope.addwords_error = true;
+      notifyError("Строка " + (index + 1) + ": " + message + "<br>" + line);
+      return false;
     };
     $scope.deleteWordsInsidePhrase = function() {
       $scope.modal.value.split('\n').forEach(function(textarea_phrase) {
@@ -441,6 +454,65 @@
 }).call(this);
 
 (function() {
+  var apiPath, countable, updatable;
+
+  angular.module('Wstat').factory('Phrase', function($resource) {
+    return $resource(apiPath('phrases'), {
+      id: '@id'
+    }, updatable());
+  }).factory('List', function($resource) {
+    return $resource(apiPath('lists'), {
+      id: '@id'
+    }, updatable());
+  });
+
+  apiPath = function(entity, additional) {
+    if (additional == null) {
+      additional = '';
+    }
+    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
+  };
+
+  updatable = function() {
+    return {
+      update: {
+        method: 'PUT'
+      }
+    };
+  };
+
+  countable = function() {
+    return {
+      count: {
+        method: 'GET'
+      }
+    };
+  };
+
+}).call(this);
+
+(function() {
+  angular.module('Wstat').value('Published', [
+    {
+      id: 0,
+      title: 'не опубликовано'
+    }, {
+      id: 1,
+      title: 'опубликовано'
+    }
+  ]).value('UpDown', [
+    {
+      id: 1,
+      title: 'вверху'
+    }, {
+      id: 2,
+      title: 'внизу'
+    }
+  ]);
+
+}).call(this);
+
+(function() {
 
 
 }).call(this);
@@ -658,65 +730,6 @@
 
 (function() {
 
-
-}).call(this);
-
-(function() {
-  var apiPath, countable, updatable;
-
-  angular.module('Wstat').factory('Phrase', function($resource) {
-    return $resource(apiPath('phrases'), {
-      id: '@id'
-    }, updatable());
-  }).factory('List', function($resource) {
-    return $resource(apiPath('lists'), {
-      id: '@id'
-    }, updatable());
-  });
-
-  apiPath = function(entity, additional) {
-    if (additional == null) {
-      additional = '';
-    }
-    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
-  };
-
-  updatable = function() {
-    return {
-      update: {
-        method: 'PUT'
-      }
-    };
-  };
-
-  countable = function() {
-    return {
-      count: {
-        method: 'GET'
-      }
-    };
-  };
-
-}).call(this);
-
-(function() {
-  angular.module('Wstat').value('Published', [
-    {
-      id: 0,
-      title: 'не опубликовано'
-    }, {
-      id: 1,
-      title: 'опубликовано'
-    }
-  ]).value('UpDown', [
-    {
-      id: 1,
-      title: 'вверху'
-    }, {
-      id: 2,
-      title: 'внизу'
-    }
-  ]);
 
 }).call(this);
 

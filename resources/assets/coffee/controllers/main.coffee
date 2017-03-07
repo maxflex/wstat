@@ -34,28 +34,45 @@ angular
             rebindMasks()
 
         $scope.addWords = ->
-            new_phrases = parsePhrases()
+            new_phrases = []
+            $scope.addwords_error = false
+            if $scope.modal.value then $scope.modal.value.split('\n').forEach (line, index) ->
+                # skip empty lines
+                if line.trim().length
+                    # parse tabs
+                    parsed_line = line.split('\t')
+
+                    # error if more than N elements
+                    return addWordsError(index, line, 'некорректрое форматирование') if parsed_line.length > 3
+
+                    [phrase, frequency, original] = parsed_line
+
+                    ### PHRASE ###
+                    # error if no original value
+                    return addWordsError(index, line, 'отсутствует основная фраза') if not phrase
+
+                    [phrase, minus] = separateMinuses(phrase)
+
+                    list_item = {phrase: phrase, minus: minus, original: phrase}
+
+                    ### FREQUENCY ###
+                    if frequency
+                        return addWordsError(index, line, 'частота должна быть числом') if not $.isNumeric(frequency)
+                        list_item.frequency = parseInt(frequency)
+
+                    ### ORIGINAL ###
+                    list_item.original = original if original
+
+                    new_phrases.push(list_item)
+            return if $scope.addwords_error
             $rootScope.list.phrases = $rootScope.list.phrases.concat(new_phrases)
             closeModal()
 
-        parsePhrases = ->
-            new_phrases = []
-            if $scope.modal.value then $scope.modal.value.split('\n').forEach (line) ->
-                # skip empty lines
-                if line.trim().length
-                    list = line.split('\t').map (str) -> return str.trim()
-                    [phrase, minus] = separateMinuses(list[0])
-                    if phrase
-                        list_item = {phrase: phrase, minus: minus, original: list[0]}
-                        # if has tabs
-                        if list.length > 1
-                            frequency = list[1]
-                            # if double tab or not number after tab
-                            if $.isNumeric(frequency)
-                                list_item.frequency = parseInt(frequency)
-                            list_item.original = list[2].trim() if list[2]
-                        new_phrases.push(list_item)
-            new_phrases
+        addWordsError = (index, line, message) ->
+            $scope.addwords_error = true
+            notifyError("Строка #{index + 1}: #{message}<br>#{line}")
+            return false
+
 
         # удалить слова внутри фразы
         $scope.deleteWordsInsidePhrase = ->
