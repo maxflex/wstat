@@ -8,7 +8,7 @@ angular.module 'Wstat'
         convertListToCSV = ->
             data = ['id' + columnDelimiter + fields.join(columnDelimiter)] # headers
             $rootScope.list.phrases.forEach (phrase, index) ->
-                item = [{id: index + 1}]
+                item = [index + 1]
                 fields.forEach (field) -> item.push(phrase[field])
                 data.push(item.join(columnDelimiter))
             data.join(lineDelimiter)

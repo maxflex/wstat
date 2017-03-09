@@ -493,53 +493,6 @@
 }).call(this);
 
 (function() {
-  var apiPath, countable, updatable;
-
-  angular.module('Wstat').factory('Phrase', function($resource) {
-    return $resource(apiPath('phrases'), {
-      id: '@id'
-    }, {
-      update: {
-        method: 'PUT'
-      },
-      addMinus: function(words) {
-        words = words["if"](!$.isArray(words));
-        this.minus = this.minus ? this.minus.split(' ') : [];
-        return this.minus;
-      }
-    });
-  }).factory('List', function($resource) {
-    return $resource(apiPath('lists'), {
-      id: '@id'
-    }, updatable());
-  });
-
-  apiPath = function(entity, additional) {
-    if (additional == null) {
-      additional = '';
-    }
-    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
-  };
-
-  updatable = function() {
-    return {
-      update: {
-        method: 'PUT'
-      }
-    };
-  };
-
-  countable = function() {
-    return {
-      count: {
-        method: 'GET'
-      }
-    };
-  };
-
-}).call(this);
-
-(function() {
 
 
 }).call(this);
@@ -782,6 +735,53 @@
 }).call(this);
 
 (function() {
+  var apiPath, countable, updatable;
+
+  angular.module('Wstat').factory('Phrase', function($resource) {
+    return $resource(apiPath('phrases'), {
+      id: '@id'
+    }, {
+      update: {
+        method: 'PUT'
+      },
+      addMinus: function(words) {
+        words = words["if"](!$.isArray(words));
+        this.minus = this.minus ? this.minus.split(' ') : [];
+        return this.minus;
+      }
+    });
+  }).factory('List', function($resource) {
+    return $resource(apiPath('lists'), {
+      id: '@id'
+    }, updatable());
+  });
+
+  apiPath = function(entity, additional) {
+    if (additional == null) {
+      additional = '';
+    }
+    return ("api/" + entity + "/") + (additional ? additional + '/' : '') + ":id";
+  };
+
+  updatable = function() {
+    return {
+      update: {
+        method: 'PUT'
+      }
+    };
+  };
+
+  countable = function() {
+    return {
+      count: {
+        method: 'GET'
+      }
+    };
+  };
+
+}).call(this);
+
+(function() {
   angular.module('Wstat').service('AceService', function() {
     this.initEditor = function(FormService, minLines, id) {
       if (minLines == null) {
@@ -970,11 +970,7 @@
       data = ['id' + columnDelimiter + fields.join(columnDelimiter)];
       $rootScope.list.phrases.forEach(function(phrase, index) {
         var item;
-        item = [
-          {
-            id: index + 1
-          }
-        ];
+        item = [index + 1];
         fields.forEach(function(field) {
           return item.push(phrase[field]);
         });
