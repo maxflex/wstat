@@ -218,7 +218,6 @@ angular
             .then (response) ->
                 $scope.frequencies = $scope.frequencies.concat(response.data)
                 if phrases.length is 100
-                    # console.log("(#{step} / #{length} * 10000)")
                     getFrequencies(step + 1)
                 else
                     # завершено
@@ -227,6 +226,7 @@ angular
                     $rootScope.center_title = undefined
             , (response) ->
                 notifyError(response.data)
+                $rootScope.center_title = undefined
 
         $scope.transform = ->
             TransformService.phrases = angular.copy($rootScope.list.phrases)

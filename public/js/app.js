@@ -2,7 +2,6 @@
   angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui.sortable', 'ui.bootstrap', 'angular-ladda', 'angularFileUpload']).constant('DEFAULT_LIST_TITLE', 'Новый список').run(function($rootScope, List, DEFAULT_LIST_TITLE, ExportService, SmartSort) {
     $rootScope.ExportService = ExportService;
     $rootScope.SmartSort = SmartSort;
-    ExportService.init();
     $rootScope.list = new List({
       title: null,
       phrases: []
@@ -27,18 +26,10 @@
     return $rootScope.$on('$routeChangeStart', function(event, next, prev) {
       $rootScope.route = next.$$route;
       if ($rootScope.route.originalPath === '/') {
-        $rootScope.route.title = $rootScope.list.title || DEFAULT_LIST_TITLE;
+        return $rootScope.route.title = $rootScope.list.title || DEFAULT_LIST_TITLE;
       }
-      return ExportService.init({
-        list: $rootScope.list
-      });
     });
   });
-
-}).call(this);
-
-(function() {
-
 
 }).call(this);
 
@@ -427,7 +418,8 @@
           return $rootScope.center_title = void 0;
         }
       }, function(response) {
-        return notifyError(response.data);
+        notifyError(response.data);
+        return $rootScope.center_title = void 0;
       });
     };
     $scope.transform = function() {
@@ -967,49 +959,34 @@
 }).call(this);
 
 (function() {
-  angular.module('Wstat').service('ExportService', function($rootScope, FileUploader) {
-    bindArguments(this, arguments);
-    this.init = function() {
-      this.FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
-        return true;
-      };
-      return this.uploader = new this.FileUploader({
-        url: "excel/import",
-        alias: 'imported_file',
-        method: 'post',
-        autoUpload: true,
-        removeAfterUpload: true,
-        onBeforeUploadItem: function() {
-          if (scope.list.id) {
-            return this.url += "/" + scope.list.id;
-          }
-        },
-        onCompleteItem: function(i, response, status) {
-          if (status === 200) {
-            notifySuccess('Импортировано');
-            if (response.length) {
-              return scope.list.phrases = response;
-            }
-          } else {
-            return notifyError('Ошибка импорта');
-          }
-        },
-        onWhenAddingFileFailed: function(item, filter) {
-          if (filter.name === "queueLimit") {
-            this.clearQueue();
-            return this.addToQueue(item);
-          }
-        }
+  angular.module('Wstat').service('ExportService', function($rootScope) {
+    var columnDelimiter, convertListToCSV, fields, filename, lineDelimiter;
+    columnDelimiter = ';';
+    lineDelimiter = '\n';
+    filename = 'wstat.csv';
+    fields = ['phrase', 'minus', 'original', 'frequency'];
+    convertListToCSV = function() {
+      var data;
+      data = [fields.join(columnDelimiter)];
+      $rootScope.list.phrases.forEach(function(phrase) {
+        var item;
+        item = [];
+        fields.forEach(function(field) {
+          return item.push(phrase[field]);
+        });
+        return data.push(item.join(columnDelimiter));
       });
+      return data.join(lineDelimiter);
     };
-    this["import"] = function(e) {
-      e.preventDefault();
-      $('#import-button').trigger('click');
-    };
-    this["export"] = function() {
-      if (scope.list.id) {
-        window.location = "/excel/export/" + scope.list.id;
-      }
+    this.downloadCSV = function() {
+      var csv, data, link;
+      csv = convertListToCSV();
+      csv = 'data:text/csv;charset=utf-8,' + csv;
+      data = encodeURI(csv);
+      link = document.createElement('a');
+      link.setAttribute('href', data);
+      link.setAttribute('download', filename);
+      return link.click();
     };
     return this;
   });

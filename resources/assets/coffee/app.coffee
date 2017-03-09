@@ -3,7 +3,7 @@ angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui
     .run ($rootScope, List, DEFAULT_LIST_TITLE, ExportService, SmartSort) ->
         $rootScope.ExportService = ExportService
         $rootScope.SmartSort = SmartSort
-        ExportService.init()
+        # ExportService.init()
         # список слов
         $rootScope.list = new List
             title: null
@@ -22,4 +22,3 @@ angular.module("Wstat", ['ngRoute', 'ngSanitize', 'ngResource', 'ngAnimate', 'ui
         $rootScope.$on '$routeChangeStart', (event, next, prev) ->
             $rootScope.route = next.$$route
             $rootScope.route.title = $rootScope.list.title or DEFAULT_LIST_TITLE if $rootScope.route.originalPath is '/'
-            ExportService.init({list: $rootScope.list})

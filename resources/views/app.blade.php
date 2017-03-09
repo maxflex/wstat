@@ -26,7 +26,6 @@
       <div style="margin-left: 10px" class="col-sm-2 menu-col">
           <div class="list-group main-menu">
               @include('_menu')
-              @include('modules._export_dialog')
           </div>
       </div>
       <div class="col-sm-9 content-col">
