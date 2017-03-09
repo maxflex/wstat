@@ -71,6 +71,6 @@ const elixir = require('laravel-elixir');
              'angular-file-upload/dist/angular-file-upload.min',
              'jquery.maskedinput/dist/jquery.maskedinput.min',
              'angular-route/angular-route.min',
-             'xregexp/xregexp-all'
+             'vue/dist/vue'
          ]).concat(['resources/assets/js/*.js']), 'public/js/vendor.js');
  });
