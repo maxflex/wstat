@@ -13,7 +13,7 @@ $(document).ready ->
         # phrases: [{phrase: 'phrase one test'}, {phrase: 'phrase two test'}]
         phrases: []
       modal: {}
-      modal_phrase: {frequency: null, phrase: '', minuses: ''}
+      modal_phrase: {frequency: null, phrase: '', minus: ''}
       find_phrase: null
       replace_phrase: null
       center_title: null
@@ -256,6 +256,7 @@ $(document).ready ->
         @modal_phrase = _.clone phrase
         _.extendOwn @modal_phrase, {index: index}
         showModal 'edit-phrase'
+        rebindMasks()
 
       editPhrase: ->
         [@modal_phrase.phrase, @modal_phrase.minus] = @separateMinuses @modal_phrase.phrase, @convertToMinus @modal_phrase.minus
