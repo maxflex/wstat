@@ -26,7 +26,7 @@
             @{{ phrase.frequency }}
         </td>
         <td style='width: 10%'>
-             <span class='link-like link-danger' v-on:click='startEditingPhrase(phrase)'>редактировать</span>
+             <span class='link-like link-danger' v-on:click='startEditingPhrase(list.phrases.indexOf(phrase), phrase)'>редактировать</span>
         </td>
         <td style='width: 5%'>
              <span class='link-like link-danger' v-on:click='removePhrase(phrase)'>удалить</span>
