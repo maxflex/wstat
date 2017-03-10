@@ -8,9 +8,9 @@
     </div>
 
     <table class="table">
-        <tr v-for="phrase in filtered_phrases">
+        <tr v-for="(phrase, index) in filtered_phrases">
             <td style="width:3%" class="text-gray">
-                 @{{ list.phrases.indexOf(phrase) + 1 }}.
+                 @{{ index + 1 }}.
             </td>
             <td style='width: 33%'>
                 @{{ phrase.phrase }}

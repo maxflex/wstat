@@ -261,7 +261,7 @@
           }
           words = [];
           phrase.split(' ').forEach(function(value) {
-            if (value[0] === '-' && value.trim().length) {
+            if (value[0] === '-' && value.trim().length > 1) {
               return minus.push(value);
             } else {
               return words.push(value);
@@ -396,16 +396,16 @@
             id: list.id
           });
         },
-        startEditingPhrase: function(phrase) {
-          this.original_phrase = _.clone(phrase);
-          this.modal_phrase = _.clone(phrase);
+        startEditingPhrase: function(index, phrase) {
+          this.modal_phrase = _.extend({
+            index: index
+          }, _.clone(phrase));
           return showModal('edit-phrase');
         },
         editPhrase: function() {
-          var phrase_index, ref;
+          var ref;
           ref = this.separateMinuses(this.modal_phrase.phrase, this.convertToMinus(this.modal_phrase.minus)), this.modal_phrase.phrase = ref[0], this.modal_phrase.minus = ref[1];
-          phrase_index = _.findIndex(this.list.phrases, this.original_phrase);
-          _.extendOwn(this.list.phrases[phrase_index], this.modal_phrase);
+          _.extendOwn(this.list.phrases[this.modal_phrase.index], _.clone(this.modal_phrase));
           return closeModal('edit-phrase');
         }
       },

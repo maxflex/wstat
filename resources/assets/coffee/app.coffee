@@ -168,7 +168,7 @@ $(document).ready ->
         minus = minus.split(' ') if not $.isArray(minus)
         words = []
         phrase.split(' ').forEach (value) ->
-          if value[0] is '-' and value.trim().length
+          if value[0] is '-' and value.trim().length > 1
             minus.push(value)
           else
             words.push(value)
@@ -252,15 +252,13 @@ $(document).ready ->
         @lists = removeById(@lists, list.id)
         @resourse.delete({id: list.id})
 
-      startEditingPhrase: (phrase) ->
-        @original_phrase = _.clone phrase
-        @modal_phrase    = _.clone phrase
+      startEditingPhrase: (index, phrase) ->
+        @modal_phrase = _.extend {index: index}, _.clone phrase
         showModal 'edit-phrase'
 
       editPhrase: ->
         [@modal_phrase.phrase, @modal_phrase.minus] = @separateMinuses @modal_phrase.phrase, @convertToMinus @modal_phrase.minus
-        phrase_index = _.findIndex @list.phrases, @original_phrase
-        _.extendOwn @list.phrases[phrase_index], @modal_phrase
+        _.extendOwn @list.phrases[@modal_phrase.index], _.clone(@modal_phrase)
         closeModal 'edit-phrase'
 
     watch:
