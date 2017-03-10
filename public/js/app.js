@@ -376,7 +376,7 @@
           this.modal.value.split('\n').forEach((function(_this) {
             return function(textarea_phrase) {
               return _this.list.phrases = _.filter(_this.list.phrases, function(phrase) {
-                return !phrase.phrase.match(exactMatch(textarea_phrase));
+                return !phrase.phrase.match(exactMatch(textarea_phrase.trim()));
               });
             };
           })(this));

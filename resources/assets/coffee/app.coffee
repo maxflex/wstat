@@ -238,7 +238,7 @@ $(document).ready ->
       deletePhrasesWithWords: ->
         @modal.value.split('\n').forEach (textarea_phrase) =>
             @list.phrases = _.filter @list.phrases, (phrase) =>
-                not phrase.phrase.match exactMatch textarea_phrase
+                not phrase.phrase.match exactMatch textarea_phrase.trim()
         closeModal()
 
       openList: (list) ->
