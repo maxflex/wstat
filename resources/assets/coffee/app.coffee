@@ -110,8 +110,13 @@ $(document).ready ->
           list_item.phrase = words.join ' '
         @removeEmptyPhrases()
 
-      removeEmptyPhrases: ->
-        @list.phrases = @list.phrases.filter (list_item) -> list_item.phrase
+      removeEmptyPhrases: (phrases = null) ->
+        new_phrases = _.filter (phrases or @list.phrases), (phrase) ->
+          phrase.phrase.trim() isnt ''
+        if phrases
+          return new_phrases
+        else
+          @list.phrases = new_phrases
 
       deleteWordsInsidePhrase: ->
         @modal.value.split('\n').forEach (textarea_phrase) =>

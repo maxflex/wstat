@@ -182,10 +182,19 @@
           });
           return this.removeEmptyPhrases();
         },
-        removeEmptyPhrases: function() {
-          return this.list.phrases = this.list.phrases.filter(function(list_item) {
-            return list_item.phrase;
+        removeEmptyPhrases: function(phrases) {
+          var new_phrases;
+          if (phrases == null) {
+            phrases = null;
+          }
+          new_phrases = _.filter(phrases || this.list.phrases, function(phrase) {
+            return phrase.phrase.trim() !== '';
           });
+          if (phrases) {
+            return new_phrases;
+          } else {
+            return this.list.phrases = new_phrases;
+          }
         },
         deleteWordsInsidePhrase: function() {
           this.modal.value.split('\n').forEach((function(_this) {
