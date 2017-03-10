@@ -396,10 +396,11 @@
             id: list.id
           });
         },
-        startEditingPhrase: function(index, phrase) {
-          this.modal_phrase = _.extend({
+        startEditingPhrase: function(phrase, index) {
+          this.modal_phrase = _.clone(phrase);
+          _.extendOwn(this.modal_phrase, {
             index: index
-          }, _.clone(phrase));
+          });
           return showModal('edit-phrase');
         },
         editPhrase: function() {

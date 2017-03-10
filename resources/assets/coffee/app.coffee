@@ -252,8 +252,9 @@ $(document).ready ->
         @lists = removeById(@lists, list.id)
         @resourse.delete({id: list.id})
 
-      startEditingPhrase: (index, phrase) ->
-        @modal_phrase = _.extend {index: index}, _.clone phrase
+      startEditingPhrase: (phrase, index) ->
+        @modal_phrase = _.clone phrase
+        _.extendOwn @modal_phrase, {index: index}
         showModal 'edit-phrase'
 
       editPhrase: ->
