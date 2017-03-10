@@ -29,7 +29,7 @@
                 @{{ props.item.frequency }}
             </td>
             <td style='width: 9%'>
-                <span class='link-like link-danger' @click='startEditingPhrase(props.item, index)'>редактировать</span>
+                <span class='link-like link-danger' @click='startEditingPhrase(props.item, props.itemIndex)'>редактировать</span>
             </td>
             <td style='width: 6%'>
                  <span class='link-like link-danger' @click='removePhrase(props.item)'>удалить</span>
