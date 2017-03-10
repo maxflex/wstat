@@ -7,7 +7,9 @@
 	// 		configurePlugins()
 	// 	}, 50)
 	// })
-    // windoapp = null // приложение Vue.js
+    $(document).ready(() => {
+        NProgress.settings.showSpinner = false
+    })
 
     String.prototype.toWords = function() {
         if (this.trim().length) {
@@ -15,17 +17,15 @@
         } else {
             return []
         }
-<<<<<<< HEAD
-        Array.prototype.toPhrase = function() {
-            return this.join(' ').trim()
-        }
-        // Vue.prototype.$last = function (item, list) {
-        //     return item === list[list.length - 1]
-        // }
-    })
-=======
     }
->>>>>>> 579a78bb1fbfa006a4e8c1cbf9929baa25f2f54d
+
+    Array.prototype.toPhrase = function() {
+        return this.join(' ').trim()
+    }
+
+    // Vue.prototype.$last = function (item, list) {
+    //     return item === list[list.length - 1]
+    // }
 
 	/**
 	 * Remove by id

@@ -19,7 +19,7 @@ $(document).ready ->
       center_title: null
       frequencies: []
     created: ->
-      @resource = this.$resource 'api/lists{/id}',
+      @resourse = this.$resource('api/lists{/id}')
       #                 #
       # PRIVATE METHODS #
       #                 #
@@ -201,8 +201,13 @@ $(document).ready ->
           list_item.phrase = words.join ' '
         @removeEmptyPhrases()
 
-      removeEmptyPhrases: ->
-        @list.phrases = @list.phrases.filter (list_item) -> list_item.phrase
+      removeEmptyPhrases: (phrases = null) ->
+        new_phrases = _.filter (phrases or @list.phrases), (phrase) ->
+          phrase.phrase.trim() isnt ''
+        if phrases
+          return new_phrases
+        else
+          @list.phrases = new_phrases
 
       clear: ->
         @list.phrases = []
@@ -210,9 +215,9 @@ $(document).ready ->
       saveAs: ->
         @saving = true
         if @list.id
-          @resource.update({id: @list.id}, @list).then => @saving = false
+          @resourse.update({id: @list.id}, @list).then => @saving = false
         else
-          @resource.save(@list).then (response) =>
+          @resourse.save(@list).then (response) =>
             console.log(response)
             @saving = false
             @list.id = response.data.id
@@ -220,7 +225,7 @@ $(document).ready ->
 
       save: ->
         @saving = true
-        @resource.update({id: @list.id}, @list).then => @saving = false
+        @resourse.update({id: @list.id}, @list).then => @saving = false
 
       deleteWordsInsidePhrase: ->
         @modal.value.split('\n').forEach (textarea_phrase) =>
@@ -238,22 +243,14 @@ $(document).ready ->
 
       openList: (list) ->
         @saving = true
-        @resource.get({id: list.id}).then (response) =>
+        @resourse.get({id: list.id}).then (response) =>
           @list = response.data
           @saving = false
           @page = 'list'
 
       removeList: (list) ->
         @lists = removeById(@lists, list.id)
-        @resource.delete({id: list.id})
-
-    watch:
-      page: (newPage) ->
-        if newPage is 'open' and @lists is null
-          @saving = true
-          @resource.query().then (response) =>
-            @lists = response.data
-            @saving = false
+        @resourse.delete({id: list.id})
 
       startEditingPhrase: (phrase) ->
         @original_phrase = _.clone phrase
@@ -266,6 +263,13 @@ $(document).ready ->
         _.extendOwn @list.phrases[phrase_index], @modal_phrase
         closeModal 'edit-phrase'
 
+    watch:
+      page: (newPage) ->
+        if newPage is 'open' and @lists is null
+          @saving = true
+          @resourse.query().then (response) =>
+            @lists = response.data
+            @saving = false
 
     computed:
       filtered_phrases: ->

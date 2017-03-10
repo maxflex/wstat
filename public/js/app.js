@@ -23,7 +23,8 @@
         frequencies: []
       },
       created: function() {
-        return this.resource = this.$resource('api/lists{/id}', this._getFrequencies = (function(_this) {
+        this.resourse = this.$resource('api/lists{/id}');
+        return this._getFrequencies = (function(_this) {
           return function(step) {
             var length, phrases;
             if (step == null) {
@@ -49,7 +50,7 @@
               return this.center_title = null;
             });
           };
-        })(this));
+        })(this);
       },
       methods: {
         runModal: function(action, title, placeholder, value) {
@@ -306,10 +307,19 @@
           });
           return this.removeEmptyPhrases();
         },
-        removeEmptyPhrases: function() {
-          return this.list.phrases = this.list.phrases.filter(function(list_item) {
-            return list_item.phrase;
+        removeEmptyPhrases: function(phrases) {
+          var new_phrases;
+          if (phrases == null) {
+            phrases = null;
+          }
+          new_phrases = _.filter(phrases || this.list.phrases, function(phrase) {
+            return phrase.phrase.trim() !== '';
           });
+          if (phrases) {
+            return new_phrases;
+          } else {
+            return this.list.phrases = new_phrases;
+          }
         },
         clear: function() {
           return this.list.phrases = [];
@@ -317,7 +327,7 @@
         saveAs: function() {
           this.saving = true;
           if (this.list.id) {
-            this.resource.update({
+            this.resourse.update({
               id: this.list.id
             }, this.list).then((function(_this) {
               return function() {
@@ -325,7 +335,7 @@
               };
             })(this));
           } else {
-            this.resource.save(this.list).then((function(_this) {
+            this.resourse.save(this.list).then((function(_this) {
               return function(response) {
                 console.log(response);
                 _this.saving = false;
@@ -337,7 +347,7 @@
         },
         save: function() {
           this.saving = true;
-          return this.resource.update({
+          return this.resourse.update({
             id: this.list.id
           }, this.list).then((function(_this) {
             return function() {
@@ -370,7 +380,7 @@
         },
         openList: function(list) {
           this.saving = true;
-          return this.resource.get({
+          return this.resourse.get({
             id: list.id
           }).then((function(_this) {
             return function(response) {
@@ -382,22 +392,9 @@
         },
         removeList: function(list) {
           this.lists = removeById(this.lists, list.id);
-          return this.resource["delete"]({
+          return this.resourse["delete"]({
             id: list.id
           });
-        }
-      },
-      watch: {
-        page: function(newPage) {
-          if (newPage === 'open' && this.lists === null) {
-            this.saving = true;
-            return this.resource.query().then((function(_this) {
-              return function(response) {
-                _this.lists = response.data;
-                return _this.saving = false;
-              };
-            })(this));
-          }
         },
         startEditingPhrase: function(phrase) {
           this.original_phrase = _.clone(phrase);
@@ -410,6 +407,19 @@
           phrase_index = _.findIndex(this.list.phrases, this.original_phrase);
           _.extendOwn(this.list.phrases[phrase_index], this.modal_phrase);
           return closeModal('edit-phrase');
+        }
+      },
+      watch: {
+        page: function(newPage) {
+          if (newPage === 'open' && this.lists === null) {
+            this.saving = true;
+            return this.resourse.query().then((function(_this) {
+              return function(response) {
+                _this.lists = response.data;
+                return _this.saving = false;
+              };
+            })(this));
+          }
         }
       },
       computed: {
