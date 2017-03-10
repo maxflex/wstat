@@ -121,6 +121,5 @@ $(document).ready ->
     computed:
       filtered_phrases: ->
         return [] unless @list?.phrases.length
-        console.log 'filter'
         @list.phrases.filter (list_item) =>
-          list_item.phrase.search(@phrase_search) isnt -1
+          list_item.phrase.indexOf(@phrase_search) isnt -1
