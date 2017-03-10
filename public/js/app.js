@@ -529,6 +529,16 @@
         link.setAttribute('href', data);
         link.setAttribute('download', this.filename);
         return link.click();
+      },
+      exportXls: function() {
+        return this.$http.post('export', this.list).then(function(response) {
+          var blob, link;
+          blob = new Blob([response.data]);
+          link = document.createElement('a');
+          link.href = window.URL.createObjectURL(blob);
+          link.download = "wstat.xls";
+          return link.click();
+        });
       }
     }
   };

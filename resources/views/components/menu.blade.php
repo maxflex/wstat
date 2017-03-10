@@ -19,7 +19,7 @@
 
 <a class="list-group-item active">Список</a>
 <a @click="clear()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Очистить</a>
-<a @click="downloadCSV()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Экспорт</a>
+<a @click="exportXls()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Экспорт</a>
 <a @click="save()" class="list-group-item" :class="{'disabled': !list.id}">Сохранить</a>
 <a onclick="showModal('save-as')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Сохранить как...</a>
 <a @click="page = 'open'" class="list-group-item">Открыть</a>

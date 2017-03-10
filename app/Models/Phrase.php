@@ -7,8 +7,6 @@ use Shared\Model;
 
 class Phrase extends Model
 {
-    use Exportable;
-
     public $timestamps = false;
 
     protected $fillable = [

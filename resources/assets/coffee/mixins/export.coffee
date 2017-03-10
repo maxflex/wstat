@@ -22,3 +22,11 @@
       link.setAttribute('href', data)
       link.setAttribute('download', @filename)
       link.click()
+
+    exportXls: ->
+      this.$http.post('export', @list).then (response) ->
+        blob=new Blob([response.data])
+        link=document.createElement('a')
+        link.href=window.URL.createObjectURL(blob)
+        link.download="wstat.xls"
+        link.click()
