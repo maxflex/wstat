@@ -24,7 +24,9 @@
       link.click()
 
     exportXls: ->
-      this.$http.post('export', @list).then (response) ->
+      @saving = true
+      this.$http.post('export', @list).then (response) =>
+        @saving = false
         blob=new Blob([response.data])
         link=document.createElement('a')
         link.href=window.URL.createObjectURL(blob)
