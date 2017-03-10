@@ -1,8 +1,10 @@
 $(document).ready ->
   app = new Vue
     el: '#app'
+    mixins: [sort]
     data:
       addwords_error: false
+      phrase_search: ''
       list:
         title: null
         phrases: []
@@ -77,3 +79,48 @@ $(document).ready ->
           else
             words.push(value)
         [words.join(' '), minus.join(' ')]
+
+      removeFrequencies: ->
+        @list.phrases.forEach (list_item) ->
+          list_item.frequency = undefined
+
+      removeMinuses: ->
+        @list.phrases.forEach (phrase) -> phrase.minus = ''
+
+      removePluses: ->
+        @list.phrases.forEach (list_item) ->
+          #list_item.phrase = list_item.phrase.replace(exactMatch('\\+[\\wа-яА-Я]+'), ' ').trim()
+          words = []
+          list_item.phrase.split(' ').forEach (word) -> words.push(word) if word.length > 1 and word[0] != '+'
+          list_item.phrase = words.join ' '
+        @removeEmptyPhrases()
+
+      removeEmptyPhrases: ->
+        @list.phrases = @list.phrases.filter (list_item) -> list_item.phrase
+
+      deleteWordsInsidePhrase: ->
+        @modal.value.split('\n').forEach (textarea_phrase) =>
+          @list.phrases.forEach (phrase) =>
+            if phrase.phrase.match exactMatch textarea_phrase
+              phrase.phrase = @removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase), ' ')).trim()
+        @removeEmptyPhrases()
+        closeModal()
+
+      deletePhrasesWithWords: ->
+        @modal.value.split('\n').forEach (textarea_phrase) =>
+            @list.phrases = _.filter @list.phrases, (phrase) =>
+                not phrase.phrase.match exactMatch textarea_phrase
+        closeModal()
+
+      removeDoubleSpaces: (str)->
+        str.replace '  ', ' '
+
+      getHardIndex: (phrase) ->
+        1 + _.findIndex @list.phrases, phrase
+
+    computed:
+      filtered_phrases: ->
+        return [] unless @list?.phrases.length
+        console.log 'filter'
+        @list.phrases.filter (list_item) =>
+          list_item.phrase.search(@phrase_search) isnt -1

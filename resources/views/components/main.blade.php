@@ -2,14 +2,14 @@
 
 <div class="row" v-show="list.phrases.length">
     <div class="col-sm-3 pull-right">
-        <input class="form-control" type="text" placeholder="поиск..." ng-model="phrase_search" ng-model-options="{debounce: 300}">
+        <input class="form-control" type="text" placeholder="поиск..." v-model="phrase_search">
     </div>
 </div>
 
 <table class="table">
-    <tr v-for="phrase in list.phrases">
+    <tr v-for="phrase in filtered_phrases">
         <td style="width:3%" class="text-gray">
-            {{-- @{{ getHardIndex(phrase) }}. --}}
+             @{{ getHardIndex(phrase) }}.
         </td>
         <td style='width: 33%'>
             @{{ phrase.phrase }}

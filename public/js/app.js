@@ -3,8 +3,10 @@
     var app;
     return app = new Vue({
       el: '#app',
+      mixins: [sort],
       data: {
         addwords_error: false,
+        phrase_search: '',
         list: {
           title: null,
           phrases: []
@@ -136,10 +138,173 @@
             }
           });
           return [words.join(' '), minus.join(' ')];
+        },
+        removeFrequencies: function() {
+          return this.list.phrases.forEach(function(list_item) {
+            return list_item.frequency = void 0;
+          });
+        },
+        removeMinuses: function() {
+          return this.list.phrases.forEach(function(phrase) {
+            return phrase.minus = '';
+          });
+        },
+        removePluses: function() {
+          this.list.phrases.forEach(function(list_item) {
+            var words;
+            words = [];
+            list_item.phrase.split(' ').forEach(function(word) {
+              if (word.length > 1 && word[0] !== '+') {
+                return words.push(word);
+              }
+            });
+            return list_item.phrase = words.join(' ');
+          });
+          return this.removeEmptyPhrases();
+        },
+        removeEmptyPhrases: function() {
+          return this.list.phrases = this.list.phrases.filter(function(list_item) {
+            return list_item.phrase;
+          });
+        },
+        deleteWordsInsidePhrase: function() {
+          this.modal.value.split('\n').forEach((function(_this) {
+            return function(textarea_phrase) {
+              return _this.list.phrases.forEach(function(phrase) {
+                if (phrase.phrase.match(exactMatch(textarea_phrase))) {
+                  return phrase.phrase = _this.removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase), ' ')).trim();
+                }
+              });
+            };
+          })(this));
+          this.removeEmptyPhrases();
+          return closeModal();
+        },
+        deletePhrasesWithWords: function() {
+          this.modal.value.split('\n').forEach((function(_this) {
+            return function(textarea_phrase) {
+              return _this.list.phrases = _.filter(_this.list.phrases, function(phrase) {
+                return !phrase.phrase.match(exactMatch(textarea_phrase));
+              });
+            };
+          })(this));
+          return closeModal();
+        },
+        removeDoubleSpaces: function(str) {
+          return str.replace('  ', ' ');
+        },
+        getHardIndex: function(phrase) {
+          return 1 + _.findIndex(this.list.phrases, phrase);
+        }
+      },
+      computed: {
+        filtered_phrases: function() {
+          var ref;
+          if (!((ref = this.list) != null ? ref.phrases.length : void 0)) {
+            return [];
+          }
+          console.log('filter');
+          return this.list.phrases.filter((function(_this) {
+            return function(list_item) {
+              return list_item.phrase.search(_this.phrase_search) !== -1;
+            };
+          })(this));
         }
       }
     });
   });
+
+}).call(this);
+
+(function() {
+  this.sort = {
+    methods: {
+      sort: function() {
+        if (!(this.list.phrases && this.list.phrases.length)) {
+          return;
+        }
+        this.getWords();
+        this.getWeights();
+        return this.sortPhraseByWeight();
+      },
+      getWords: function() {
+        var index, phrase, ref, results;
+        this.words = [];
+        ref = this.list.phrases;
+        results = [];
+        for (index in ref) {
+          phrase = ref[index];
+          results.push(this.words.push.apply(this.words, this.splitBySpace(phrase.phrase)));
+        }
+        return results;
+      },
+      getWeights: function() {
+        var word_groups;
+        this.word_weights = [];
+        word_groups = _.chain(this.words).groupBy(function(word) {
+          return word;
+        }).sortBy(function(word) {
+          return word.length;
+        }).value();
+        return _.map(word_groups, (function(_this) {
+          return function(group) {
+            return _this.word_weights[group[0]] = group.length;
+          };
+        })(this));
+      },
+      sortPhraseByWeight: function() {
+        this.list.phrases.forEach((function(_this) {
+          return function(phrase) {
+            var phrase_weight, words, words_sorted_by_weight;
+            words = _this.splitBySpace(phrase.phrase);
+            words_sorted_by_weight = _.sortBy(words.sort().reverse(), (function(word) {
+              return _this.word_weights[word];
+            })).reverse();
+            phrase_weight = [];
+            words_sorted_by_weight.forEach(function(word) {
+              return phrase_weight.push(_this.word_weights[word]);
+            });
+            phrase.phrase = words_sorted_by_weight.join(' ');
+            return phrase.phrase_weight = phrase_weight;
+          };
+        })(this));
+        return this.list.phrases.sort(function(a, b) {
+          var i, j, length, min, ref;
+          length = Math.min(a.phrase_weight.length, b.phrase_weight.length);
+          min = false;
+          for (i = j = 0, ref = length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+            if (a.phrase_weight[i] === 41 && b.phrase_weight[i] === 124) {
+              debugger;
+            }
+            if (a.phrase_weight[i] < b.phrase_weight[i]) {
+              min = -1;
+            }
+            if (a.phrase_weight[i] > b.phrase_weight[i]) {
+              min = 1;
+            }
+            if (min) {
+              break;
+            }
+          }
+          if (!min) {
+            min = b.phrase_weight.length - a.phrase_weight.length;
+            if (min === 0) {
+              if (a.phrase > b.phrase) {
+                min = -1;
+              }
+              if (a.phrase < b.phrase) {
+                min = 1;
+              }
+            }
+          }
+          return min;
+        }).reverse();
+      },
+      splitBySpace: function(string) {
+        return _.without(string.split(' '), '');
+      }
+    }
+  };
 
 }).call(this);
 
