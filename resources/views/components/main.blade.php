@@ -27,7 +27,7 @@
                 @{{ phrase.frequency }}
             </td>
             <td style='width: 10%'>
-                <span class='link-like link-danger' @click='startEditingPhrase(phrase)'>редактировать</span>
+                <span class='link-like link-danger' @click='startEditingPhrase(phrase, index)'>редактировать</span>
             </td>
             <td style='width: 5%'>
                  <span class='link-like link-danger' @click='removePhrase(phrase)'>удалить</span>

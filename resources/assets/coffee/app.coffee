@@ -13,7 +13,7 @@ $(document).ready ->
         # phrases: [{phrase: 'phrase one test'}, {phrase: 'phrase two test'}]
         phrases: []
       modal: {}
-      modal_phrase: {}
+      modal_phrase: {frequency: null, phrase: '', minuses: ''}
       find_phrase: null
       replace_phrase: null
       center_title: null
@@ -252,8 +252,9 @@ $(document).ready ->
         @lists = removeById(@lists, list.id)
         @resourse.delete({id: list.id})
 
-      startEditingPhrase: (index, phrase) ->
-        @modal_phrase = _.extend {index: index}, _.clone phrase
+      startEditingPhrase: (phrase, index) ->
+        @modal_phrase = _.clone phrase
+        _.extendOwn @modal_phrase, {index: index}
         showModal 'edit-phrase'
 
       editPhrase: ->
