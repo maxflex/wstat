@@ -8,15 +8,13 @@
 		}, 50)
 	})
 
-    $(document).ready(function() {
-        String.prototype.toWords = function() {
-            if (this.trim().length) {
-                return this.trim().split(' ').filter((str) => str.length)
-            } else {
-                return []
-            }
+    String.prototype.toWords = function() {
+        if (this.trim().length) {
+            return this.trim().split(' ').filter((str) => str.length)
+        } else {
+            return []
         }
-    })
+    }
 
 	/**
 	 * Remove by id

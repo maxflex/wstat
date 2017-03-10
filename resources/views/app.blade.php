@@ -32,7 +32,7 @@
                       <div class="col-sm-4 center">
                       </div>
                       <div class="col-sm-4 right">
-                          <span v-if="filtered_phrases.length">количество фраз: @{{ filtered_phrases.length }}</span>
+                          <span class="link-raw" v-if="filtered_phrases.length">количество фраз: @{{ filtered_phrases.length }}</span>
                       </div>
                   </div>
               </div>

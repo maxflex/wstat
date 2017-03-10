@@ -256,15 +256,13 @@
         return this.sortPhraseByWeight();
       },
       getWords: function() {
-        var index, phrase, ref, results;
         this.words = [];
-        ref = this.list.phrases;
-        results = [];
-        for (index in ref) {
-          phrase = ref[index];
-          results.push(this.words.push.apply(this.words, this.splitBySpace(phrase.phrase)));
-        }
-        return results;
+        return this.list.phrases.forEach((function(_this) {
+          return function(phrase) {
+            var ref;
+            return (ref = _this.words).push.apply(ref, phrase.phrase.toWords());
+          };
+        })(this));
       },
       getWeights: function() {
         var word_groups;
@@ -284,7 +282,7 @@
         this.list.phrases.forEach((function(_this) {
           return function(phrase) {
             var phrase_weight, words, words_sorted_by_weight;
-            words = _this.splitBySpace(phrase.phrase);
+            words = phrase.phrase.toWords();
             words_sorted_by_weight = _.sortBy(words.sort().reverse(), (function(word) {
               return _this.word_weights[word];
             })).reverse();
@@ -327,9 +325,6 @@
           }
           return min;
         }).reverse();
-      },
-      splitBySpace: function(string) {
-        return _.without(string.split(' '), '');
       }
     }
   };

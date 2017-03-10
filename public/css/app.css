@@ -19961,6 +19961,11 @@ a.disabled {
   color: rgba(0, 0, 0, 0.1);
 }
 
+.link-raw {
+  text-decoration: none !important;
+  cursor: default !important;
+}
+
 .list-group-item .search_icon {
   float: right;
   cursor: pointer;
