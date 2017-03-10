@@ -9,14 +9,13 @@
 	// })
     // windoapp = null // приложение Vue.js
 
-    $(document).ready(function() {
-        String.prototype.toWords = function() {
-            if (this.trim().length) {
-                return this.trim().split(' ')
-            } else {
-                return []
-            }
+    String.prototype.toWords = function() {
+        if (this.trim().length) {
+            return this.trim().split(' ').filter((str) => str.length)
+        } else {
+            return []
         }
+<<<<<<< HEAD
         Array.prototype.toPhrase = function() {
             return this.join(' ').trim()
         }
@@ -24,6 +23,9 @@
         //     return item === list[list.length - 1]
         // }
     })
+=======
+    }
+>>>>>>> 579a78bb1fbfa006a4e8c1cbf9929baa25f2f54d
 
 	/**
 	 * Remove by id
@@ -336,4 +338,8 @@ function wrapWithSpace(word) {
 
 function replaceWord(str, word, replacement) {
     return removeDoubleSpaces(str.replace(exactMatch(word), wrapWithSpace(replacement)))
+}
+
+function removeDoubleSpaces(str) {
+	return str.replace('  ', ' ')
 }

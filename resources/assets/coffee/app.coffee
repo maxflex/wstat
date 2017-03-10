@@ -13,6 +13,7 @@ $(document).ready ->
         # phrases: [{phrase: 'phrase one test'}, {phrase: 'phrase two test'}]
         phrases: []
       modal: {}
+      modal_phrase: {}
       find_phrase: null
       replace_phrase: null
       center_title: null
@@ -160,9 +161,6 @@ $(document).ready ->
             phrase.minus = minus_list.toPhrase()
             phrase.minuses = []
 
-
-
-
       removeMinuses: ->
         @list.phrases.forEach (phrase) -> phrase.minus = ''
 
@@ -176,9 +174,21 @@ $(document).ready ->
             words.push(value)
         [words.join(' '), minus.join(' ')]
 
+      convertToMinus: (phrase) ->
+          minus = []
+          phrase.toWords().forEach (value) ->
+            if value[0] is '-' and value.length > 1
+              minus.push value
+            else
+                minus.push '-' + value
+          minus.join ' '
+
       removeFrequencies: ->
         @list.phrases.forEach (list_item) ->
           list_item.frequency = undefined
+
+      removePhrase: (phrase) ->
+        @list.phrases = _.without @list.phrases, phrase
 
       removeMinuses: ->
         @list.phrases.forEach (phrase) -> phrase.minus = ''
@@ -199,17 +209,13 @@ $(document).ready ->
 
       saveAs: ->
         @saving = true
-        # $rootScope.route.title = $rootScope.list.title
         if @list.id
           @resource.update({id: @list.id}, @list).then => @saving = false
-          # this.$http.put("lists/#{@list.id}", @list).then
-          # $rootScope.list.$update().then -> $rootScope.loading = false
         else
           @resource.save(@list).then (response) =>
             console.log(response)
             @saving = false
             @list.id = response.data.id
-          # $rootScope.list.$save().then -> $rootScope.loading = false
         closeModal('save-as')
 
       save: ->
@@ -219,8 +225,8 @@ $(document).ready ->
       deleteWordsInsidePhrase: ->
         @modal.value.split('\n').forEach (textarea_phrase) =>
           @list.phrases.forEach (phrase) =>
-            if phrase.phrase.match exactMatch textarea_phrase
-              phrase.phrase = @removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase), ' ')).trim()
+            if phrase.phrase.match exactMatch textarea_phrase.trim()
+              phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase.trim()), ' ')).trim()
         @removeEmptyPhrases()
         closeModal()
 
@@ -229,9 +235,6 @@ $(document).ready ->
             @list.phrases = _.filter @list.phrases, (phrase) =>
                 not phrase.phrase.match exactMatch textarea_phrase
         closeModal()
-
-      removeDoubleSpaces: (str)->
-        str.replace '  ', ' '
 
       openList: (list) ->
         @saving = true
@@ -251,6 +254,18 @@ $(document).ready ->
           @resource.query().then (response) =>
             @lists = response.data
             @saving = false
+
+      startEditingPhrase: (phrase) ->
+        @original_phrase = _.clone phrase
+        @modal_phrase    = _.clone phrase
+        showModal 'edit-phrase'
+
+      editPhrase: ->
+        [@modal_phrase.phrase, @modal_phrase.minus] = @separateMinuses @modal_phrase.phrase, @convertToMinus @modal_phrase.minus
+        phrase_index = _.findIndex @list.phrases, @original_phrase
+        _.extendOwn @list.phrases[phrase_index], @modal_phrase
+        closeModal 'edit-phrase'
+
 
     computed:
       filtered_phrases: ->

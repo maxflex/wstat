@@ -4048,3 +4048,8 @@ a.disabled {
 .gray-high-opacity {
     color: $gray-high-opacity;
 }
+
+.link-raw {
+    text-decoration: none!important;
+    cursor: default!important;
+}

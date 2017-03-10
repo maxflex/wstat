@@ -27,10 +27,10 @@
                 @{{ phrase.frequency }}
             </td>
             <td style='width: 10%'>
-                {{-- <span class='link-like link-danger' v-on:click='startEditing(phrase)'>редактировать</span> --}}
+                <span class='link-like link-danger' @click='startEditingPhrase(phrase)'>редактировать</span>
             </td>
             <td style='width: 5%'>
-                {{-- <span class='link-like link-danger' v-on:click='removePhrase(phrase)'>удалить</span> --}}
+                 <span class='link-like link-danger' @click='removePhrase(phrase)'>удалить</span>
             </td>
         </tr>
     </table>
@@ -145,6 +145,30 @@
             </div>
             <div class="modal-footer center">
                 <div class="btn btn-primary" :disabled="!list.title || saving" @click="saveAs()">сохранить</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id='edit-phrase-modal' tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Редактирование фразы</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input v-model.trim='modal_phrase.phrase' class='form-control mb' placeholder="фраза">
+                </div>
+                <div class="form-group">
+                    <input v-model.number='modal_phrase.frequency' class='form-control mb' placeholder="частота">
+                </div>
+                <div class="form-group">
+                    <input v-model.trim='modal_phrase.minus' class='form-control mb' placeholder="минус слова">
+                </div>
+            </div>
+            <div class="modal-footer center">
+                <div class="btn btn-primary" v-on:click="editPhrase()">сохранить</div>
             </div>
         </div>
     </div>
