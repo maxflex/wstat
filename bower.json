@@ -62,6 +62,7 @@
     "ng-tags-input": "3.1.1",
     "angular-route": "^1.6.2",
     "xregexp": "^3.1.1",
-    "vue": "^2.2.2"
+    "vue": "^2.2.2",
+    "vue-resource": "^1.2.1"
   }
 }

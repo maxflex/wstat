@@ -28,8 +28,9 @@
             <div class="panel panel-primary">
               <div class="panel-heading panel-heading-main">
                   <div class="row">
-                      <div class="col-sm-4"></div>
+                      <div class="col-sm-4">@{{ list.title || 'Новый список' }}</div>
                       <div class="col-sm-4 center">
+                          @{{ center_title }}
                       </div>
                       <div class="col-sm-4 right">
                       </div>

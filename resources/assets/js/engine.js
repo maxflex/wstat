@@ -1,12 +1,12 @@
-	angular.element(document).ready(function() {
-		setTimeout(function() {
-			// moment.locale('ru-RU')
-			NProgress.settings.showSpinner = false
-			rebindMasks()
-			setScope()
-			configurePlugins()
-		}, 50)
-	})
+	// angular.element(document).ready(function() {
+	// 	setTimeout(function() {
+	// 		// moment.locale('ru-RU')
+	// 		NProgress.settings.showSpinner = false
+	// 		rebindMasks()
+	// 		setScope()
+	// 		configurePlugins()
+	// 	}, 50)
+	// })
 
     $(document).ready(function() {
         String.prototype.toWords = function() {
@@ -16,6 +16,12 @@
                 return []
             }
         }
+        Array.prototype.toPhrase = function() {
+            return this.join(' ').trim()
+        }
+        // Vue.prototype.$last = function (item, list) {
+        //     return item === list[list.length - 1]
+        // }
     })
 
 	/**
@@ -328,5 +334,5 @@ function wrapWithSpace(word) {
 }
 
 function replaceWord(str, word, replacement) {
-    return removeDoubleSpaces(str.replace(exactMatch(word), wrapWithSpace(word)))
+    return removeDoubleSpaces(str.replace(exactMatch(word), wrapWithSpace(replacement)))
 }
