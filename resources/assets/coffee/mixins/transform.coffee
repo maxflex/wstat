@@ -33,6 +33,7 @@
         @transform_phrases[position].added = false
         @transform_phrases[index].words = undefined
       delete @transform_items[index]
+      app.$forceUpdate()
 
     transform: ->
       @list.phrases.forEach (phrase) =>

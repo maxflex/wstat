@@ -27,12 +27,21 @@
           <div class="col-sm-9 content-col">
             <div class="panel panel-primary">
               <div class="panel-heading panel-heading-main">
-                  <div class="row">
+                  <div class="row" v-show="page == 'list'">
                       <div class="col-sm-4">@{{ list.title || 'Новый список' }}</div>
                       <div class="col-sm-4 center">
                           @{{ center_title }}
                       </div>
                       <div class="col-sm-4 right">
+                          <span v-if="filtered_phrases.length">количество фраз: @{{ filtered_phrases.length }}</span>
+                      </div>
+                  </div>
+                  <div class="row" v-show="page == 'open'">
+                      <div class="col-sm-4">Открыть список</div>
+                      <div class="col-sm-4 center">
+                      </div>
+                      <div class="col-sm-4 right">
+                          <span class='link-like' @click="page = 'list'">назад</span>
                       </div>
                   </div>
               </div>

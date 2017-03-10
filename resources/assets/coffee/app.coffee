@@ -1,19 +1,24 @@
 $(document).ready ->
-  app = new Vue
+  window.app = new Vue
     el: '#app'
-    mixins: [TransformMixin, ExportMixin]
+    mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin]
     data:
+      page: 'list'              # list | open
+      saving: false
       addwords_error: false
-      list:
+      phrase_search: ''
+      lists: null               # existing lists
+      list:                     # current list
         title: null
-        phrases: [{phrase: 'phrase one test'}, {phrase: 'phrase two test'}]
-        # phrases: []
+        # phrases: [{phrase: 'phrase one test'}, {phrase: 'phrase two test'}]
+        phrases: []
       modal: {}
       find_phrase: null
       replace_phrase: null
       center_title: null
       frequencies: []
     created: ->
+      @resource = this.$resource 'api/lists{/id}',
       #                 #
       # PRIVATE METHODS #
       #                 #
@@ -170,3 +175,85 @@ $(document).ready ->
           else
             words.push(value)
         [words.join(' '), minus.join(' ')]
+
+      removeFrequencies: ->
+        @list.phrases.forEach (list_item) ->
+          list_item.frequency = undefined
+
+      removeMinuses: ->
+        @list.phrases.forEach (phrase) -> phrase.minus = ''
+
+      removePluses: ->
+        @list.phrases.forEach (list_item) ->
+          #list_item.phrase = list_item.phrase.replace(exactMatch('\\+[\\wа-яА-Я]+'), ' ').trim()
+          words = []
+          list_item.phrase.split(' ').forEach (word) -> words.push(word) if word.length > 1 and word[0] != '+'
+          list_item.phrase = words.join ' '
+        @removeEmptyPhrases()
+
+      removeEmptyPhrases: ->
+        @list.phrases = @list.phrases.filter (list_item) -> list_item.phrase
+
+      clear: ->
+        @list.phrases = []
+
+      saveAs: ->
+        @saving = true
+        # $rootScope.route.title = $rootScope.list.title
+        if @list.id
+          @resource.update({id: @list.id}, @list).then => @saving = false
+          # this.$http.put("lists/#{@list.id}", @list).then
+          # $rootScope.list.$update().then -> $rootScope.loading = false
+        else
+          @resource.save(@list).then (response) =>
+            console.log(response)
+            @saving = false
+            @list.id = response.data.id
+          # $rootScope.list.$save().then -> $rootScope.loading = false
+        closeModal('save-as')
+
+      save: ->
+        @saving = true
+        @resource.update({id: @list.id}, @list).then => @saving = false
+
+      deleteWordsInsidePhrase: ->
+        @modal.value.split('\n').forEach (textarea_phrase) =>
+          @list.phrases.forEach (phrase) =>
+            if phrase.phrase.match exactMatch textarea_phrase
+              phrase.phrase = @removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase), ' ')).trim()
+        @removeEmptyPhrases()
+        closeModal()
+
+      deletePhrasesWithWords: ->
+        @modal.value.split('\n').forEach (textarea_phrase) =>
+            @list.phrases = _.filter @list.phrases, (phrase) =>
+                not phrase.phrase.match exactMatch textarea_phrase
+        closeModal()
+
+      removeDoubleSpaces: (str)->
+        str.replace '  ', ' '
+
+      openList: (list) ->
+        @saving = true
+        @resource.get({id: list.id}).then (response) =>
+          @list = response.data
+          @saving = false
+          @page = 'list'
+
+      removeList: (list) ->
+        @lists = removeById(@lists, list.id)
+        @resource.delete({id: list.id})
+
+    watch:
+      page: (newPage) ->
+        if newPage is 'open' and @lists is null
+          @saving = true
+          @resource.query().then (response) =>
+            @lists = response.data
+            @saving = false
+
+    computed:
+      filtered_phrases: ->
+        return [] unless @list?.phrases.length
+        @list.phrases.filter (list_item) =>
+          list_item.phrase.indexOf(@phrase_search) isnt -1

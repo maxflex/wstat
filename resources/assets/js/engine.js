@@ -7,6 +7,7 @@
 	// 		configurePlugins()
 	// 	}, 50)
 	// })
+    // windoapp = null // приложение Vue.js
 
     $(document).ready(function() {
         String.prototype.toWords = function() {

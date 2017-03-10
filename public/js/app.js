@@ -2,21 +2,18 @@
   var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   $(document).ready(function() {
-    var app;
-    return app = new Vue({
+    return window.app = new Vue({
       el: '#app',
-      mixins: [TransformMixin, ExportMixin],
+      mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin],
       data: {
+        page: 'list',
+        saving: false,
         addwords_error: false,
+        phrase_search: '',
+        lists: null,
         list: {
           title: null,
-          phrases: [
-            {
-              phrase: 'phrase one test'
-            }, {
-              phrase: 'phrase two test'
-            }
-          ]
+          phrases: []
         },
         modal: {},
         find_phrase: null,
@@ -25,7 +22,7 @@
         frequencies: []
       },
       created: function() {
-        return this._getFrequencies = (function(_this) {
+        return this.resource = this.$resource('api/lists{/id}', this._getFrequencies = (function(_this) {
           return function(step) {
             var length, phrases;
             if (step == null) {
@@ -51,7 +48,7 @@
               return this.center_title = null;
             });
           };
-        })(this);
+        })(this));
       },
       methods: {
         runModal: function(action, title, placeholder, value) {
@@ -269,6 +266,138 @@
             }
           });
           return [words.join(' '), minus.join(' ')];
+        },
+        removeFrequencies: function() {
+          return this.list.phrases.forEach(function(list_item) {
+            return list_item.frequency = void 0;
+          });
+        },
+        removeMinuses: function() {
+          return this.list.phrases.forEach(function(phrase) {
+            return phrase.minus = '';
+          });
+        },
+        removePluses: function() {
+          this.list.phrases.forEach(function(list_item) {
+            var words;
+            words = [];
+            list_item.phrase.split(' ').forEach(function(word) {
+              if (word.length > 1 && word[0] !== '+') {
+                return words.push(word);
+              }
+            });
+            return list_item.phrase = words.join(' ');
+          });
+          return this.removeEmptyPhrases();
+        },
+        removeEmptyPhrases: function() {
+          return this.list.phrases = this.list.phrases.filter(function(list_item) {
+            return list_item.phrase;
+          });
+        },
+        clear: function() {
+          return this.list.phrases = [];
+        },
+        saveAs: function() {
+          this.saving = true;
+          if (this.list.id) {
+            this.resource.update({
+              id: this.list.id
+            }, this.list).then((function(_this) {
+              return function() {
+                return _this.saving = false;
+              };
+            })(this));
+          } else {
+            this.resource.save(this.list).then((function(_this) {
+              return function(response) {
+                console.log(response);
+                _this.saving = false;
+                return _this.list.id = response.data.id;
+              };
+            })(this));
+          }
+          return closeModal('save-as');
+        },
+        save: function() {
+          this.saving = true;
+          return this.resource.update({
+            id: this.list.id
+          }, this.list).then((function(_this) {
+            return function() {
+              return _this.saving = false;
+            };
+          })(this));
+        },
+        deleteWordsInsidePhrase: function() {
+          this.modal.value.split('\n').forEach((function(_this) {
+            return function(textarea_phrase) {
+              return _this.list.phrases.forEach(function(phrase) {
+                if (phrase.phrase.match(exactMatch(textarea_phrase))) {
+                  return phrase.phrase = _this.removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase), ' ')).trim();
+                }
+              });
+            };
+          })(this));
+          this.removeEmptyPhrases();
+          return closeModal();
+        },
+        deletePhrasesWithWords: function() {
+          this.modal.value.split('\n').forEach((function(_this) {
+            return function(textarea_phrase) {
+              return _this.list.phrases = _.filter(_this.list.phrases, function(phrase) {
+                return !phrase.phrase.match(exactMatch(textarea_phrase));
+              });
+            };
+          })(this));
+          return closeModal();
+        },
+        removeDoubleSpaces: function(str) {
+          return str.replace('  ', ' ');
+        },
+        openList: function(list) {
+          this.saving = true;
+          return this.resource.get({
+            id: list.id
+          }).then((function(_this) {
+            return function(response) {
+              _this.list = response.data;
+              _this.saving = false;
+              return _this.page = 'list';
+            };
+          })(this));
+        },
+        removeList: function(list) {
+          this.lists = removeById(this.lists, list.id);
+          return this.resource["delete"]({
+            id: list.id
+          });
+        }
+      },
+      watch: {
+        page: function(newPage) {
+          if (newPage === 'open' && this.lists === null) {
+            this.saving = true;
+            return this.resource.query().then((function(_this) {
+              return function(response) {
+                _this.lists = response.data;
+                return _this.saving = false;
+              };
+            })(this));
+          }
+        }
+      },
+      computed: {
+        filtered_phrases: function() {
+          var ref;
+          if (!((ref = this.list) != null ? ref.phrases.length : void 0)) {
+            return [];
+          }
+          return this.list.phrases.filter((function(_this) {
+            return function(list_item) {
+              return list_item.phrase.indexOf(_this.phrase_search) !== -1;
+            };
+          })(this));
         }
       }
     });
@@ -372,6 +501,115 @@
 }).call(this);
 
 (function() {
+  this.HelpersMixin = {
+    methods: {
+      formatDateTime: function(date) {
+        return moment(date).format("DD.MM.YY в HH:mm");
+      }
+    },
+    watch: {
+      saving: function(isSaving) {
+        if (isSaving) {
+          return ajaxStart();
+        } else {
+          return ajaxEnd();
+        }
+      }
+    }
+  };
+
+}).call(this);
+
+(function() {
+  this.SortMixin = {
+    methods: {
+      sort: function() {
+        if (!(this.list.phrases && this.list.phrases.length)) {
+          return;
+        }
+        this.getWords();
+        this.getWeights();
+        return this.sortPhraseByWeight();
+      },
+      getWords: function() {
+        this.words = [];
+        return this.list.phrases.forEach((function(_this) {
+          return function(phrase) {
+            return _this.words.push.apply(_this.words, _this.splitBySpace(phrase.phrase));
+          };
+        })(this));
+      },
+      getWeights: function() {
+        var word_groups;
+        this.word_weights = [];
+        word_groups = _.chain(this.words).groupBy(function(word) {
+          return word;
+        }).sortBy(function(word) {
+          return word.length;
+        }).value();
+        return _.map(word_groups, (function(_this) {
+          return function(group) {
+            return _this.word_weights[group[0]] = group.length;
+          };
+        })(this));
+      },
+      sortPhraseByWeight: function() {
+        this.list.phrases.forEach((function(_this) {
+          return function(phrase) {
+            var phrase_weight, words, words_sorted_by_weight;
+            words = _this.splitBySpace(phrase.phrase);
+            words_sorted_by_weight = _.sortBy(words.sort().reverse(), (function(word) {
+              return _this.word_weights[word];
+            })).reverse();
+            phrase_weight = [];
+            words_sorted_by_weight.forEach(function(word) {
+              return phrase_weight.push(_this.word_weights[word]);
+            });
+            phrase.phrase = words_sorted_by_weight.join(' ');
+            return phrase.phrase_weight = phrase_weight;
+          };
+        })(this));
+        return this.list.phrases.sort(function(a, b) {
+          var i, j, length, min, ref;
+          length = Math.min(a.phrase_weight.length, b.phrase_weight.length);
+          min = false;
+          for (i = j = 0, ref = length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+            if (a.phrase_weight[i] === 41 && b.phrase_weight[i] === 124) {
+              debugger;
+            }
+            if (a.phrase_weight[i] < b.phrase_weight[i]) {
+              min = -1;
+            }
+            if (a.phrase_weight[i] > b.phrase_weight[i]) {
+              min = 1;
+            }
+            if (min) {
+              break;
+            }
+          }
+          if (!min) {
+            min = b.phrase_weight.length - a.phrase_weight.length;
+            if (min === 0) {
+              if (a.phrase > b.phrase) {
+                min = -1;
+              }
+              if (a.phrase < b.phrase) {
+                min = 1;
+              }
+            }
+          }
+          return min;
+        }).reverse();
+      },
+      splitBySpace: function(string) {
+        return _.without(string.split(' '), '');
+      }
+    }
+  };
+
+}).call(this);
+
+(function() {
   this.TransformMixin = {
     data: {
       selected_rows: [],
@@ -416,7 +654,8 @@
             return _this.transform_phrases[index].words = void 0;
           };
         })(this));
-        return delete this.transform_items[index];
+        delete this.transform_items[index];
+        return app.$forceUpdate();
       },
       transform: function() {
         this.list.phrases.forEach((function(_this) {
