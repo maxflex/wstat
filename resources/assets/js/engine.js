@@ -11,7 +11,7 @@
     $(document).ready(function() {
         String.prototype.toWords = function() {
             if (this.trim().length) {
-                return this.trim().split(' ')
+                return this.trim().split(' ').filter((str) => str.length)
             } else {
                 return []
             }
@@ -329,4 +329,8 @@ function wrapWithSpace(word) {
 
 function replaceWord(str, word, replacement) {
     return removeDoubleSpaces(str.replace(exactMatch(word), wrapWithSpace(word)))
+}
+
+function removeDoubleSpaces(str) {
+	return str.replace('  ', ' ')
 }

@@ -9,6 +9,9 @@ $(document).ready ->
         title: null
         phrases: []
       modal: {}
+      modal_phrase: {
+        phrase: null, frequency: null, minus: null
+      }
     methods:
       runModal: (action, title, placeholder = 'список слов или фраз', value = null) ->
         @modal = value: value, action: action, title: title, placeholder: placeholder
@@ -80,9 +83,21 @@ $(document).ready ->
             words.push(value)
         [words.join(' '), minus.join(' ')]
 
+      convertToMinus: (phrase) ->
+          minus = []
+          phrase.toWords().forEach (value) ->
+            if value[0] is '-' and value.length > 1
+              minus.push value
+            else
+                minus.push '-' + value
+          minus.join ' '
+
       removeFrequencies: ->
         @list.phrases.forEach (list_item) ->
           list_item.frequency = undefined
+
+      removePhrase: (phrase) ->
+        @list.phrases = _.without @list.phrases, phrase
 
       removeMinuses: ->
         @list.phrases.forEach (phrase) -> phrase.minus = ''
@@ -102,7 +117,7 @@ $(document).ready ->
         @modal.value.split('\n').forEach (textarea_phrase) =>
           @list.phrases.forEach (phrase) =>
             if phrase.phrase.match exactMatch textarea_phrase.trim()
-              phrase.phrase = @removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase.trim()), ' ')).trim()
+              phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase.trim()), ' ')).trim()
         @removeEmptyPhrases()
         closeModal()
 
@@ -112,11 +127,20 @@ $(document).ready ->
                 not phrase.phrase.match exactMatch textarea_phrase
         closeModal()
 
-      removeDoubleSpaces: (str)->
-        str.replace '  ', ' '
-
       getHardIndex: (phrase) ->
         1 + _.findIndex @list.phrases, phrase
+
+      startEditingPhrase: (phrase) ->
+        @original_phrase = _.clone phrase
+        @modal_phrase    = _.clone phrase
+        showModal 'edit-phrase'
+
+      editPhrase: ->
+        [@modal_phrase.phrase, @modal_phrase.minus] = @separateMinuses @modal_phrase.phrase, @convertToMinus @modal_phrase.minus
+        phrase_index = _.findIndex @list.phrases, @original_phrase
+        _.extendOwn @list.phrases[phrase_index], @modal_phrase
+        closeModal 'edit-phrase'
+
 
     computed:
       filtered_phrases: ->

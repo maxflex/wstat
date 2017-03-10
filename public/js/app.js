@@ -11,7 +11,12 @@
           title: null,
           phrases: []
         },
-        modal: {}
+        modal: {},
+        modal_phrase: {
+          phrase: null,
+          frequency: null,
+          minus: null
+        }
       },
       methods: {
         runModal: function(action, title, placeholder, value) {
@@ -139,10 +144,25 @@
           });
           return [words.join(' '), minus.join(' ')];
         },
+        convertToMinus: function(phrase) {
+          var minus;
+          minus = [];
+          phrase.toWords().forEach(function(value) {
+            if (value[0] === '-' && value.length > 1) {
+              return minus.push(value);
+            } else {
+              return minus.push('-' + value);
+            }
+          });
+          return minus.join(' ');
+        },
         removeFrequencies: function() {
           return this.list.phrases.forEach(function(list_item) {
             return list_item.frequency = void 0;
           });
+        },
+        removePhrase: function(phrase) {
+          return this.list.phrases = _.without(this.list.phrases, phrase);
         },
         removeMinuses: function() {
           return this.list.phrases.forEach(function(phrase) {
@@ -172,7 +192,7 @@
             return function(textarea_phrase) {
               return _this.list.phrases.forEach(function(phrase) {
                 if (phrase.phrase.match(exactMatch(textarea_phrase.trim()))) {
-                  return phrase.phrase = _this.removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase.trim()), ' ')).trim();
+                  return phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase.trim()), ' ')).trim();
                 }
               });
             };
@@ -190,11 +210,20 @@
           })(this));
           return closeModal();
         },
-        removeDoubleSpaces: function(str) {
-          return str.replace('  ', ' ');
-        },
         getHardIndex: function(phrase) {
           return 1 + _.findIndex(this.list.phrases, phrase);
+        },
+        startEditingPhrase: function(phrase) {
+          this.original_phrase = _.clone(phrase);
+          this.modal_phrase = _.clone(phrase);
+          return showModal('edit-phrase');
+        },
+        editPhrase: function() {
+          var phrase_index, ref;
+          ref = this.separateMinuses(this.modal_phrase.phrase, this.convertToMinus(this.modal_phrase.minus)), this.modal_phrase.phrase = ref[0], this.modal_phrase.minus = ref[1];
+          phrase_index = _.findIndex(this.list.phrases, this.original_phrase);
+          _.extendOwn(this.list.phrases[phrase_index], this.modal_phrase);
+          return closeModal('edit-phrase');
         }
       },
       computed: {
