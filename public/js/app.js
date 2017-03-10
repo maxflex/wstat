@@ -474,6 +474,11 @@
 }).call(this);
 
 (function() {
+  Vue.component('virtual-scroller', VueVirtualScroller.VirtualScroller);
+
+}).call(this);
+
+(function() {
   var plurals;
 
   plurals = {

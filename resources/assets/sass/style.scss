@@ -1068,10 +1068,27 @@ color: $half_black;
 body {
     font-family: "Open Sans";
 padding-top: 20px !important;
-overflow-x: hidden;
+// overflow-x: hidden;
+overflow: hidden;
 // background-color: #eee;
 // background-image: url("../img/background/bg.jpg");
 // font-family: Ubuntu !important;
+}
+
+html, body {
+    height: 100%;
+    #app {
+        height: 100%;
+        .row {
+            height: 100%;
+            & > div {
+                height: 100%;
+            }
+            .panel {
+                height: calc(100% - 5px);
+            }
+        }
+    }
 }
 
 .badge-danger {
@@ -4052,4 +4069,8 @@ a.disabled {
 .link-raw {
     text-decoration: none!important;
     cursor: default!important;
+}
+
+.virtual-scroller {
+    max-height: 1070px;
 }

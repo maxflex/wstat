@@ -10,7 +10,6 @@
     $(document).ready(() => {
         NProgress.settings.showSpinner = false
         setTimeout(() => {
-            console.log('here')
             $("#modal-value").on('keydown', function(e) {
                 if (e.keyCode == 9) {
                     start = this.selectionStart
