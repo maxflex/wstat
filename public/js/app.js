@@ -16,7 +16,11 @@
           phrases: []
         },
         modal: {},
-        modal_phrase: {},
+        modal_phrase: {
+          frequency: null,
+          phrase: '',
+          minuses: ''
+        },
         find_phrase: null,
         replace_phrase: null,
         center_title: null,

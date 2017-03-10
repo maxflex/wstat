@@ -13,7 +13,7 @@ $(document).ready ->
         # phrases: [{phrase: 'phrase one test'}, {phrase: 'phrase two test'}]
         phrases: []
       modal: {}
-      modal_phrase: {}
+      modal_phrase: {frequency: null, phrase: '', minuses: ''}
       find_phrase: null
       replace_phrase: null
       center_title: null
