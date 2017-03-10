@@ -171,8 +171,8 @@
           this.modal.value.split('\n').forEach((function(_this) {
             return function(textarea_phrase) {
               return _this.list.phrases.forEach(function(phrase) {
-                if (phrase.phrase.match(exactMatch(textarea_phrase))) {
-                  return phrase.phrase = _this.removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase), ' ')).trim();
+                if (phrase.phrase.match(exactMatch(textarea_phrase.trim()))) {
+                  return phrase.phrase = _this.removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase.trim()), ' ')).trim();
                 }
               });
             };
@@ -203,10 +203,9 @@
           if (!((ref = this.list) != null ? ref.phrases.length : void 0)) {
             return [];
           }
-          console.log('filter');
           return this.list.phrases.filter((function(_this) {
             return function(list_item) {
-              return list_item.phrase.search(_this.phrase_search) !== -1;
+              return list_item.phrase.indexOf(_this.phrase_search) !== -1;
             };
           })(this));
         }

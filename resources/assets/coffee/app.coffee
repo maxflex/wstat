@@ -101,8 +101,8 @@ $(document).ready ->
       deleteWordsInsidePhrase: ->
         @modal.value.split('\n').forEach (textarea_phrase) =>
           @list.phrases.forEach (phrase) =>
-            if phrase.phrase.match exactMatch textarea_phrase
-              phrase.phrase = @removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase), ' ')).trim()
+            if phrase.phrase.match exactMatch textarea_phrase.trim()
+              phrase.phrase = @removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase.trim()), ' ')).trim()
         @removeEmptyPhrases()
         closeModal()
 
