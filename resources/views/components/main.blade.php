@@ -161,7 +161,7 @@
                     <input v-model.trim='modal_phrase.phrase' class='form-control mb' placeholder="фраза">
                 </div>
                 <div class="form-group">
-                    <input v-model.number='modal_phrase.frequency' class='form-control mb' placeholder="частота">
+                    <input v-model.number='modal_phrase.frequency' class='form-control mb digits-only' placeholder="частота">
                 </div>
                 <div class="form-group">
                     <input v-model.trim='modal_phrase.minus' class='form-control mb' placeholder="минус слова">

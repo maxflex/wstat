@@ -19,7 +19,7 @@
         modal_phrase: {
           frequency: null,
           phrase: '',
-          minuses: ''
+          minus: ''
         },
         find_phrase: null,
         replace_phrase: null,
@@ -405,7 +405,8 @@
           _.extendOwn(this.modal_phrase, {
             index: index
           });
-          return showModal('edit-phrase');
+          showModal('edit-phrase');
+          return rebindMasks();
         },
         editPhrase: function() {
           var ref;

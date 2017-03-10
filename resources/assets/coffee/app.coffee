@@ -256,6 +256,7 @@ $(document).ready ->
         @modal_phrase = _.clone phrase
         _.extendOwn @modal_phrase, {index: index}
         showModal 'edit-phrase'
+        rebindMasks()
 
       editPhrase: ->
         [@modal_phrase.phrase, @modal_phrase.minus] = @separateMinuses @modal_phrase.phrase, @convertToMinus @modal_phrase.minus
