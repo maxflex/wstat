@@ -38,7 +38,9 @@
             length = _this.list.phrases.length / 10 * 10 + 100;
             _this.center_title = Math.round(step / length * 10000) + '%';
             return _this.$http.post('api/getFrequencies', {
-              phrases: _.pluck(phrases, 'phrase')
+              phrases: _.map(phrases, function(phrase) {
+                return [phrase.phrase, phrase.minus].join(' ');
+              })
             }).then(function(response) {
               _this.frequencies = _this.frequencies.concat(response.data);
               if (phrases.length === 100) {
