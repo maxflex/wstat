@@ -20,6 +20,7 @@ $(document).ready ->
       frequencies: []
     created: ->
       @resourse = this.$resource('api/lists{/id}')
+      @openList(DEBUG_LIST_ID) if ENV is 'local' and DEBUG_LIST_ID
       #                 #
       # PRIVATE METHODS #
       #                 #
@@ -140,27 +141,15 @@ $(document).ready ->
       configureMinus: ->
         @removeMinuses()
         @list.phrases.forEach (phrase) =>
-          words_list = phrase.phrase.toWords()
-          @list.phrases.forEach (phrase2) =>
-            # самого себя не проверяем
-            if phrase.phrase isnt phrase2.phrase
-              words_list2 = phrase2.phrase.toWords()
-              flag = true
-              words_list.forEach (word) ->
-                if word in words_list2
-                  words_list2[words_list2.indexOf(word)] = null
-                else
-                  flag = false
-              if flag and words_list2.length is (words_list.length + 1)
-                phrase.minuses = [] if not phrase.hasOwnProperty('minuses')
-                words_list2.forEach (word) ->
-                  phrase.minuses.push("-#{word}") if word
+          words = phrase.phrase.toWords()
+          prefix = words.slice(0, -1).toPhrase()
+          _.filter(@list.phrases, {phrase: prefix}).forEach (phrase) ->
+            phrase.minuses = [] if phrase.minuses is undefined
+            phrase.minuses.push('-' + words.slice(-1))
         @list.phrases.forEach (phrase) ->
-          if phrase.hasOwnProperty('minuses') and phrase.minuses.length
-            minus_list = if not phrase.minus then [] else phrase.minus.toWords()
-            minus_list = minus_list.concat(phrase.minuses)
-            phrase.minus = minus_list.toPhrase()
-            phrase.minuses = []
+          if phrase.minuses isnt undefined
+            phrase.minus = phrase.minuses.toPhrase()
+            delete phrase.minuses
 
       removeMinuses: ->
         @list.phrases.forEach (phrase) -> phrase.minus = ''
@@ -242,9 +231,9 @@ $(document).ready ->
                 not phrase.phrase.match exactMatch textarea_phrase
         closeModal()
 
-      openList: (list) ->
+      openList: (list_id) ->
         @saving = true
-        @resourse.get({id: list.id}).then (response) =>
+        @resourse.get({id: list_id}).then (response) =>
           @list = response.data
           @saving = false
           @page = 'list'

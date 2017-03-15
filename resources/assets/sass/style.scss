@@ -1079,13 +1079,19 @@ html, body {
     height: 100%;
     #app {
         height: 100%;
-        .row {
+        & > .row {
             height: 100%;
             & > div {
                 height: 100%;
             }
             .panel {
                 height: calc(100% - 5px);
+                .panel-body {
+                    height: calc(100% - 30px);
+                    & > div {
+                        height: 100%;
+                    }
+                }
             }
         }
     }
@@ -4072,5 +4078,6 @@ a.disabled {
 }
 
 .virtual-scroller {
-    max-height: 1070px;
+    height: calc(100% - 45px);
+    // max-height: 1070px;
 }

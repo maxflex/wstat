@@ -13409,12 +13409,16 @@ html, body {
   height: 100%; }
   html #app, body #app {
     height: 100%; }
-    html #app .row, body #app .row {
+    html #app > .row, body #app > .row {
       height: 100%; }
-      html #app .row > div, body #app .row > div {
+      html #app > .row > div, body #app > .row > div {
         height: 100%; }
-      html #app .row .panel, body #app .row .panel {
+      html #app > .row .panel, body #app > .row .panel {
         height: calc(100% - 5px); }
+        html #app > .row .panel .panel-body, body #app > .row .panel .panel-body {
+          height: calc(100% - 30px); }
+          html #app > .row .panel .panel-body > div, body #app > .row .panel .panel-body > div {
+            height: 100%; }
 
 .badge-danger {
   background-color: #A94442; }
@@ -15801,7 +15805,7 @@ a.disabled {
   cursor: default !important; }
 
 .virtual-scroller {
-  max-height: 1070px; }
+  height: calc(100% - 45px); }
 
 .list-group-item .search_icon {
   float: right;

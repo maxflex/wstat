@@ -1,6 +1,4 @@
 (function() {
-  var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
   $(document).ready(function() {
     return window.app = new Vue({
       el: '#app',
@@ -28,6 +26,9 @@
       },
       created: function() {
         this.resourse = this.$resource('api/lists{/id}');
+        if (ENV === 'local' && DEBUG_LIST_ID) {
+          this.openList(DEBUG_LIST_ID);
+        }
         return this._getFrequencies = (function(_this) {
           return function(step) {
             var length, phrases;
@@ -214,41 +215,23 @@
           this.removeMinuses();
           this.list.phrases.forEach((function(_this) {
             return function(phrase) {
-              var words_list;
-              words_list = phrase.phrase.toWords();
-              return _this.list.phrases.forEach(function(phrase2) {
-                var flag, words_list2;
-                if (phrase.phrase !== phrase2.phrase) {
-                  words_list2 = phrase2.phrase.toWords();
-                  flag = true;
-                  words_list.forEach(function(word) {
-                    if (indexOf.call(words_list2, word) >= 0) {
-                      return words_list2[words_list2.indexOf(word)] = null;
-                    } else {
-                      return flag = false;
-                    }
-                  });
-                  if (flag && words_list2.length === (words_list.length + 1)) {
-                    if (!phrase.hasOwnProperty('minuses')) {
-                      phrase.minuses = [];
-                    }
-                    return words_list2.forEach(function(word) {
-                      if (word) {
-                        return phrase.minuses.push("-" + word);
-                      }
-                    });
-                  }
+              var prefix, words;
+              words = phrase.phrase.toWords();
+              prefix = words.slice(0, -1).toPhrase();
+              return _.filter(_this.list.phrases, {
+                phrase: prefix
+              }).forEach(function(phrase) {
+                if (phrase.minuses === void 0) {
+                  phrase.minuses = [];
                 }
+                return phrase.minuses.push('-' + words.slice(-1));
               });
             };
           })(this));
           return this.list.phrases.forEach(function(phrase) {
-            var minus_list;
-            if (phrase.hasOwnProperty('minuses') && phrase.minuses.length) {
-              minus_list = !phrase.minus ? [] : phrase.minus.toWords();
-              minus_list = minus_list.concat(phrase.minuses);
-              phrase.minus = minus_list.toPhrase();
-              return phrase.minuses = [];
+            if (phrase.minuses !== void 0) {
+              phrase.minus = phrase.minuses.toPhrase();
+              return delete phrase.minuses;
             }
           });
         },
@@ -384,10 +367,10 @@
           })(this));
           return closeModal();
         },
-        openList: function(list) {
+        openList: function(list_id) {
           this.saving = true;
           return this.resourse.get({
-            id: list.id
+            id: list_id
           }).then((function(_this) {
             return function(response) {
               _this.list = response.data;

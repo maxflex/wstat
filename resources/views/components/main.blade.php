@@ -7,37 +7,37 @@
         </div>
     </div>
 
-<virtual-scroller class="scroller" :items="filtered_phrases" item-height="42" content-tag="table" content-class='table'>
-      <template scope="props">
-        <thead slot="before-content"></thead>
-        <tr>
-            <td style="width:3%" class="text-gray">
-                 @{{ props.itemIndex + 1 }}.
-            </td>
-            <td style='width: 33%'>
-                @{{ props.item.phrase }}
-            </td>
-            <td style='width: 33%'>
-                <span class="text-gray">@{{ props.item.original }}</span>
-            </td>
-            <td style='width: 11%'>
-                <span v-if='props.item.minus' :aria-label="props.item.minus" class="hint--bottom-right cursor-default">
-                    <plural :count="props.item.minus.toWords().length" type='minus'></plural>
-                </span>
-            </td>
-            <td style='width: 5%'>
-                @{{ props.item.frequency }}
-            </td>
-            <td style='width: 9%'>
-                <span class='link-like link-danger' @click='startEditingPhrase(props.item, props.itemIndex)'>редактировать</span>
-            </td>
-            <td style='width: 6%'>
-                 <span class='link-like link-danger' @click='removePhrase(props.item)'>удалить</span>
-            </td>
-        </tr>
-        <slot name="after-content"></tbody></slot>
-      </template>
-</virtual-scroller>
+    <virtual-scroller class="scroller" :items="filtered_phrases" item-height="26" content-tag="table" content-class='table'>
+          <template scope="props">
+            <thead slot="before-content"></thead>
+            <tr>
+                <td style="width:3%" class="text-gray">
+                     @{{ props.itemIndex + 1 }}.
+                </td>
+                <td style='width: 33%'>
+                    @{{ props.item.phrase }}
+                </td>
+                <td style='width: 33%'>
+                    <span class="text-gray">@{{ props.item.original }}</span>
+                </td>
+                <td style='width: 11%'>
+                    <span v-if='props.item.minus' :aria-label="props.item.minus" class="hint--bottom-right cursor-default">
+                        <plural :count="props.item.minus.toWords().length" type='minus'></plural>
+                    </span>
+                </td>
+                <td style='width: 5%'>
+                    @{{ props.item.frequency }}
+                </td>
+                <td style='width: 9%'>
+                    <span class='link-like link-danger' @click='startEditingPhrase(props.item, props.itemIndex)'>редактировать</span>
+                </td>
+                <td style='width: 6%'>
+                     <span class='link-like link-danger' @click='removePhrase(props.item)'>удалить</span>
+                </td>
+            </tr>
+            <slot name="after-content"></tbody></slot>
+          </template>
+    </virtual-scroller>
 
     {{-- <table class="table">
         <tr v-for="(phrase, index) in filtered_phrases">
@@ -73,7 +73,7 @@
     <table v-if='lists !== null && lists.length' class='table'>
         <tr v-for='list in lists'>
             <td style='width: 40%'>
-                <span class="link-like" @click='openList(list)'>@{{ list.title }}</span>
+                <span class="link-like" @click='openList(list.id)'>@{{ list.title }}</span>
             </td>
             <td style='width: 20%'>
                 <plural :count='list.phrases_count' type='phrase' none-text='нет фраз'></plural>
