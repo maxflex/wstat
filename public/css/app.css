@@ -15807,6 +15807,10 @@ a.disabled {
 .virtual-scroller {
   height: calc(100% - 45px); }
 
+.hint--bottom-right:hover:after {
+  width: 303px;
+  white-space: pre-line; }
+
 .list-group-item .search_icon {
   float: right;
   cursor: pointer; }

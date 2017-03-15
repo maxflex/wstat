@@ -4081,3 +4081,8 @@ a.disabled {
     height: calc(100% - 45px);
     // max-height: 1070px;
 }
+
+.hint--bottom-right:hover:after {
+    width: 303px;
+    white-space: pre-line;
+}
