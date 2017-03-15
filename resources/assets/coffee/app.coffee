@@ -29,7 +29,8 @@ $(document).ready ->
         length = @list.phrases.length / 10 * 10 + 100
         @center_title = Math.round(step / length * 10000) + '%'
         this.$http.post 'api/getFrequencies',
-          phrases: _.pluck(phrases, 'phrase')
+          phrases: _.map phrases, (phrase) ->
+            [phrase.phrase, phrase.minus].join(' ')
         .then (response) =>
           @frequencies = @frequencies.concat(response.data)
           if phrases.length is 100
