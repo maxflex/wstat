@@ -464,6 +464,17 @@
 }).call(this);
 
 (function() {
+  Vue.component('once-table', {
+    props: ['items'],
+    template: '#once-table',
+    updated: function() {
+      return console.log('component update');
+    }
+  });
+
+}).call(this);
+
+(function() {
   var plurals;
 
   plurals = {
@@ -495,50 +506,115 @@
 (function() {
   this.ExportMixin = {
     created: function() {
-      this.columnDelimiter = ';';
-      this.lineDelimiter = '\n';
-      this.filename = 'wstat.xls';
-      this.fields = ['phrase', 'minus', 'original', 'frequency'];
-      return this.convertListToCSV = (function(_this) {
-        return function() {
-          var data;
-          data = ['id' + _this.columnDelimiter + _this.fields.join(_this.columnDelimiter)];
-          _this.list.phrases.forEach(function(phrase, index) {
-            var item;
-            item = [index + 1];
-            _this.fields.forEach(function(field) {
-              return item.push(phrase[field]);
-            });
-            return data.push(item.join(_this.columnDelimiter));
-          });
-          return data.join(_this.lineDelimiter);
-        };
-      })(this);
+      this.filename = 'wstat.xlsx';
+      return this.fields = ['phrase', 'frequency', 'original', 'minus'];
     },
     methods: {
-      downloadCSV: function() {
-        var csv, data, link;
-        csv = this.convertListToCSV();
-        csv = 'data:text/xls;charset=utf-8,' + csv;
-        data = encodeURI(csv);
-        link = document.createElement('a');
-        link.setAttribute('href', data);
-        link.setAttribute('download', this.filename);
-        return link.click();
+      generateSheetData: function() {
+        var C, R, cell, cell_ref, col_width, range, wsheet;
+        wsheet = {};
+        range = {
+          s: {
+            c: 0,
+            r: 0
+          },
+          e: {
+            c: this.fields.length,
+            r: this.list.phrases.length + 1
+          }
+        };
+        wsheet['!cols'] = [];
+        this.fields.forEach(function(title, index) {
+          var cell, cell_ref;
+          cell_ref = XLSX.utils.encode_cell({
+            c: index,
+            r: 0
+          });
+          cell = {
+            v: title,
+            t: 's'
+          };
+          wsheet[cell_ref] = cell;
+          return wsheet['!cols'].push({
+            wch: cell.v.length
+          });
+        });
+        col_width = this.fields[0].length;
+        R = 0;
+        while (R !== this.list.phrases.length) {
+          C = 0;
+          while (C !== this.fields.length) {
+            cell = {
+              v: this.list.phrases[R][this.fields[C]]
+            };
+            if (cell.v === null) {
+              ++C;
+              continue;
+            }
+            cell_ref = XLSX.utils.encode_cell({
+              c: C,
+              r: R + 1
+            });
+            if (typeof cell.v === 'number') {
+              cell.t = 'n';
+            } else {
+              cell.t = 's';
+              if (cell.v && cell.v.length > wsheet['!cols'][C].wch) {
+                wsheet['!cols'][C].wch = cell.v.length;
+              }
+            }
+            wsheet[cell_ref] = cell;
+            ++C;
+          }
+          ++R;
+        }
+        wsheet['!ref'] = XLSX.utils.encode_range(range);
+        return wsheet;
       },
       exportXls: function() {
         this.saving = true;
-        return this.$http.post('export', this.list).then((function(_this) {
-          return function(response) {
-            var blob, link;
-            _this.saving = false;
-            blob = new Blob([response.data]);
-            link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = "wstat.xls";
-            return link.click();
+        return setTimeout((function(_this) {
+          return function() {
+            var Workbook, err, s2ab, wbook, wbookOut, wsheet, wsheet_name;
+            try {
+              Workbook = function() {
+                if (!(this instanceof Workbook)) {
+                  return new Workbook;
+                }
+                this.SheetNames = [];
+                this.Sheets = {};
+              };
+              wsheet_name = _this.list.title || 'Новый список';
+              wbook = new Workbook;
+              wsheet = _this.generateSheetData();
+              wbook.SheetNames.push(wsheet_name);
+              wbook.Sheets[wsheet_name] = wsheet;
+              wbookOut = XLSX.write(wbook, {
+                bookType: 'xlsx',
+                bookSST: true,
+                type: 'binary'
+              });
+              s2ab = function(s) {
+                var buf, i, view;
+                buf = new ArrayBuffer(s.length);
+                view = new Uint8Array(buf);
+                i = 0;
+                while (i !== s.length) {
+                  view[i] = s.charCodeAt(i) & 0xFF;
+                  ++i;
+                }
+                return buf;
+              };
+              saveAs(new Blob([s2ab(wbookOut)], {
+                type: 'application/octet-stream'
+              }), _this.filename);
+            } catch (error) {
+              err = error;
+              notifyError('Ошибка экспорта');
+            }
+            return _this.saving = false;
           };
-        })(this));
+        })(this), 100);
       }
     }
   };
