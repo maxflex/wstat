@@ -524,7 +524,7 @@
   this.ExportMixin = {
     created: function() {
       this.filename = 'wstat.xlsx';
-      return this.fields = ['phrase', 'frequency', 'original', 'minus'];
+      return this.fields = ['id', 'phrase', 'frequency', 'original', 'minus'];
     },
     methods: {
       generateSheetData: function() {
@@ -561,9 +561,15 @@
         while (R !== this.list.phrases.length) {
           C = 0;
           while (C !== this.fields.length) {
-            cell = {
-              v: this.list.phrases[R][this.fields[C]]
-            };
+            if (this.fields[C] === 'id') {
+              cell = {
+                v: R + 1
+              };
+            } else {
+              cell = {
+                v: this.list.phrases[R][this.fields[C]]
+              };
+            }
             if (cell.v === null) {
               ++C;
               continue;
