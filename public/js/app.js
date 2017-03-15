@@ -464,17 +464,6 @@
 }).call(this);
 
 (function() {
-  Vue.component('once-table', {
-    props: ['items'],
-    template: '#once-table',
-    updated: function() {
-      return console.log('component update');
-    }
-  });
-
-}).call(this);
-
-(function() {
   var plurals;
 
   plurals = {
@@ -507,7 +496,7 @@
   this.ExportMixin = {
     created: function() {
       this.filename = 'wstat.xlsx';
-      return this.fields = ['phrase', 'frequency', 'original', 'minus'];
+      return this.fields = ['id', 'phrase', 'frequency', 'original', 'minus'];
     },
     methods: {
       generateSheetData: function() {
@@ -544,9 +533,15 @@
         while (R !== this.list.phrases.length) {
           C = 0;
           while (C !== this.fields.length) {
-            cell = {
-              v: this.list.phrases[R][this.fields[C]]
-            };
+            if (this.fields[C] === 'id') {
+              cell = {
+                v: R + 1
+              };
+            } else {
+              cell = {
+                v: this.list.phrases[R][this.fields[C]]
+              };
+            }
             if (cell.v === null) {
               ++C;
               continue;
@@ -575,7 +570,7 @@
         this.saving = true;
         return setTimeout((function(_this) {
           return function() {
-            var Workbook, err, s2ab, wbook, wbookOut, wsheet, wsheet_name;
+            var Workbook, err, error, s2ab, wbook, wbookOut, wsheet, wsheet_name;
             try {
               Workbook = function() {
                 if (!(this instanceof Workbook)) {

@@ -1,7 +1,7 @@
 @ExportMixin =
   created: ->
     @filename = 'wstat.xlsx'
-    @fields = ['phrase', 'frequency', 'original', 'minus']
+    @fields = ['id', 'phrase', 'frequency', 'original', 'minus']
 
   methods:
     generateSheetData: ->
@@ -23,7 +23,10 @@
         while R != @list.phrases.length
           C = 0
           while C != @fields.length
-            cell = v: @list.phrases[R][@fields[C]]
+            if @fields[C] is 'id'
+              cell = v: R + 1
+            else
+              cell = v: @list.phrases[R][@fields[C]]
             if cell.v == null
               ++C
               continue
