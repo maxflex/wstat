@@ -19,7 +19,7 @@
           wsheet['!cols'].push wch: cell.v.length
 
         col_width = @fields[0].length
-        R = 1
+        R = 0
         while R != @list.phrases.length
           C = 0
           while C != @fields.length
@@ -27,12 +27,12 @@
             if cell.v == null
               ++C
               continue
-            cell_ref = XLSX.utils.encode_cell c: C, r: R
+            cell_ref = XLSX.utils.encode_cell c: C, r: R + 1
             if typeof cell.v == 'number'
               cell.t = 'n'
             else
               cell.t = 's'
-              wsheet['!cols'][C].wch = cell.v.length if wsheet['!cols'][C].wch < cell.v.length
+              wsheet['!cols'][C].wch = cell.v.length if cell.v and cell.v.length > wsheet['!cols'][C].wch
             wsheet[cell_ref] = cell
             ++C
           ++R
