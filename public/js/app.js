@@ -1,342 +1,4 @@
 (function() {
-  Vue.component('virtual-scroller', VueVirtualScroller.VirtualScroller);
-
-}).call(this);
-
-(function() {
-  Vue.component('once-table', {
-    props: ['items'],
-    template: '#once-table',
-    updated: function() {
-      return console.log('component update');
-    }
-  });
-
-}).call(this);
-
-(function() {
-  var plurals;
-
-  plurals = {
-    'minute': ['минуту', 'минуты', 'минут'],
-    'hour': ['час', 'часа', 'часов'],
-    'day': ['день', 'дня', 'дней'],
-    'phrase': ['фраза', 'фразы', 'фраз'],
-    'minus': ['минус слово', 'минус слова', 'минус слов']
-  };
-
-  Vue.component('plural', {
-    props: ['count', 'type'],
-    computed: {
-      text: function() {
-        if (this.count % 10 === 1 && this.count % 100 !== 11) {
-          return plurals[this.type][0];
-        } else if (this.count % 10 >= 2 && this.count % 10 <= 4 && this.count % 100 < 10 || this.count % 100 >= 20) {
-          return plurals[this.type][1];
-        } else {
-          return plurals[this.type][2];
-        }
-      }
-    },
-    template: "<span>{{ count }} {{ text }}</span>"
-  });
-
-}).call(this);
-
-(function() {
-  this.ExportMixin = {
-    created: function() {
-      this.filename = 'wstat.xlsx';
-      return this.fields = ['phrase', 'frequency', 'original', 'minus'];
-    },
-    methods: {
-      generateSheetData: function() {
-        var C, R, cell, cell_ref, col_width, range, wsheet;
-        wsheet = {};
-        range = {
-          s: {
-            c: 0,
-            r: 0
-          },
-          e: {
-            c: this.fields.length,
-            r: this.list.phrases.length + 1
-          }
-        };
-        wsheet['!cols'] = [];
-        this.fields.forEach(function(title, index) {
-          var cell, cell_ref;
-          cell_ref = XLSX.utils.encode_cell({
-            c: index,
-            r: 0
-          });
-          cell = {
-            v: title,
-            t: 's'
-          };
-          wsheet[cell_ref] = cell;
-          return wsheet['!cols'].push({
-            wch: cell.v.length
-          });
-        });
-        col_width = this.fields[0].length;
-        R = 1;
-        while (R !== this.list.phrases.length) {
-          C = 0;
-          while (C !== this.fields.length) {
-            cell = {
-              v: this.list.phrases[R][this.fields[C]]
-            };
-            if (cell.v === null) {
-              ++C;
-              continue;
-            }
-            cell_ref = XLSX.utils.encode_cell({
-              c: C,
-              r: R
-            });
-            if (typeof cell.v === 'number') {
-              cell.t = 'n';
-            } else {
-              cell.t = 's';
-              if (wsheet['!cols'][C].wch < cell.v.length) {
-                wsheet['!cols'][C].wch = cell.v.length;
-              }
-            }
-            wsheet[cell_ref] = cell;
-            ++C;
-          }
-          ++R;
-        }
-        wsheet['!ref'] = XLSX.utils.encode_range(range);
-        return wsheet;
-      },
-      exportXls: function() {
-        this.saving = true;
-        return setTimeout((function(_this) {
-          return function() {
-            var Workbook, err, s2ab, wbook, wbookOut, wsheet, wsheet_name;
-            try {
-              Workbook = function() {
-                if (!(this instanceof Workbook)) {
-                  return new Workbook;
-                }
-                this.SheetNames = [];
-                this.Sheets = {};
-              };
-              wsheet_name = _this.list.title || 'Новый список';
-              wbook = new Workbook;
-              wsheet = _this.generateSheetData();
-              wbook.SheetNames.push(wsheet_name);
-              wbook.Sheets[wsheet_name] = wsheet;
-              wbookOut = XLSX.write(wbook, {
-                bookType: 'xlsx',
-                bookSST: true,
-                type: 'binary'
-              });
-              s2ab = function(s) {
-                var buf, i, view;
-                buf = new ArrayBuffer(s.length);
-                view = new Uint8Array(buf);
-                i = 0;
-                while (i !== s.length) {
-                  view[i] = s.charCodeAt(i) & 0xFF;
-                  ++i;
-                }
-                return buf;
-              };
-              saveAs(new Blob([s2ab(wbookOut)], {
-                type: 'application/octet-stream'
-              }), _this.filename);
-            } catch (error) {
-              err = error;
-              notifyError('Ошибка экспорта');
-            }
-            return _this.saving = false;
-          };
-        })(this), 100);
-      }
-    }
-  };
-
-}).call(this);
-
-(function() {
-  this.HelpersMixin = {
-    methods: {
-      formatDateTime: function(date) {
-        return moment(date).format("DD.MM.YY в HH:mm");
-      }
-    },
-    watch: {
-      saving: function(isSaving) {
-        if (isSaving) {
-          return ajaxStart();
-        } else {
-          return ajaxEnd();
-        }
-      }
-    }
-  };
-
-}).call(this);
-
-(function() {
-  this.SortMixin = {
-    methods: {
-      sort: function() {
-        if (!(this.list.phrases && this.list.phrases.length)) {
-          return;
-        }
-        this.getWords();
-        this.getWeights();
-        return this.sortPhraseByWeight();
-      },
-      getWords: function() {
-        this.words = [];
-        return this.list.phrases.forEach((function(_this) {
-          return function(phrase) {
-            var ref;
-            return (ref = _this.words).push.apply(ref, phrase.phrase.toWords());
-          };
-        })(this));
-      },
-      getWeights: function() {
-        var word_groups;
-        this.word_weights = [];
-        word_groups = _.chain(this.words).groupBy(function(word) {
-          return word;
-        }).sortBy(function(word) {
-          return word.length;
-        }).value();
-        return _.map(word_groups, (function(_this) {
-          return function(group) {
-            return _this.word_weights[group[0]] = group.length;
-          };
-        })(this));
-      },
-      sortPhraseByWeight: function() {
-        this.list.phrases.forEach((function(_this) {
-          return function(phrase) {
-            var phrase_weight, words, words_sorted_by_weight;
-            words = phrase.phrase.toWords();
-            words_sorted_by_weight = _.sortBy(words.sort().reverse(), (function(word) {
-              return _this.word_weights[word];
-            })).reverse();
-            phrase_weight = [];
-            words_sorted_by_weight.forEach(function(word) {
-              return phrase_weight.push(_this.word_weights[word]);
-            });
-            phrase.phrase = words_sorted_by_weight.join(' ');
-            return phrase.phrase_weight = phrase_weight;
-          };
-        })(this));
-        return this.list.phrases.sort(function(a, b) {
-          var i, j, length, min, ref;
-          length = Math.min(a.phrase_weight.length, b.phrase_weight.length);
-          min = false;
-          for (i = j = 0, ref = length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
-            if (a.phrase_weight[i] === 41 && b.phrase_weight[i] === 124) {
-              debugger;
-            }
-            if (a.phrase_weight[i] < b.phrase_weight[i]) {
-              min = -1;
-            }
-            if (a.phrase_weight[i] > b.phrase_weight[i]) {
-              min = 1;
-            }
-            if (min) {
-              break;
-            }
-          }
-          if (!min) {
-            min = b.phrase_weight.length - a.phrase_weight.length;
-            if (min === 0) {
-              if (a.phrase > b.phrase) {
-                min = -1;
-              }
-              if (a.phrase < b.phrase) {
-                min = 1;
-              }
-            }
-          }
-          return min;
-        }).reverse();
-      }
-    }
-  };
-
-}).call(this);
-
-(function() {
-  this.TransformMixin = {
-    data: {
-      selected_rows: [],
-      transform_items: {},
-      transform_phrases: {}
-    },
-    methods: {
-      transformModal: function() {
-        this.transform_phrases = _.clone(this.list.phrases);
-        this.transform_phrases = this.splitPhrasesToWords(this.transform_phrases);
-        this.transform_phrases = this.uniq(this.transform_phrases);
-        this.transform_phrases = _.sortBy(this.transform_phrases, 'phrase');
-        return showModal('transform');
-      },
-      selectRow: function(index) {
-        if (this.selected_rows.indexOf(index) === -1) {
-          return this.selected_rows.push(index);
-        } else {
-          return this.selected_rows.splice(this.selected_rows.indexOf(index), 1);
-        }
-      },
-      transformAdd: function(index) {
-        if (this.transform_phrases[index].words === void 0) {
-          this.transform_phrases[index].words = [];
-        }
-        this.selected_rows.forEach((function(_this) {
-          return function(position) {
-            _this.transform_phrases[position].added = true;
-            return _this.transform_phrases[index].words.push(_this.transform_phrases[position].phrase);
-          };
-        })(this));
-        if (this.transform_items[index] === void 0) {
-          this.transform_items[index] = [];
-        }
-        this.transform_items[index] = this.transform_items[index].concat(this.selected_rows);
-        return this.selected_rows = [];
-      },
-      transformRemove: function(index) {
-        this.transform_items[index].forEach((function(_this) {
-          return function(position) {
-            _this.transform_phrases[position].added = false;
-            return _this.transform_phrases[index].words = void 0;
-          };
-        })(this));
-        delete this.transform_items[index];
-        return app.$forceUpdate();
-      },
-      transform: function() {
-        this.list.phrases.forEach((function(_this) {
-          return function(phrase) {
-            return $.each(_this.transform_items, function(main_index, item_indexes) {
-              return item_indexes.forEach(function(item_index) {
-                return phrase.phrase = replaceWord(phrase.phrase, _this.transform_phrases[item_index].phrase, _this.transform_phrases[main_index].phrase);
-              });
-            });
-          };
-        })(this));
-        this.transform_phrases = {};
-        this.transform_items = {};
-        this.selected_rows = [];
-        return closeModal('transform');
-      }
-    }
-  };
-
-}).call(this);
-
-(function() {
   var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   $(document).ready(function() {
@@ -808,6 +470,344 @@
       });
     };
   });
+
+}).call(this);
+
+(function() {
+  Vue.component('virtual-scroller', VueVirtualScroller.VirtualScroller);
+
+}).call(this);
+
+(function() {
+  Vue.component('once-table', {
+    props: ['items'],
+    template: '#once-table',
+    updated: function() {
+      return console.log('component update');
+    }
+  });
+
+}).call(this);
+
+(function() {
+  var plurals;
+
+  plurals = {
+    'minute': ['минуту', 'минуты', 'минут'],
+    'hour': ['час', 'часа', 'часов'],
+    'day': ['день', 'дня', 'дней'],
+    'phrase': ['фраза', 'фразы', 'фраз'],
+    'minus': ['минус слово', 'минус слова', 'минус слов']
+  };
+
+  Vue.component('plural', {
+    props: ['count', 'type'],
+    computed: {
+      text: function() {
+        if (this.count % 10 === 1 && this.count % 100 !== 11) {
+          return plurals[this.type][0];
+        } else if (this.count % 10 >= 2 && this.count % 10 <= 4 && this.count % 100 < 10 || this.count % 100 >= 20) {
+          return plurals[this.type][1];
+        } else {
+          return plurals[this.type][2];
+        }
+      }
+    },
+    template: "<span>{{ count }} {{ text }}</span>"
+  });
+
+}).call(this);
+
+(function() {
+  this.ExportMixin = {
+    created: function() {
+      this.filename = 'wstat.xlsx';
+      return this.fields = ['phrase', 'frequency', 'original', 'minus'];
+    },
+    methods: {
+      generateSheetData: function() {
+        var C, R, cell, cell_ref, col_width, range, wsheet;
+        wsheet = {};
+        range = {
+          s: {
+            c: 0,
+            r: 0
+          },
+          e: {
+            c: this.fields.length,
+            r: this.list.phrases.length + 1
+          }
+        };
+        wsheet['!cols'] = [];
+        this.fields.forEach(function(title, index) {
+          var cell, cell_ref;
+          cell_ref = XLSX.utils.encode_cell({
+            c: index,
+            r: 0
+          });
+          cell = {
+            v: title,
+            t: 's'
+          };
+          wsheet[cell_ref] = cell;
+          return wsheet['!cols'].push({
+            wch: cell.v.length
+          });
+        });
+        col_width = this.fields[0].length;
+        R = 0;
+        while (R !== this.list.phrases.length) {
+          C = 0;
+          while (C !== this.fields.length) {
+            cell = {
+              v: this.list.phrases[R][this.fields[C]]
+            };
+            if (cell.v === null) {
+              ++C;
+              continue;
+            }
+            cell_ref = XLSX.utils.encode_cell({
+              c: C,
+              r: R + 1
+            });
+            if (typeof cell.v === 'number') {
+              cell.t = 'n';
+            } else {
+              cell.t = 's';
+              if (cell.v && cell.v.length > wsheet['!cols'][C].wch) {
+                wsheet['!cols'][C].wch = cell.v.length;
+              }
+            }
+            wsheet[cell_ref] = cell;
+            ++C;
+          }
+          ++R;
+        }
+        wsheet['!ref'] = XLSX.utils.encode_range(range);
+        return wsheet;
+      },
+      exportXls: function() {
+        this.saving = true;
+        return setTimeout((function(_this) {
+          return function() {
+            var Workbook, err, s2ab, wbook, wbookOut, wsheet, wsheet_name;
+            try {
+              Workbook = function() {
+                if (!(this instanceof Workbook)) {
+                  return new Workbook;
+                }
+                this.SheetNames = [];
+                this.Sheets = {};
+              };
+              wsheet_name = _this.list.title || 'Новый список';
+              wbook = new Workbook;
+              wsheet = _this.generateSheetData();
+              wbook.SheetNames.push(wsheet_name);
+              wbook.Sheets[wsheet_name] = wsheet;
+              wbookOut = XLSX.write(wbook, {
+                bookType: 'xlsx',
+                bookSST: true,
+                type: 'binary'
+              });
+              s2ab = function(s) {
+                var buf, i, view;
+                buf = new ArrayBuffer(s.length);
+                view = new Uint8Array(buf);
+                i = 0;
+                while (i !== s.length) {
+                  view[i] = s.charCodeAt(i) & 0xFF;
+                  ++i;
+                }
+                return buf;
+              };
+              saveAs(new Blob([s2ab(wbookOut)], {
+                type: 'application/octet-stream'
+              }), _this.filename);
+            } catch (error) {
+              err = error;
+              notifyError('Ошибка экспорта');
+            }
+            return _this.saving = false;
+          };
+        })(this), 100);
+      }
+    }
+  };
+
+}).call(this);
+
+(function() {
+  this.HelpersMixin = {
+    methods: {
+      formatDateTime: function(date) {
+        return moment(date).format("DD.MM.YY в HH:mm");
+      }
+    },
+    watch: {
+      saving: function(isSaving) {
+        if (isSaving) {
+          return ajaxStart();
+        } else {
+          return ajaxEnd();
+        }
+      }
+    }
+  };
+
+}).call(this);
+
+(function() {
+  this.SortMixin = {
+    methods: {
+      sort: function() {
+        if (!(this.list.phrases && this.list.phrases.length)) {
+          return;
+        }
+        this.getWords();
+        this.getWeights();
+        return this.sortPhraseByWeight();
+      },
+      getWords: function() {
+        this.words = [];
+        return this.list.phrases.forEach((function(_this) {
+          return function(phrase) {
+            var ref;
+            return (ref = _this.words).push.apply(ref, phrase.phrase.toWords());
+          };
+        })(this));
+      },
+      getWeights: function() {
+        var word_groups;
+        this.word_weights = [];
+        word_groups = _.chain(this.words).groupBy(function(word) {
+          return word;
+        }).sortBy(function(word) {
+          return word.length;
+        }).value();
+        return _.map(word_groups, (function(_this) {
+          return function(group) {
+            return _this.word_weights[group[0]] = group.length;
+          };
+        })(this));
+      },
+      sortPhraseByWeight: function() {
+        this.list.phrases.forEach((function(_this) {
+          return function(phrase) {
+            var phrase_weight, words, words_sorted_by_weight;
+            words = phrase.phrase.toWords();
+            words_sorted_by_weight = _.sortBy(words.sort().reverse(), (function(word) {
+              return _this.word_weights[word];
+            })).reverse();
+            phrase_weight = [];
+            words_sorted_by_weight.forEach(function(word) {
+              return phrase_weight.push(_this.word_weights[word]);
+            });
+            phrase.phrase = words_sorted_by_weight.join(' ');
+            return phrase.phrase_weight = phrase_weight;
+          };
+        })(this));
+        return this.list.phrases.sort(function(a, b) {
+          var i, j, length, min, ref;
+          length = Math.min(a.phrase_weight.length, b.phrase_weight.length);
+          min = false;
+          for (i = j = 0, ref = length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+            if (a.phrase_weight[i] === 41 && b.phrase_weight[i] === 124) {
+              debugger;
+            }
+            if (a.phrase_weight[i] < b.phrase_weight[i]) {
+              min = -1;
+            }
+            if (a.phrase_weight[i] > b.phrase_weight[i]) {
+              min = 1;
+            }
+            if (min) {
+              break;
+            }
+          }
+          if (!min) {
+            min = b.phrase_weight.length - a.phrase_weight.length;
+            if (min === 0) {
+              if (a.phrase > b.phrase) {
+                min = -1;
+              }
+              if (a.phrase < b.phrase) {
+                min = 1;
+              }
+            }
+          }
+          return min;
+        }).reverse();
+      }
+    }
+  };
+
+}).call(this);
+
+(function() {
+  this.TransformMixin = {
+    data: {
+      selected_rows: [],
+      transform_items: {},
+      transform_phrases: {}
+    },
+    methods: {
+      transformModal: function() {
+        this.transform_phrases = _.clone(this.list.phrases);
+        this.transform_phrases = this.splitPhrasesToWords(this.transform_phrases);
+        this.transform_phrases = this.uniq(this.transform_phrases);
+        this.transform_phrases = _.sortBy(this.transform_phrases, 'phrase');
+        return showModal('transform');
+      },
+      selectRow: function(index) {
+        if (this.selected_rows.indexOf(index) === -1) {
+          return this.selected_rows.push(index);
+        } else {
+          return this.selected_rows.splice(this.selected_rows.indexOf(index), 1);
+        }
+      },
+      transformAdd: function(index) {
+        if (this.transform_phrases[index].words === void 0) {
+          this.transform_phrases[index].words = [];
+        }
+        this.selected_rows.forEach((function(_this) {
+          return function(position) {
+            _this.transform_phrases[position].added = true;
+            return _this.transform_phrases[index].words.push(_this.transform_phrases[position].phrase);
+          };
+        })(this));
+        if (this.transform_items[index] === void 0) {
+          this.transform_items[index] = [];
+        }
+        this.transform_items[index] = this.transform_items[index].concat(this.selected_rows);
+        return this.selected_rows = [];
+      },
+      transformRemove: function(index) {
+        this.transform_items[index].forEach((function(_this) {
+          return function(position) {
+            _this.transform_phrases[position].added = false;
+            return _this.transform_phrases[index].words = void 0;
+          };
+        })(this));
+        delete this.transform_items[index];
+        return app.$forceUpdate();
+      },
+      transform: function() {
+        this.list.phrases.forEach((function(_this) {
+          return function(phrase) {
+            return $.each(_this.transform_items, function(main_index, item_indexes) {
+              return item_indexes.forEach(function(item_index) {
+                return phrase.phrase = replaceWord(phrase.phrase, _this.transform_phrases[item_index].phrase, _this.transform_phrases[main_index].phrase);
+              });
+            });
+          };
+        })(this));
+        this.transform_phrases = {};
+        this.transform_items = {};
+        this.selected_rows = [];
+        return closeModal('transform');
+      }
+    }
+  };
 
 }).call(this);
 
