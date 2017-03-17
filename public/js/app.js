@@ -493,6 +493,16 @@
 }).call(this);
 
 (function() {
+  Vue.directive('digits-only', {
+    update: function(el, binding, vnode) {
+      console.log(el.value.replace(/[^0-9]/g, ''));
+      return el.value = el.value.replace(/[^0-9]/g, '');
+    }
+  });
+
+}).call(this);
+
+(function() {
   this.ExportMixin = {
     created: function() {
       this.filename = 'wstat.xlsx';
@@ -570,7 +580,7 @@
         this.saving = true;
         return setTimeout((function(_this) {
           return function() {
-            var Workbook, err, error, s2ab, wbook, wbookOut, wsheet, wsheet_name;
+            var Workbook, err, s2ab, wbook, wbookOut, wsheet, wsheet_name;
             try {
               Workbook = function() {
                 if (!(this instanceof Workbook)) {
