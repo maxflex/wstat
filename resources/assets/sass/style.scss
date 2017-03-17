@@ -4086,3 +4086,7 @@ a.disabled {
     width: 303px;
     white-space: pre-line;
 }
+
+[class*="hint--"]:after {
+    white-space: pre-line!important;
+}
