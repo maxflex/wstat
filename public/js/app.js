@@ -125,6 +125,7 @@
             return;
           }
           this.list.phrases = this.list.phrases.concat(new_phrases);
+          this.modal.value = '';
           return closeModal();
         },
         addWordsError: function(index, line, message) {
@@ -167,6 +168,7 @@
               });
             };
           })(this));
+          this.modal.value = '';
           return closeModal();
         },
         splitPhrasesToWords: function(phrases) {
@@ -282,9 +284,10 @@
           return minus.join(' ').trim();
         },
         removeFrequencies: function() {
-          return this.list.phrases.forEach(function(list_item) {
+          this.list.phrases.forEach(function(list_item) {
             return list_item.frequency = void 0;
           });
+          return app.$forceUpdate();
         },
         removePhrase: function(phrase) {
           return this.list.phrases = _.without(this.list.phrases, phrase);
@@ -366,6 +369,7 @@
             };
           })(this));
           this.removeEmptyPhrases();
+          this.modal.value = '';
           return closeModal();
         },
         deletePhrasesWithWords: function() {
@@ -376,6 +380,7 @@
               });
             };
           })(this));
+          this.modal.value = '';
           return closeModal();
         },
         openList: function(list_id) {
@@ -525,15 +530,6 @@
       }
     },
     template: "<span>{{ count }} {{ text }}</span>"
-  });
-
-}).call(this);
-
-(function() {
-  Vue.directive('digits-only', {
-    update: function(el) {
-      return el.value = el.value.replace(/[^0-9]/g, '');
-    }
   });
 
 }).call(this);
@@ -834,6 +830,15 @@
       }
     }
   };
+
+}).call(this);
+
+(function() {
+  Vue.directive('digits-only', {
+    update: function(el) {
+      return el.value = el.value.replace(/[^0-9]/g, '');
+    }
+  });
 
 }).call(this);
 

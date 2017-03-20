@@ -7,7 +7,7 @@
         </div>
     </div>
 
-    <virtual-scroller class="scroller" :items="filtered_phrases" item-height="26" content-tag="table" content-class='table'>
+    <virtual-scroller v-show="list.phrases.length" class="scroller" :items="filtered_phrases" item-height="26" content-tag="table" content-class='table'>
           <template scope="props">
             <thead slot="before-content"></thead>
             <tr>

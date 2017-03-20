@@ -77,6 +77,7 @@ $(document).ready ->
             new_phrases.push(list_item)
         return if @addwords_error
         @list.phrases = @list.phrases.concat(new_phrases)
+        @modal.value = ''
         closeModal()
 
       addWordsError: (index, line, message) ->
@@ -105,6 +106,7 @@ $(document).ready ->
             minus_words = if not phrase.minus then [] else phrase.minus.toWords()
             minus_words.push(word)
             phrase.minus = minus_words.toPhrase()
+        @modal.value = ''
         closeModal()
 
       # разбить фразы на слова
@@ -184,6 +186,7 @@ $(document).ready ->
       removeFrequencies: ->
         @list.phrases.forEach (list_item) ->
           list_item.frequency = undefined
+        app.$forceUpdate()
 
       removePhrase: (phrase) ->
         @list.phrases = _.without @list.phrases, phrase
@@ -231,12 +234,14 @@ $(document).ready ->
             if phrase.phrase.match exactMatch textarea_phrase.trim()
               phrase.phrase = removeDoubleSpaces(phrase.phrase.replace(exactMatch(textarea_phrase.trim()), ' ')).trim()
         @removeEmptyPhrases()
+        @modal.value = ''
         closeModal()
 
       deletePhrasesWithWords: ->
         @modal.value.split('\n').forEach (textarea_phrase) =>
             @list.phrases = _.filter @list.phrases, (phrase) =>
                 not phrase.phrase.match exactMatch textarea_phrase
+        @modal.value = ''
         closeModal()
 
       openList: (list_id) ->
