@@ -13402,15 +13402,15 @@ md-input-container label {
 
 body {
   font-family: "Open Sans";
-  padding-top: 20px !important;
-  overflow: hidden; }
+  padding-top: 20px !important; }
 
 html, body {
   height: 100%; }
   html #app, body #app {
     height: 100%; }
     html #app > .row, body #app > .row {
-      height: 100%; }
+      height: 100%;
+      padding-top: 8px; }
       html #app > .row > div, body #app > .row > div {
         height: 100%; }
       html #app > .row .panel, body #app > .row .panel {
@@ -15810,6 +15810,10 @@ a.disabled {
 .hint--bottom-right:hover:after {
   width: 303px;
   white-space: pre-line; }
+
+[class*="hint--"]:after {
+  white-space: pre-line !important;
+  width: 303px !important; }
 
 .list-group-item .search_icon {
   float: right;

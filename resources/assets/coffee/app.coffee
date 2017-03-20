@@ -10,9 +10,8 @@ $(document).ready ->
       lists: null               # existing lists
       list:                     # current list
         title: null
-        # phrases: [{phrase: 'phrase one test'}, {phrase: 'phrase two test'}]
         phrases: []
-      modal: {}
+      modal: {value: ''}
       modal_phrase: {frequency: null, phrase: '', minus: ''}
       find_phrase: null
       replace_phrase: null
@@ -141,14 +140,23 @@ $(document).ready ->
       configureMinus: ->
         @removeMinuses()
         @list.phrases.forEach (phrase) =>
-          words = phrase.phrase.toWords()
-          prefix = words.slice(0, -1).toPhrase()
-          _.filter(@list.phrases, {phrase: prefix}).forEach (phrase) ->
-            phrase.minuses = [] if phrase.minuses is undefined
-            phrase.minuses.push('-' + words.slice(-1))
+          words_list = phrase.phrase.toWords()
+          @list.phrases.forEach (phrase2) =>
+            # самого себя не проверяем
+            if phrase.phrase isnt phrase2.phrase
+              words_list2 = phrase2.phrase.toWords()
+              # смотрим только если разница в длине в 1
+              if words_list2.length is (words_list.length + 1)
+                difference = _.difference(words_list2, words_list)
+                # является родителем только если разница в 1 слово
+                if difference.length is 1
+                  phrase.minuses = [] if not phrase.hasOwnProperty('minuses')
+                  phrase.minuses.push("-" + difference[0])
         @list.phrases.forEach (phrase) ->
-          if phrase.minuses isnt undefined
-            phrase.minus = phrase.minuses.toPhrase()
+          if phrase.hasOwnProperty('minuses')
+            minus_list = if not phrase.minus then [] else phrase.minus.toWords()
+            minus_list = minus_list.concat(phrase.minuses)
+            phrase.minus = minus_list.toPhrase()
             delete phrase.minuses
 
       removeMinuses: ->
@@ -162,7 +170,7 @@ $(document).ready ->
             minus.push(value)
           else
             words.push(value)
-        [words.join(' '), minus.join(' ')]
+        [words.toPhrase(), minus.toPhrase()]
 
       convertToMinus: (phrase) ->
           minus = []
@@ -170,8 +178,8 @@ $(document).ready ->
             if value[0] is '-' and value.length > 1
               minus.push value
             else
-                minus.push '-' + value
-          minus.join ' '
+              minus.push '-' + value
+          minus.join(' ').trim()
 
       removeFrequencies: ->
         @list.phrases.forEach (list_item) ->
@@ -249,9 +257,26 @@ $(document).ready ->
         rebindMasks()
 
       editPhrase: ->
-        [@modal_phrase.phrase, @modal_phrase.minus] = @separateMinuses @modal_phrase.phrase, @convertToMinus @modal_phrase.minus
+        [@modal_phrase.phrase, @modal_phrase.minus] = @separateMinuses(@modal_phrase.phrase, @convertToMinus(@modal_phrase.minus))
         _.extendOwn @list.phrases[@modal_phrase.index], _.clone(@modal_phrase)
         closeModal 'edit-phrase'
+
+      addToAll: ->
+        @list.phrases.forEach (phrase) =>
+          phrase.phrase += ' ' + @modal.value
+        @modal.value = ''
+        closeModal('add-to-all')
+
+      mixer: ->
+        new_phrases = []
+        @list.phrases.forEach (phrase) =>
+          @modal.value.split('\n').forEach (line) =>
+            new_phrase = _.clone(phrase)
+            new_phrase.phrase += ' ' + line
+            new_phrases.push(new_phrase)
+        @list.phrases = new_phrases
+        @modal.value = ''
+        closeModal()
 
     watch:
       page: (newPage) ->

@@ -5,7 +5,7 @@
             <div class="modal-body">
                 <textarea class='form-control' id='modal-value' :placeholder="modal.placeholder" v-model='modal.value'></textarea>
                 <center>
-                    <button class="btn btn-primary" @click="(modal.action)()">@{{ modal.title }}</button>
+                    <button class="btn btn-primary" :disabled='!modal.value' @click="(modal.action)()">@{{ modal.title }}</button>
                 </center>
             </div>
         </div>
@@ -92,6 +92,22 @@
     </div>
 </div>
 
+<div class="modal" id='add-to-all-modal' tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Добавить ко всем</h4>
+            </div>
+            <div class="modal-body">
+                <input v-model='modal.value' @keydown.enter="addToAll()" class='form-control mb' placeholder="слово или фраза...">
+            </div>
+            <div class="modal-footer center">
+                <div class="btn btn-primary" :disabled='!modal.value' @click="addToAll()">добавить</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal" id='edit-phrase-modal' tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -103,7 +119,7 @@
                     <input v-model.trim='modal_phrase.phrase' class='form-control mb' placeholder="фраза">
                 </div>
                 <div class="form-group">
-                    <input v-model.number='modal_phrase.frequency' class='form-control mb digits-only' placeholder="частота">
+                    <input v-model='modal_phrase.frequency' v-digits-only class='form-control mb' placeholder="частота">
                 </div>
                 <div class="form-group">
                     <input v-model.trim='modal_phrase.minus' class='form-control mb' placeholder="минус слова">

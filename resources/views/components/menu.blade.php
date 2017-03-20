@@ -1,7 +1,7 @@
 <a class="list-group-item active">Операции</a>
 <a @click="runModal(addWords, 'добавить')" class="list-group-item">Добавить слова</a>
 <a @click="runModal(addMinuses, 'добавить')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Добавить минус слова</a>
-<a @click="addToAll()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Добавить ко всем</a>
+<a onclick="showModal('add-to-all')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Добавить ко всем</a>
 <a @click="splitPhrasesToWords()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Разбить фразы на слова</a>
 <a onclick="showModal('replace')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Поиск и замена</a>
 <a @click='lowercase()' class="list-group-item" :class="{'disabled': !list.phrases.length}">Превратить все буквы в маленькие</a>
@@ -9,6 +9,7 @@
 <a @click="sort()" class="list-group-item" :class="{disabled: !list.phrases.length}">Умная сортировка</a>
 <a @click="configureMinus()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Конфигурирование минусов</a>
 <a @click="transformModal()" class="list-group-item" :class="{'disabled': !$root.list.phrases.length}">Трансформировать</a>
+<a @click="runModal(mixer, 'применить')" class="list-group-item" :class="{'disabled': !$root.list.phrases.length}">Миксер</a>
 
 <a class="list-group-item active">Удаление</a>
 <a @click="uniq()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Удалить дубликаты</a>

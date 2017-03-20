@@ -13,7 +13,9 @@
           title: null,
           phrases: []
         },
-        modal: {},
+        modal: {
+          value: ''
+        },
         modal_phrase: {
           frequency: null,
           phrase: '',
@@ -215,22 +217,31 @@
           this.removeMinuses();
           this.list.phrases.forEach((function(_this) {
             return function(phrase) {
-              var prefix, words;
-              words = phrase.phrase.toWords();
-              prefix = words.slice(0, -1).toPhrase();
-              return _.filter(_this.list.phrases, {
-                phrase: prefix
-              }).forEach(function(phrase) {
-                if (phrase.minuses === void 0) {
-                  phrase.minuses = [];
+              var words_list;
+              words_list = phrase.phrase.toWords();
+              return _this.list.phrases.forEach(function(phrase2) {
+                var difference, words_list2;
+                if (phrase.phrase !== phrase2.phrase) {
+                  words_list2 = phrase2.phrase.toWords();
+                  if (words_list2.length === (words_list.length + 1)) {
+                    difference = _.difference(words_list2, words_list);
+                    if (difference.length === 1) {
+                      if (!phrase.hasOwnProperty('minuses')) {
+                        phrase.minuses = [];
+                      }
+                      return phrase.minuses.push("-" + difference[0]);
+                    }
+                  }
                 }
-                return phrase.minuses.push('-' + words.slice(-1));
               });
             };
           })(this));
           return this.list.phrases.forEach(function(phrase) {
-            if (phrase.minuses !== void 0) {
-              phrase.minus = phrase.minuses.toPhrase();
+            var minus_list;
+            if (phrase.hasOwnProperty('minuses')) {
+              minus_list = !phrase.minus ? [] : phrase.minus.toWords();
+              minus_list = minus_list.concat(phrase.minuses);
+              phrase.minus = minus_list.toPhrase();
               return delete phrase.minuses;
             }
           });
@@ -256,7 +267,7 @@
               return words.push(value);
             }
           });
-          return [words.join(' '), minus.join(' ')];
+          return [words.toPhrase(), minus.toPhrase()];
         },
         convertToMinus: function(phrase) {
           var minus;
@@ -268,7 +279,7 @@
               return minus.push('-' + value);
             }
           });
-          return minus.join(' ');
+          return minus.join(' ').trim();
         },
         removeFrequencies: function() {
           return this.list.phrases.forEach(function(list_item) {
@@ -398,6 +409,32 @@
           ref = this.separateMinuses(this.modal_phrase.phrase, this.convertToMinus(this.modal_phrase.minus)), this.modal_phrase.phrase = ref[0], this.modal_phrase.minus = ref[1];
           _.extendOwn(this.list.phrases[this.modal_phrase.index], _.clone(this.modal_phrase));
           return closeModal('edit-phrase');
+        },
+        addToAll: function() {
+          this.list.phrases.forEach((function(_this) {
+            return function(phrase) {
+              return phrase.phrase += ' ' + _this.modal.value;
+            };
+          })(this));
+          this.modal.value = '';
+          return closeModal('add-to-all');
+        },
+        mixer: function() {
+          var new_phrases;
+          new_phrases = [];
+          this.list.phrases.forEach((function(_this) {
+            return function(phrase) {
+              return _this.modal.value.split('\n').forEach(function(line) {
+                var new_phrase;
+                new_phrase = _.clone(phrase);
+                new_phrase.phrase += ' ' + line;
+                return new_phrases.push(new_phrase);
+              });
+            };
+          })(this));
+          this.list.phrases = new_phrases;
+          this.modal.value = '';
+          return closeModal();
         }
       },
       watch: {
@@ -488,6 +525,15 @@
       }
     },
     template: "<span>{{ count }} {{ text }}</span>"
+  });
+
+}).call(this);
+
+(function() {
+  Vue.directive('digits-only', {
+    update: function(el) {
+      return el.value = el.value.replace(/[^0-9]/g, '');
+    }
   });
 
 }).call(this);

@@ -1069,7 +1069,7 @@ body {
     font-family: "Open Sans";
 padding-top: 20px !important;
 // overflow-x: hidden;
-overflow: hidden;
+// overflow: hidden;
 // background-color: #eee;
 // background-image: url("../img/background/bg.jpg");
 // font-family: Ubuntu !important;
@@ -1081,6 +1081,7 @@ html, body {
         height: 100%;
         & > .row {
             height: 100%;
+            padding-top: 8px;
             & > div {
                 height: 100%;
             }
@@ -4085,4 +4086,9 @@ a.disabled {
 .hint--bottom-right:hover:after {
     width: 303px;
     white-space: pre-line;
+}
+
+[class*="hint--"]:after {
+    white-space: pre-line !important;
+    width: 303px !important;
 }
