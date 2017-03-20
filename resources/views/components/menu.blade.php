@@ -1,6 +1,7 @@
 <a class="list-group-item active">Операции</a>
 <a @click="runModal(addWords, 'добавить')" class="list-group-item">Добавить слова</a>
 <a @click="runModal(addMinuses, 'добавить')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Добавить минус слова</a>
+<a @click="addToAll()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Добавить ко всем</a>
 <a @click="splitPhrasesToWords()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Разбить фразы на слова</a>
 <a onclick="showModal('replace')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Поиск и замена</a>
 <a @click='lowercase()' class="list-group-item" :class="{'disabled': !list.phrases.length}">Превратить все буквы в маленькие</a>
