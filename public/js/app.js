@@ -413,6 +413,7 @@
           var ref;
           ref = this.separateMinuses(this.modal_phrase.phrase, this.convertToMinus(this.modal_phrase.minus)), this.modal_phrase.phrase = ref[0], this.modal_phrase.minus = ref[1];
           _.extendOwn(this.list.phrases[this.modal_phrase.index], _.clone(this.modal_phrase));
+          app.$forceUpdate();
           return closeModal('edit-phrase');
         },
         addToAll: function() {

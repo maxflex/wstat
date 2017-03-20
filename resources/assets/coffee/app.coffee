@@ -264,6 +264,7 @@ $(document).ready ->
       editPhrase: ->
         [@modal_phrase.phrase, @modal_phrase.minus] = @separateMinuses(@modal_phrase.phrase, @convertToMinus(@modal_phrase.minus))
         _.extendOwn @list.phrases[@modal_phrase.index], _.clone(@modal_phrase)
+        app.$forceUpdate()
         closeModal 'edit-phrase'
 
       addToAll: ->
