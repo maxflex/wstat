@@ -67,6 +67,8 @@ const elixir = require('laravel-elixir');
              'vue-resource/dist/vue-resource',
              'vue-virtual-scroller/dist/vue-virtual-scroller',
              'js-xlsx/dist/xlsx.full.min',
-             'file-saver/FileSaver.min'
+             'file-saver/FileSaver.min',
+             'Sortable/Sortable.min',
+             'vue.draggable/dist/vuedraggable.min'
          ]).concat(['resources/assets/js/*.js']), 'public/js/vendor.js');
  });

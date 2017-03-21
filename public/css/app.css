@@ -15022,15 +15022,6 @@ hr.list-separate {
   border-top: 1px solid rgba(0, 0, 0, 0.4);
   margin-top: 5px; }
 
-.is-draggable {
-  margin-bottom: 10px;
-  background-color: rgba(255, 255, 255, 0.1); }
-  .is-draggable hr {
-    border-top: 1px solid rgba(0, 0, 0, 0.4);
-    margin-top: 5px; }
-  .is-draggable.ui-draggable-dragging {
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); }
-
 .request-status-drop-hover a {
   color: white !important;
   background: #337ab7 !important;
@@ -15815,6 +15806,24 @@ a.disabled {
 [class*="hint--"]:after {
   white-space: pre-line !important;
   width: 303px !important; }
+
+div.table-like {
+  line-height: 1; }
+  div.table-like > div {
+    display: inline-block;
+    width: 100%; }
+    div.table-like > div > div {
+      padding: 4px;
+      display: inline-block;
+      float: left;
+      border-bottom: 1px solid #ddd; }
+
+.is-dragging {
+  opacity: .05; }
+
+.drag-over {
+  background-color: #7c4121;
+  color: white; }
 
 .list-group-item .search_icon {
   float: right;

@@ -40,7 +40,11 @@
     </virtual-scroller>
 
     {{-- <table class="table">
-        <tr v-for="(phrase, index) in filtered_phrases">
+        <tr v-for="(phrase, index) in filtered_phrases" :class="{
+                'drag-over': drag.over === index && drag.start !== index,
+                'is-dragging': drag.start === index
+        }" draggable="true" @dragenter.prevent="drag.over = index" @dragstart='drag.start = index'
+        @dragend="dragend" @drop.prevent='drop(index)' @dragover.prevent>
             <td style="width:3%" class="text-gray">
                  @{{ index + 1 }}.
             </td>

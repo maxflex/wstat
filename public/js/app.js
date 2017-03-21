@@ -536,6 +536,15 @@
 }).call(this);
 
 (function() {
+  Vue.directive('digits-only', {
+    update: function(el) {
+      return el.value = el.value.replace(/[^0-9]/g, '');
+    }
+  });
+
+}).call(this);
+
+(function() {
   this.ExportMixin = {
     created: function() {
       this.filename = 'wstat.xlsx';
@@ -769,7 +778,9 @@
 (function() {
   this.TransformMixin = {
     data: {
-      selected_rows: [],
+      drag: {
+        over: null
+      },
       transform_items: {},
       transform_phrases: {}
     },
@@ -781,37 +792,12 @@
         this.transform_phrases = _.sortBy(this.transform_phrases, 'phrase');
         return showModal('transform');
       },
-      selectRow: function(index) {
-        if (this.selected_rows.indexOf(index) === -1) {
-          return this.selected_rows.push(index);
-        } else {
-          return this.selected_rows.splice(this.selected_rows.indexOf(index), 1);
-        }
-      },
-      transformAdd: function(index) {
-        if (this.transform_phrases[index].words === void 0) {
-          this.transform_phrases[index].words = [];
-        }
-        this.selected_rows.forEach((function(_this) {
-          return function(position) {
-            _this.transform_phrases[position].added = true;
-            return _this.transform_phrases[index].words.push(_this.transform_phrases[position].phrase);
-          };
-        })(this));
-        if (this.transform_items[index] === void 0) {
-          this.transform_items[index] = [];
-        }
-        this.transform_items[index] = this.transform_items[index].concat(this.selected_rows);
-        return this.selected_rows = [];
-      },
-      transformRemove: function(index) {
-        this.transform_items[index].forEach((function(_this) {
-          return function(position) {
-            _this.transform_phrases[position].added = false;
-            return _this.transform_phrases[index].words = void 0;
-          };
-        })(this));
-        delete this.transform_items[index];
+      transformRemove: function(word, phrase, phrase_index) {
+        var index;
+        index = phrase.words.indexOf(word);
+        this.transform_phrases[word.index].added = false;
+        phrase.words.splice(index, 1);
+        this.transform_items[phrase_index].splice(this.transform_items[phrase_index].indexOf(word.index), 1);
         return app.$forceUpdate();
       },
       transform: function() {
@@ -826,20 +812,46 @@
         })(this));
         this.transform_phrases = {};
         this.transform_items = {};
-        this.selected_rows = [];
         return closeModal('transform');
+      },
+      drop: function(index) {
+        var dragged, dropped;
+        if (this.drag.start === index) {
+          return;
+        }
+        dragged = this.transform_phrases[this.drag.start];
+        dragged.added = true;
+        dropped = this.transform_phrases[index];
+        if (dropped.words === void 0) {
+          dropped.words = [];
+        }
+        dropped.words.push({
+          index: this.drag.start,
+          phrase: this.transform_phrases[this.drag.start].phrase
+        });
+        if (dragged.words) {
+          dropped.words = dropped.words.concat(dragged.words);
+        }
+        if (this.transform_items[index] === void 0) {
+          this.transform_items[index] = [];
+        }
+        this.transform_items[index].push(this.drag.start);
+        if (dragged.words) {
+          dragged.words.forEach((function(_this) {
+            return function(word) {
+              return _this.transform_items[index].push(word.index);
+            };
+          })(this));
+          return dragged.words = [];
+        }
+      },
+      dragend: function() {
+        this.drag.start = null;
+        this.drag.over = null;
+        return app.$forceUpdate();
       }
     }
   };
-
-}).call(this);
-
-(function() {
-  Vue.directive('digits-only', {
-    update: function(el) {
-      return el.value = el.value.replace(/[^0-9]/g, '');
-    }
-  });
 
 }).call(this);
 

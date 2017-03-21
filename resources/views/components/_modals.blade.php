@@ -42,32 +42,28 @@
                 <h4 class="modal-title">Выберите слова</h4>
             </div>
             <div class="modal-body scrollable-body">
-                <table class='table table-hover table-small'>
-                    <tr v-for='(phrase, index) in transform_phrases' class='pointer'
+                <table class='table table-small'>
+                    <tr
+                        v-for='(phrase, index) in transform_phrases'
                         v-show='!phrase.added'
                         :class="{
-                            'success': selected_rows.length && selected_rows.indexOf(index) != -1
-                        }">
-                        <td @click="selectRow(index)" style='width: 15%'>
+                               'drag-over': drag.over === index && drag.start !== index,
+                               'is-dragging': drag.start === index
+                        }" draggable="true" @dragenter.prevent="drag.over = index" @dragstart='drag.start = index'
+                       @dragend="dragend" @drop.prevent='drop(index)' @dragover.prevent
+                    >
+                        <td style='width: 20%'>
                             @{{ phrase.phrase }}
                         </td>
-                        <td @click="selectRow(index)" class='text-gray' style='width: 70%'>
-                            <span v-if='phrase.words' v-for="word in phrase.words">@{{ word }}@{{ word === phrase.words[phrase.words.length - 1] ? '' : ', ' }}</span>
-                        </td>
-                        <td style='width: 7.5%'>
-                            <span v-show='transform_items[index] !== undefined'
-                                class='pull-right link-like' @click='transformRemove(index)'>вернуть</span>
-                        </td>
-                        <td style='width: 7.5%'>
-                            <span v-show='selected_rows.length && selected_rows.indexOf(index) === -1'
-                                class='pull-right link-like' @click='transformAdd(index)'>выбрать</span>
+                        <td class='text-gray' style='width: 80%'>
+                            <span v-if='phrase.words' v-for="word in phrase.words">
+                                <span class='link-like link-gray' @click='transformRemove(word, phrase, index)'>@{{ word.phrase }}</span>@{{ word.index == phrase.words[phrase.words.length - 1].index ? '' : ', ' }}
+                            </span>
                         </td>
                     </tr>
                 </table>
             </div>
             <div class="modal-footer center">
-                {{-- <div class="btn btn-primary" ng-disabled="!TransformService.selected_row && !TransformService.selected_rows && TransformService.transform_items === undefined" ng-click="cancel()">отмена</div> --}}
-                {{-- <button class="btn btn-primary" ng-disabled="TransformService.selected_row === undefined || TransformService.selected_rows === undefined || !TransformService.selected_rows.length" ng-click="TransformService.add()">добавить</button> --}}
                 <button class="btn btn-primary" :disabled="transform_items === undefined" @click="transform()">
                     трансформировать
                 </button>

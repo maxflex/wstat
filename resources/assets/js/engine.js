@@ -356,3 +356,8 @@ function replaceWord(str, word, replacement) {
 function removeDoubleSpaces(str) {
 	return str.replace('  ', ' ')
 }
+
+// function allowDrop(event) {
+//     $(event.target).closest('[draggable=true]').addClass('sortable-drag')
+//     event.preventDefault()
+// }
