@@ -23,18 +23,19 @@ $(document).ready ->
       #                 #
       # PRIVATE METHODS #
       #                 #
-      @_getFrequencies = (step = 0) =>
+      @_getFrequencies = (region_id, step = 0) =>
         phrases = @list.phrases.slice(step * 100, (step * 100) + 100)
         # для подсчета кол-ва процентов
         length = @list.phrases.length / 10 * 10 + 100
         @center_title = Math.round(step / length * 10000) + '%'
         this.$http.post 'api/getFrequencies',
+          region_id: region_id
           phrases: _.map phrases, (phrase) ->
             [phrase.phrase, phrase.minus].join(' ')
         .then (response) =>
           @frequencies = @frequencies.concat(response.data)
           if phrases.length is 100
-            @_getFrequencies(step + 1)
+            @_getFrequencies(region_id, step + 1)
           else
             # завершено
             @list.phrases.forEach (phrase, index) =>
@@ -134,9 +135,9 @@ $(document).ready ->
         @list.phrases.forEach (phrase) -> phrase.phrase = phrase.phrase.toLowerCase()
 
       # проставить частоты
-      getFrequencies: ->
+      getFrequencies: (region_id)->
         @frequencies = []
-        @_getFrequencies()
+        @_getFrequencies(region_id)
 
       # конфигурация минус-слов
       configureMinus: ->

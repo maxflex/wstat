@@ -5,7 +5,6 @@
 <a @click="splitPhrasesToWords()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Разбить фразы на слова</a>
 <a onclick="showModal('replace')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Поиск и замена</a>
 <a @click='lowercase()' class="list-group-item" :class="{'disabled': !list.phrases.length}">Превратить все буквы в маленькие</a>
-<a @click='getFrequencies()' class="list-group-item" :class="{'disabled': !list.phrases.length}">Проставить частоты</a>
 <a @click="sort()" class="list-group-item" :class="{disabled: !list.phrases.length}">Умная сортировка</a>
 <a @click="configureMinus()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Конфигурирование минусов</a>
 <a @click="transformModal()" class="list-group-item" :class="{'disabled': !$root.list.phrases.length}">Трансформировать</a>
@@ -18,6 +17,10 @@
 <a @click="removePluses()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Удалить плюс слова</a>
 <a @click="runModal(deleteWordsInsidePhrase, 'удалить')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Удалить слова внутри фразы</a>
 <a @click="runModal(deletePhrasesWithWords, 'удалить')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Удалить фразы, содержащие слова</a>
+
+<a class="list-group-item active">Проставить частоты</a>
+<a @click='getFrequencies(213)' class="list-group-item" :class="{'disabled': !list.phrases.length}">Москва</a>
+<a @click='getFrequencies(1)' class="list-group-item" :class="{'disabled': !list.phrases.length}">Москва и область</a>
 
 <a class="list-group-item active">Список</a>
 <a @click="clear()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Очистить</a>

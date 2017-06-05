@@ -12,7 +12,7 @@ class DirectController extends Controller
 {
     public function getFrequencies(Request $request)
     {
-        $data = YandexDirect::getFrequencies($request->phrases);
+        $data = YandexDirect::getFrequencies($request->phrases, $request->region_id);
         return response()->json($data)->setStatusCode(is_string($data) ? 422 : 200);
     }
 }

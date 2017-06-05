@@ -32,7 +32,7 @@
           this.openList(DEBUG_LIST_ID);
         }
         return this._getFrequencies = (function(_this) {
-          return function(step) {
+          return function(region_id, step) {
             var length, phrases;
             if (step == null) {
               step = 0;
@@ -41,13 +41,14 @@
             length = _this.list.phrases.length / 10 * 10 + 100;
             _this.center_title = Math.round(step / length * 10000) + '%';
             return _this.$http.post('api/getFrequencies', {
+              region_id: region_id,
               phrases: _.map(phrases, function(phrase) {
                 return [phrase.phrase, phrase.minus].join(' ');
               })
             }).then(function(response) {
               _this.frequencies = _this.frequencies.concat(response.data);
               if (phrases.length === 100) {
-                return _this._getFrequencies(step + 1);
+                return _this._getFrequencies(region_id, step + 1);
               } else {
                 _this.list.phrases.forEach(function(phrase, index) {
                   return phrase.frequency = _this.frequencies[index];
@@ -211,9 +212,9 @@
             return phrase.phrase = phrase.phrase.toLowerCase();
           });
         },
-        getFrequencies: function() {
+        getFrequencies: function(region_id) {
           this.frequencies = [];
-          return this._getFrequencies();
+          return this._getFrequencies(region_id);
         },
         configureMinus: function() {
           this.removeMinuses();

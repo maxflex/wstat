@@ -6,7 +6,8 @@ class YandexDirect
 {
     const API_URL   = 'https://api.direct.yandex.ru/live/v4/json/';
     const LOCALE = 'ru';
-    const MOSCOW_GEO_ID = 213;
+    // const MOSCOW_GEO_ID = 213;      // москва
+    // const MOSCOW_REGION_GEO_ID = 1; // москва и область
     const TRIALS = 50; // попыток запроса статистики
     const SLEEP  = 2; // секунд между попытками
 
@@ -38,7 +39,7 @@ class YandexDirect
     /**
      * Получить частотность фраз
      */
-    public static function getFrequencies($phrases)
+    public static function getFrequencies($phrases, $region_id)
     {
         $return = [];
 
@@ -46,15 +47,15 @@ class YandexDirect
         foreach ($phrases as &$phrase) {
             $phrase = utf8_encode($phrase);
         }
-        
+
         # создаем отчет
         $data = self::exec('CreateNewForecast', [
-            'GeoID' => [self::MOSCOW_GEO_ID],
+            'GeoID' => [$region_id],
             'Phrases' => $phrases
         ]);
 
         if (isset($data->error_code)) {
-            return join('<br>', explode('. ', $data->error_detail));
+            return join('<br>', explode('. ', $data->error_str));
         } else {
             $forecast_id = $data->data;
         }
