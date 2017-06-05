@@ -20,7 +20,7 @@
 
 <a class="list-group-item active">Проставить частоты</a>
 <a @click='getFrequencies(213)' class="list-group-item" :class="{'disabled': !list.phrases.length}">Москва</a>
-<a @click='getFrequencies(1)' class="list-group-item" :class="{'disabled': !list.phrases.length}">Москва и область</a>
+<a @click='getFrequencies(1)' class="list-group-item" :class="{'disabled': !list.phrases.length}">Московская область</a>
 
 <a class="list-group-item active">Список</a>
 <a @click="clear()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Очистить</a>
