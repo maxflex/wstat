@@ -734,7 +734,7 @@
               if (weights[word] === void 0) {
                 weights[word] = 0;
               }
-              return weights[word] += phrase.frequency || 1;
+              return weights[word] += parseInt(phrase.frequency) || 1;
             });
           };
         })(this));

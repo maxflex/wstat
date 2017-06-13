@@ -24,7 +24,7 @@
       phrases.forEach (phrase) =>
         phrase.phrase.toWords().forEach (word) =>
           weights[word] = 0 if weights[word] is undefined
-          weights[word] += phrase.frequency or 1
+          weights[word] += parseInt(phrase.frequency) or 1
       # создание и сортировка приоритетного списка
       priority_list = Object.keys(weights)
       priority_list.sort (a, b) =>
@@ -166,7 +166,7 @@
 
       @sortWordsManual()
       closeModal 'smart-sort'
-      
+
       @loading = true
       setTimeout =>
         @collapseList()
