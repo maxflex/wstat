@@ -12926,18 +12926,13 @@ span {
   position: absolute;
   width: calc(100%);
   margin-left: -15px;
-  height: calc(100% - 30px);
   background: rgba(255, 255, 255, 0.95);
   z-index: 999; }
   .frontend-loading span {
     text-align: center;
     margin: 300px 0;
     display: block;
-    color: #999999;
-    -webkit-animation-duration: 3s;
-    animation-duration: 3s;
-    -webkit-animation-name: frontendLoading;
-    animation-name: frontendLoading; }
+    color: #999999; }
 
 .full-size-center {
   color: #999999;
@@ -12955,18 +12950,14 @@ span {
   position: absolute;
   width: calc(100%);
   margin-left: -15px;
-  height: calc(100% - 30px);
+  height: calc(100% - 30px) !important;
   background: rgba(255, 255, 255, 0.95);
   z-index: 999; }
   .frontend-loading span {
     text-align: center;
     margin: 300px 0;
     display: block;
-    color: #999999;
-    -webkit-animation-duration: 3s;
-    animation-duration: 3s;
-    -webkit-animation-name: frontendLoading;
-    animation-name: frontendLoading; }
+    color: #999999; }
 
 .div-loading {
   position: absolute;

@@ -34228,11 +34228,27 @@ function removeDoubleSpaces(str) {
 	return str.replace('  ', ' ')
 }
 
+function isSuperset(arr1, arr2) {
+    return arr1.every(function(val) { return arr2.indexOf(val) >= 0; });
+}
+
+/**
+ * phrase_1_words является родителем phrase_2_words
+ * Phrase phrase_1
+ * Phrase phrase_2
+ */
+function isParent(phrase_1, phrase_2) {
+    phrase_1_words = phrase_1.phrase.toWords()
+    phrase_2_words = phrase_2.phrase.toWords()
+    // фраза_1 является родителем фразы_2 если фраза_1 включает в себя все слова фразы_2
+    // и кол-во слов фразы_2 больше кол-ва слов фразы_1
+    return (isSuperset(phrase_1_words, phrase_2_words) && phrase_2_words.length > phrase_1_words.length);
+}
+
 // function allowDrop(event) {
 //     $(event.target).closest('[draggable=true]').addClass('sortable-drag')
 //     event.preventDefault()
 // }
-
 /*
  * Input Mask Core
  * http://github.com/RobinHerbots/jquery.inputmask

@@ -1,7 +1,7 @@
 $(document).ready ->
   window.app = new Vue
     el: '#app'
-    mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin]
+    mixins: [TransformMixin, ExportMixin, SmartSortMixin, HelpersMixin]
     data:
       page: 'list'              # list | open
       saving: false
@@ -11,12 +11,14 @@ $(document).ready ->
       list:                     # current list
         title: null
         phrases: []
+      new_list_phrases: []
       modal: {value: ''}
       modal_phrase: {frequency: null, phrase: '', minus: ''}
       find_phrase: null
       replace_phrase: null
       center_title: null
       frequencies: []
+      loading: false 
     created: ->
       @resourse = this.$resource('api/lists{/id}')
       @openList(DEBUG_LIST_ID) if ENV is 'local' and DEBUG_LIST_ID

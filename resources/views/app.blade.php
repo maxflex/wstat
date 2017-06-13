@@ -46,6 +46,9 @@
                   </div>
               </div>
               <div class="panel-body panel-frontend-loading">
+                  <div class="frontend-loading" v-show='loading'>
+                      <span>загрузка...</span>
+                  </div>
                   @include('components.main')
               </div>
             </div>

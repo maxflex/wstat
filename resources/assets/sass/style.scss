@@ -528,7 +528,6 @@ span {
     position: absolute;
     width: calc(100%);
     margin-left: -15px;
-    height: calc(100% - 30px);
     background: rgba(255, 255, 255, 0.95);
     z-index: 999;
     & span {
@@ -536,8 +535,8 @@ span {
         margin: 300px 0;
         display: block;
         color: $gray;
-        animation-duration: 3s;
-        animation-name: frontendLoading;
+        // animation-duration: 3s;
+        // animation-name: frontendLoading;
     }
 }
 
@@ -555,7 +554,7 @@ span {
     position: absolute;
     width: calc(100%);
     margin-left: -15px;
-    height: calc(100% - 30px);
+    height: calc(100% - 30px) !important;
     background: rgba(255, 255, 255, 0.95);
     z-index: 999;
     & span {
@@ -563,8 +562,6 @@ span {
         margin: 300px 0;
         display: block;
         color: $gray;
-        animation-duration: 3s;
-        animation-name: frontendLoading;
     }
 }
 

@@ -2,7 +2,7 @@
   $(document).ready(function() {
     return window.app = new Vue({
       el: '#app',
-      mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin],
+      mixins: [TransformMixin, ExportMixin, SmartSortMixin, HelpersMixin],
       data: {
         page: 'list',
         saving: false,
@@ -13,6 +13,7 @@
           title: null,
           phrases: []
         },
+        new_list_phrases: [],
         modal: {
           value: ''
         },
@@ -24,7 +25,8 @@
         find_phrase: null,
         replace_phrase: null,
         center_title: null,
-        frequencies: []
+        frequencies: [],
+        loading: false
       },
       created: function() {
         this.resourse = this.$resource('api/lists{/id}');
@@ -683,6 +685,179 @@
         } else {
           return ajaxEnd();
         }
+      }
+    }
+  };
+
+}).call(this);
+
+(function() {
+  this.SmartSortMixin = {
+    data: {
+      sorted_phrases: []
+    },
+    methods: {
+      sort: function() {
+        this.loading = true;
+        return setTimeout((function(_this) {
+          return function() {
+            _this.sorted_phrases = [];
+            _this.sortWords(_this.list.phrases);
+            _this.list.phrases.map(function(phrase) {
+              return delete phrase.sorted;
+            });
+            _this.collapseList();
+            _this.list.phrases = _this.sorted_phrases;
+            return _this.loading = false;
+          };
+        })(this), 100);
+      },
+      sortWords: function(phrases, level) {
+        var priority_list, weights;
+        if (level == null) {
+          level = 0;
+        }
+        weights = {};
+        phrases.forEach((function(_this) {
+          return function(phrase) {
+            return phrase.phrase.toWords().forEach(function(word) {
+              if (weights[word] === void 0) {
+                weights[word] = 0;
+              }
+              return weights[word] += phrase.frequency || 1;
+            });
+          };
+        })(this));
+        priority_list = Object.keys(weights);
+        priority_list.sort((function(_this) {
+          return function(a, b) {
+            var difference;
+            difference = weights[b] - weights[a];
+            if (difference !== 0) {
+              return difference;
+            } else {
+              return a > b;
+            }
+          };
+        })(this));
+        if (level) {
+          priority_list = priority_list.slice(level, priority_list.length);
+        }
+        return priority_list.forEach((function(_this) {
+          return function(word) {
+            var filtered_phrases;
+            filtered_phrases = phrases.filter(function(phrase) {
+              return !phrase.sorted && $.inArray(word, phrase.phrase.toWords()) >= level;
+            });
+            filtered_phrases.forEach(function(phrase) {
+              var words;
+              words = phrase.phrase.toWords();
+              words = _.without(words, word);
+              words.splice(level, 0, word);
+              phrase.phrase = words.toPhrase();
+              if (words[words.length - 1] === word) {
+                return phrase.sorted = true;
+              }
+            });
+            if (filtered_phrases.length > 1) {
+              return _this.sortWords(filtered_phrases, level + 1);
+            }
+          };
+        })(this));
+      },
+      collapseList: function() {
+        var list_changed, phrases_without_parent;
+        phrases_without_parent = [];
+        this.list.phrases.forEach((function(_this) {
+          return function(phrase_1, index_1) {
+            var has_children;
+            has_children = false;
+            _this.list.phrases.forEach(function(phrase_2, index_2) {
+              if (has_children || index_1 === index_2) {
+                return;
+              }
+              if (isParent(phrase_1, phrase_2)) {
+                return has_children = true;
+              }
+            });
+            if (!has_children) {
+              return phrases_without_parent.push(phrase_1);
+            }
+          };
+        })(this));
+        list_changed = false;
+        if (phrases_without_parent.length) {
+          phrases_without_parent.forEach((function(_this) {
+            return function(phrase_without_parent) {
+              var closest_parent, parents;
+              parents = _this.list.phrases.filter(function(phrase) {
+                return isParent(phrase, phrase_without_parent);
+              });
+              closest_parent = {
+                level: 9999,
+                frequency: -1,
+                phrase: null
+              };
+              if (parents.length) {
+                parents.forEach(function(parent) {
+                  var frequency, level;
+                  level = _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length;
+                  frequency = parent.frequency || 1;
+                  if (level < closest_parent.level || (level === closest_parent.level && closest_parent.frequency < frequency)) {
+                    return closest_parent = {
+                      level: level,
+                      frequency: frequency,
+                      phrase: parent
+                    };
+                  }
+                });
+              }
+              if (closest_parent.phrase !== null) {
+                if (closest_parent.phrase.children === void 0) {
+                  closest_parent.phrase.children = [];
+                }
+                closest_parent.phrase.children.push(phrase_without_parent);
+                if (closest_parent.phrase.total_frequency === void 0) {
+                  closest_parent.phrase.total_frequency = closest_parent.phrase.frequency || 1;
+                }
+                closest_parent.phrase.total_frequency += phrase_without_parent.frequency || 1;
+                _this.list.phrases = _this.removePhrase(phrase_without_parent);
+                return list_changed = true;
+              }
+            };
+          })(this));
+          if (list_changed) {
+            return this.collapseList();
+          } else {
+            return this.expandList(this.list.phrases);
+          }
+        }
+      },
+      expandList: function(phrases) {
+        this.sortPhrases(phrases);
+        return phrases.forEach((function(_this) {
+          return function(phrase, index) {
+            _this.sorted_phrases.push(phrase);
+            if (phrase.children) {
+              _this.expandList(phrase.children, index);
+              delete phrase.children;
+              return delete phrase.total_frequency;
+            }
+          };
+        })(this));
+      },
+      sortPhrases: function(phrases) {
+        return phrases.sort(function(phrase_1, phrase_2) {
+          var difference, phrase_1_frequency, phrase_2_frequency;
+          phrase_1_frequency = phrase_1.total_frequency || (phrase_1.frequency || 1);
+          phrase_2_frequency = phrase_2.total_frequency || (phrase_2.frequency || 1);
+          difference = phrase_2_frequency - phrase_1_frequency;
+          if (difference !== 0) {
+            return difference;
+          } else {
+            return phrase_1.phrase > phrase_2.phrase;
+          }
+        });
       }
     }
   };
