@@ -1,6 +1,9 @@
 @SmartSortMixin =
   data:
     sorted_phrases: []
+    priority_list: []
+    sortableOptions:
+      axis: 'y'
   methods:
     sort: ->
       @loading = true
@@ -14,22 +17,33 @@
           @loading = false
         , 100
 
-    # сортировка слов внутри фраз
-    sortWords: (phrases, level = 0)->
+    # получить приоритет-список
+    getPriorityList: (phrases, with_weights = false) ->
       # создание массива веса слов
       weights = {}
       phrases.forEach (phrase) =>
         phrase.phrase.toWords().forEach (word) =>
-          # todo не подсчитывать вес для фраз на первом месте (level)
           weights[word] = 0 if weights[word] is undefined
           weights[word] += phrase.frequency or 1
-
       # создание и сортировка приоритетного списка
       priority_list = Object.keys(weights)
       priority_list.sort (a, b) =>
         difference = weights[b] - weights[a]
         return if difference isnt 0 then difference else (a > b)
 
+      if with_weights
+        list_with_weights = []
+        priority_list.forEach (word) ->
+          list_with_weights.push
+            word: word
+            weight: weights[word]
+        list_with_weights
+      else
+        priority_list
+
+    # сортировка слов внутри фраз
+    sortWords: (phrases, level = 0)->
+      priority_list = @getPriorityList(phrases)
       # чтобы не бежать по уже пройденным ранее в рекурсии словам
       # если не добавлять в массив слов, то можно будет пропустить (верхний todo)
       priority_list = priority_list.slice(level, priority_list.length) if level
@@ -127,8 +141,35 @@
         phrase_2_frequency = phrase_2.total_frequency or (phrase_2.frequency or 1)
         difference = phrase_2_frequency - phrase_1_frequency
         return if difference isnt 0 then difference else (phrase_1.phrase > phrase_2.phrase) # или по алфавиту
-      # @list.phrases.forEach (phrase) =>
-      #   indexes = []
-      #   phrase.phrase.toWords().forEach (word) -> indexes.push(keys.indexOf(word))
-      #   phrase_words_sorted = indexes.sort().map (i) -> keys[i]
-      #   phrase.phrase = phrase_words_sorted.toPhrase()
+
+    # сортировка слов внутри фраз
+    sortWordsManual: ->
+      words = _.pluck(@priority_list, 'word')
+      @list.phrases.forEach (phrase) =>
+        indexes = []
+        phrase.phrase.toWords().forEach (word) -> indexes.push(words.indexOf(word))
+        phrase_words_sorted = indexes.sort().map (i) -> words[i]
+        phrase.phrase = phrase_words_sorted.toPhrase()
+
+    # ручная сортировка
+    sortManualModal: ->
+      @priority_list = @getPriorityList(@list.phrases, true)
+      showModal 'smart-sort'
+
+    sortManual: ->
+      ids = $('.ui-sortable').sortable('toArray')
+      new_list = []
+      ids.forEach (id) =>
+        index = id.replace(/\D/g, "")
+        new_list.push(@priority_list[index])
+      @priority_list = new_list
+
+      @sortWordsManual()
+      closeModal 'smart-sort'
+      
+      @loading = true
+      setTimeout =>
+        @collapseList()
+        @list.phrases = @sorted_phrases
+        @loading = false
+      , 100

@@ -1,4 +1,6 @@
 $(document).ready ->
+  Vue.directive 'sortable', 
+    bind: (el, binding) -> sortable = $(el).sortable(binding.value)
   window.app = new Vue
     el: '#app'
     mixins: [TransformMixin, ExportMixin, SmartSortMixin, HelpersMixin]
@@ -18,7 +20,7 @@ $(document).ready ->
       replace_phrase: null
       center_title: null
       frequencies: []
-      loading: false 
+      loading: false
     created: ->
       @resourse = this.$resource('api/lists{/id}')
       @openList(DEBUG_LIST_ID) if ENV is 'local' and DEBUG_LIST_ID

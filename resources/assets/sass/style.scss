@@ -4114,3 +4114,10 @@ div.table-like {
     background-color: $main-color;
     color: white;
 }
+
+.sortable-ghost {
+    & td {
+        background: $main-color;
+        color: white;
+    }
+}

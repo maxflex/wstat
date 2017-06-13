@@ -15816,6 +15816,10 @@ div.table-like {
   background-color: #7c4121;
   color: white; }
 
+.sortable-ghost td {
+  background: #7c4121;
+  color: white; }
+
 .list-group-item .search_icon {
   float: right;
   cursor: pointer; }

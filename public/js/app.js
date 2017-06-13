@@ -1,5 +1,11 @@
 (function() {
   $(document).ready(function() {
+    Vue.directive('sortable', {
+      bind: function(el, binding) {
+        var sortable;
+        return sortable = $(el).sortable(binding.value);
+      }
+    });
     return window.app = new Vue({
       el: '#app',
       mixins: [TransformMixin, ExportMixin, SmartSortMixin, HelpersMixin],
@@ -694,7 +700,11 @@
 (function() {
   this.SmartSortMixin = {
     data: {
-      sorted_phrases: []
+      sorted_phrases: [],
+      priority_list: [],
+      sortableOptions: {
+        axis: 'y'
+      }
     },
     methods: {
       sort: function() {
@@ -712,10 +722,10 @@
           };
         })(this), 100);
       },
-      sortWords: function(phrases, level) {
-        var priority_list, weights;
-        if (level == null) {
-          level = 0;
+      getPriorityList: function(phrases, with_weights) {
+        var list_with_weights, priority_list, weights;
+        if (with_weights == null) {
+          with_weights = false;
         }
         weights = {};
         phrases.forEach((function(_this) {
@@ -740,6 +750,25 @@
             }
           };
         })(this));
+        if (with_weights) {
+          list_with_weights = [];
+          priority_list.forEach(function(word) {
+            return list_with_weights.push({
+              word: word,
+              weight: weights[word]
+            });
+          });
+          return list_with_weights;
+        } else {
+          return priority_list;
+        }
+      },
+      sortWords: function(phrases, level) {
+        var priority_list;
+        if (level == null) {
+          level = 0;
+        }
+        priority_list = this.getPriorityList(phrases);
         if (level) {
           priority_list = priority_list.slice(level, priority_list.length);
         }
@@ -858,6 +887,50 @@
             return phrase_1.phrase > phrase_2.phrase;
           }
         });
+      },
+      sortWordsManual: function() {
+        var words;
+        words = _.pluck(this.priority_list, 'word');
+        return this.list.phrases.forEach((function(_this) {
+          return function(phrase) {
+            var indexes, phrase_words_sorted;
+            indexes = [];
+            phrase.phrase.toWords().forEach(function(word) {
+              return indexes.push(words.indexOf(word));
+            });
+            phrase_words_sorted = indexes.sort().map(function(i) {
+              return words[i];
+            });
+            return phrase.phrase = phrase_words_sorted.toPhrase();
+          };
+        })(this));
+      },
+      sortManualModal: function() {
+        this.priority_list = this.getPriorityList(this.list.phrases, true);
+        return showModal('smart-sort');
+      },
+      sortManual: function() {
+        var ids, new_list;
+        ids = $('.ui-sortable').sortable('toArray');
+        new_list = [];
+        ids.forEach((function(_this) {
+          return function(id) {
+            var index;
+            index = id.replace(/\D/g, "");
+            return new_list.push(_this.priority_list[index]);
+          };
+        })(this));
+        this.priority_list = new_list;
+        this.sortWordsManual();
+        closeModal('smart-sort');
+        this.loading = true;
+        return setTimeout((function(_this) {
+          return function() {
+            _this.collapseList();
+            _this.list.phrases = _this.sorted_phrases;
+            return _this.loading = false;
+          };
+        })(this), 100);
       }
     }
   };

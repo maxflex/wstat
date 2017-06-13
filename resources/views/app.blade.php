@@ -11,6 +11,7 @@
     {{-- <link href='https://fonts.googleapis.com/css?family=Ubuntu&subset=latin,cyrillic' rel='stylesheet' type='text/css'> --}}
     @yield('scripts')
     <script src="{{ asset('/js/vendor.js', isProduction()) }}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="{{ asset('/js/app.js', isProduction()) }}"></script>
     @yield('scripts_after')
     @include('server_variables')

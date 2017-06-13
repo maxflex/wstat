@@ -127,3 +127,32 @@
         </div>
     </div>
 </div>
+
+
+{{-- УМНАЯ СОРТИРОВКА --}}
+<div class="modal transform-modal" id='smart-sort-modal' tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Приоритет-список</h4>
+            </div>
+            <div class="modal-body scrollable-body">
+                <table class='table table-small'>
+                    <tbody v-sortable="sortableOptions">
+                        <tr v-for='(list, index) in priority_list' :id="'test_' + index">
+                            <td width='300'>
+                                @{{ list.word }}
+                            </td>
+                            <td>
+                                @{{ list.weight }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer center">
+                <div class="btn btn-primary" @click="sortManual()">сортировать</div>
+            </div>
+        </div>
+    </div>
+</div>

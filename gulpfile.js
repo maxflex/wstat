@@ -48,12 +48,6 @@ const elixir = require('laravel-elixir');
              'bootstrap-select/dist/js/bootstrap-select',
              'bootstrap-datepicker/dist/js/bootstrap-datepicker',
              'bootstrap-datepicker/dist/locales/bootstrap-datepicker.ru.min',
-             'jquery-ui/ui/core',
-             'jquery-ui/ui/widget',
-             'jquery-ui/ui/mouse',
-             'jquery-ui/ui/sortable',
-             'jquery-ui/ui/draggable',
-             'jquery-ui/ui/droppable',
              'angular-ui-sortable/sortable.min',
              'angular-bootstrap/ui-bootstrap-tpls.min',
              'cropper/dist/cropper',
@@ -68,7 +62,12 @@ const elixir = require('laravel-elixir');
              'vue-virtual-scroller/dist/vue-virtual-scroller',
              'js-xlsx/dist/xlsx.full.min',
              'file-saver/FileSaver.min',
-             'Sortable/Sortable.min',
-             'vue.draggable/dist/vuedraggable.min'
-         ]).concat(['resources/assets/js/*.js']), 'public/js/vendor.js');
+            //  'Sortable/Sortable.min',
+            //  'vue.draggable/dist/vuedraggable.min'
+         ]).concat([
+             'resources/assets/js/*.js',
+            //  '../../../node_modules/sortablejs/Sortable.min.js',
+            //  '../../../node_modules/vue-sortable/vue-sortable.js',
+            //  '../../../node_modules/vue-jquery-sortable/vue-jqui-sortable.js',
+         ]), 'public/js/vendor.js');
  });
