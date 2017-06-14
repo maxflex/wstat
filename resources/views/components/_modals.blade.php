@@ -133,25 +133,41 @@
 <div class="modal transform-modal" id='smart-sort-modal' tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Приоритет-список</h4>
+            <div class="modal-body">
+                <div class='col-sm-6' style='padding-left: 0'>
+                    <h4 class="modal-title" style='margin-bottom: 10px'>Приоритет-список</h4>
+                    <div style='height: 650px; overflow-y: scroll'>
+                        <table class='table table-small priority-list'>
+                            <tbody>
+                                <tr v-for='(list, index) in priority_list' v-show='trump_words.indexOf(list.word) === -1'
+                                    @click='trump_words.push(list.word)'>
+                                    <td width='300'>
+                                        @{{ list.word }}
+                                    </td>
+                                    <td>
+                                        @{{ list.weight }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class='col-sm-6'>
+                    <h4 class="modal-title" style='margin-bottom: 10px'>Козыри</h4>
+                    <table class='table table-small priority-list'>
+                        <tbody v-sortable="sortableOptions">
+                            <tr v-for='(word, index) in trump_words' :id="'trump_word_' + index"
+                                @click='trump_words.splice(index, 1)'>
+                                <td width='300'>
+                                    @{{ word }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="modal-body scrollable-body">
-                <table class='table table-small'>
-                    <tbody v-sortable="sortableOptions">
-                        <tr v-for='(list, index) in priority_list' :id="'test_' + index">
-                            <td width='300'>
-                                @{{ list.word }}
-                            </td>
-                            <td>
-                                @{{ list.weight }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer center">
-                <div class="btn btn-primary" @click="sortManual()">сортировать</div>
+            <div class="modal-footer center" style='clear: both'>
+                <div class="btn btn-primary" @click="sort()">сортировать</div>
             </div>
         </div>
     </div>

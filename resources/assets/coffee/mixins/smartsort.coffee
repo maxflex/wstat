@@ -6,15 +6,6 @@
     sortableOptions:
       axis: 'y'
   methods:
-    sort: ->
-      @loading = true
-      setTimeout =>
-          @sorted_phrases = []
-          @collapseList()
-          @list.phrases = @sorted_phrases
-          @loading = false
-        , 100
-
     # получить приоритет-список
     getPriorityList: (phrases, with_weights = false) ->
       # создание массива веса слов
@@ -229,24 +220,26 @@
         phrase.phrase = phrase_words_sorted.toPhrase()
 
     # ручная сортировка
-    sortManualModal: ->
+    sortModal: ->
       @priority_list = @getPriorityList(@list.phrases, true)
+      @trump_words = []
       showModal 'smart-sort'
 
-    sortManual: ->
-      ids = $('.ui-sortable').sortable('toArray')
-      new_list = []
-      ids.forEach (id) =>
-        index = id.replace(/\D/g, "")
-        new_list.push(@priority_list[index])
-      @priority_list = new_list
+    sort: ->
+      # сортируем trump_words на основе drag&drop
+      # ids = $('.ui-sortable').sortable('toArray')
+      # trump_words = []
+      # ids.forEach (id) =>
+      #   index = id.replace(/\D/g, "")
+      #   trump_words.push(@trump_words[index])
+      # @trump_words = trump_words
 
-      @sortWordsManual()
-      closeModal 'smart-sort'
-
+      # closeModal 'smart-sort'
+      @trump_words = []
       @loading = true
       setTimeout =>
-        @collapseList()
-        @list.phrases = @sorted_phrases
-        @loading = false
-      , 100
+          @sorted_phrases = []
+          @collapseList()
+          @list.phrases = @sorted_phrases
+          @loading = false
+        , 100

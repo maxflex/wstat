@@ -4121,3 +4121,15 @@ div.table-like {
         color: white;
     }
 }
+
+.priority-list {
+    & tr {
+        cursor: pointer;
+        &:hover {
+            & td {
+                background: $main-color;
+                color: white;
+            }
+        }
+    }
+}

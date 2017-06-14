@@ -15820,6 +15820,12 @@ div.table-like {
   background: #7c4121;
   color: white; }
 
+.priority-list tr {
+  cursor: pointer; }
+  .priority-list tr:hover td {
+    background: #7c4121;
+    color: white; }
+
 .list-group-item .search_icon {
   float: right;
   cursor: pointer; }

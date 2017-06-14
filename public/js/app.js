@@ -708,17 +708,6 @@
       }
     },
     methods: {
-      sort: function() {
-        this.loading = true;
-        return setTimeout((function(_this) {
-          return function() {
-            _this.sorted_phrases = [];
-            _this.collapseList();
-            _this.list.phrases = _this.sorted_phrases;
-            return _this.loading = false;
-          };
-        })(this), 100);
-      },
       getPriorityList: function(phrases, with_weights) {
         var list_with_weights, priority_list, weights;
         if (with_weights == null) {
@@ -974,27 +963,17 @@
           };
         })(this));
       },
-      sortManualModal: function() {
+      sortModal: function() {
         this.priority_list = this.getPriorityList(this.list.phrases, true);
+        this.trump_words = [];
         return showModal('smart-sort');
       },
-      sortManual: function() {
-        var ids, new_list;
-        ids = $('.ui-sortable').sortable('toArray');
-        new_list = [];
-        ids.forEach((function(_this) {
-          return function(id) {
-            var index;
-            index = id.replace(/\D/g, "");
-            return new_list.push(_this.priority_list[index]);
-          };
-        })(this));
-        this.priority_list = new_list;
-        this.sortWordsManual();
-        closeModal('smart-sort');
+      sort: function() {
+        this.trump_words = [];
         this.loading = true;
         return setTimeout((function(_this) {
           return function() {
+            _this.sorted_phrases = [];
             _this.collapseList();
             _this.list.phrases = _this.sorted_phrases;
             return _this.loading = false;
