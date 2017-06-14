@@ -837,7 +837,11 @@
                 if (parent.total_frequency === void 0) {
                   parent.total_frequency = parseInt(parent.frequency) || 1;
                 }
-                parent.total_frequency += parseInt(phrase_without_parent.frequency) || 1;
+                if (phrase_without_parent.children) {
+                  parent.total_frequency += parseInt(phrase_without_parent.total_frequency);
+                } else {
+                  parent.total_frequency += parseInt(phrase_without_parent.frequency) || 1;
+                }
                 _this.list.phrases = _this.removePhrase(phrase_without_parent);
                 return list_changed = true;
               }
@@ -848,6 +852,7 @@
           } else {
             window.testy = JSON.parse(JSON.stringify(this.list.phrases))[0];
             this.sortPhraseWords(this.list.phrases);
+            this.sortPhrases(this.list.phrases);
             return this.expandList(this.list.phrases);
           }
         }
@@ -882,7 +887,6 @@
         })(this));
       },
       expandList: function(phrases) {
-        this.sortPhrases(phrases);
         return phrases.forEach((function(_this) {
           return function(phrase) {
             _this.sorted_phrases.push(phrase);
@@ -895,10 +899,10 @@
         })(this));
       },
       sortPhrases: function(phrases) {
-        return phrases.sort(function(phrase_1, phrase_2) {
+        phrases.sort(function(phrase_1, phrase_2) {
           var difference, phrase_1_frequency, phrase_2_frequency;
-          phrase_1_frequency = phrase_1.total_frequency || (parseInt(phrase_1.frequency) || 1);
-          phrase_2_frequency = phrase_2.total_frequency || (parseInt(phrase_2.frequency) || 1);
+          phrase_1_frequency = parseInt(phrase_1.total_frequency) || (parseInt(phrase_1.frequency) || 1);
+          phrase_2_frequency = parseInt(phrase_2.total_frequency) || (parseInt(phrase_2.frequency) || 1);
           difference = phrase_2_frequency - phrase_1_frequency;
           if (difference !== 0) {
             return difference;
@@ -906,6 +910,13 @@
             return phrase_1.phrase > phrase_2.phrase;
           }
         });
+        return phrases.forEach((function(_this) {
+          return function(phrase) {
+            if (phrase.children) {
+              return _this.sortPhrases(phrase.children);
+            }
+          };
+        })(this));
       },
       sortWordsManual: function() {
         var words;

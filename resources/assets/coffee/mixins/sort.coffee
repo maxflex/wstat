@@ -119,7 +119,12 @@
 
             # суммарный frequency
             parent.total_frequency = (parseInt(parent.frequency) or 1) if parent.total_frequency is undefined
-            parent.total_frequency += parseInt(phrase_without_parent.frequency) or 1
+            
+            # добавляем frequency всех детей
+            if phrase_without_parent.children
+              parent.total_frequency += parseInt(phrase_without_parent.total_frequency)
+            else
+              parent.total_frequency += parseInt(phrase_without_parent.frequency) or 1
 
             @list.phrases = @removePhrase(phrase_without_parent)
             list_changed = true
@@ -130,6 +135,7 @@
         else
           window.testy = JSON.parse(JSON.stringify(@list.phrases))[0]
           @sortPhraseWords(@list.phrases)
+          @sortPhrases(@list.phrases)
           @expandList(@list.phrases)
 
     #
@@ -174,7 +180,6 @@
 
     # «развернуть» отсортированный список
     expandList: (phrases) ->
-      @sortPhrases(phrases)
       phrases.forEach (phrase) =>
         @sorted_phrases.push(phrase)
         if (phrase.children)
@@ -183,12 +188,15 @@
           delete phrase.total_frequency
 
     # отсортировать фразы по «frequency»
-    sortPhrases: (phrases)->
+    sortPhrases: (phrases) ->
       phrases.sort (phrase_1, phrase_2) ->
-        phrase_1_frequency = phrase_1.total_frequency or (parseInt(phrase_1.frequency) or 1)
-        phrase_2_frequency = phrase_2.total_frequency or (parseInt(phrase_2.frequency) or 1)
+        phrase_1_frequency = parseInt(phrase_1.total_frequency) or (parseInt(phrase_1.frequency) or 1)
+        phrase_2_frequency = parseInt(phrase_2.total_frequency) or (parseInt(phrase_2.frequency) or 1)
+        # console.log(phrase_1, phrase_2, phrase_1_frequency, phrase_2_frequency) if (phrase_1.phrase is 'репетитор язык русский 11' || phrase_2.phrase is 'репетитор язык русский 11')
         difference = phrase_2_frequency - phrase_1_frequency
         return if difference isnt 0 then difference else (phrase_1.phrase > phrase_2.phrase) # или по алфавиту
+
+      phrases.forEach (phrase) => @sortPhrases(phrase.children) if phrase.children
 
     # сортировка слов внутри фраз
     sortWordsManual: ->
