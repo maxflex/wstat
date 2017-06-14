@@ -511,6 +511,15 @@
 }).call(this);
 
 (function() {
+  Vue.directive('digits-only', {
+    update: function(el) {
+      return el.value = el.value.replace(/[^0-9]/g, '');
+    }
+  });
+
+}).call(this);
+
+(function() {
   Vue.component('virtual-scroller', VueVirtualScroller.VirtualScroller);
 
 }).call(this);
@@ -540,15 +549,6 @@
       }
     },
     template: "<span>{{ count }} {{ text }}</span>"
-  });
-
-}).call(this);
-
-(function() {
-  Vue.directive('digits-only', {
-    update: function(el) {
-      return el.value = el.value.replace(/[^0-9]/g, '');
-    }
   });
 
 }).call(this);
@@ -969,7 +969,20 @@
         return showModal('smart-sort');
       },
       sort: function() {
-        this.trump_words = [];
+        var ids, trump_words;
+        if (this.trump_words.length) {
+          ids = $('.ui-sortable').sortable('toArray');
+          trump_words = [];
+          ids.forEach((function(_this) {
+            return function(id) {
+              var index;
+              index = id.replace(/\D/g, "");
+              return trump_words.push(_this.trump_words[index]);
+            };
+          })(this));
+          this.trump_words = trump_words;
+        }
+        closeModal('smart-sort');
         this.loading = true;
         return setTimeout((function(_this) {
           return function() {

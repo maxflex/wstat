@@ -227,16 +227,17 @@
 
     sort: ->
       # сортируем trump_words на основе drag&drop
-      # ids = $('.ui-sortable').sortable('toArray')
-      # trump_words = []
-      # ids.forEach (id) =>
-      #   index = id.replace(/\D/g, "")
-      #   trump_words.push(@trump_words[index])
-      # @trump_words = trump_words
+      if @trump_words.length
+        ids = $('.ui-sortable').sortable('toArray')
+        trump_words = []
+        ids.forEach (id) =>
+          index = id.replace(/\D/g, "")
+          trump_words.push(@trump_words[index])
+        @trump_words = trump_words
 
-      # closeModal 'smart-sort'
-      @trump_words = []
+      closeModal 'smart-sort'
       @loading = true
+
       setTimeout =>
           @sorted_phrases = []
           @collapseList()
