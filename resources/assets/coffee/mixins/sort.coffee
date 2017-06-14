@@ -30,29 +30,6 @@
       else
         priority_list
 
-    # сортировка слов внутри фраз
-    sortWords: (phrases, level = 0)->
-      priority_list = @getPriorityList(phrases)
-      # чтобы не бежать по уже пройденным ранее в рекурсии словам
-      # если не добавлять в массив слов, то можно будет пропустить (верхний todo)
-      priority_list = priority_list.slice(level, priority_list.length) if level
-
-      # бежим по ПС
-      priority_list.forEach (word) =>
-        filtered_phrases = phrases.filter (phrase) ->
-          !phrase.sorted && $.inArray(word, phrase.phrase.toWords()) >= level
-        filtered_phrases.forEach (phrase) ->
-          words = phrase.phrase.toWords()
-          words = _.without(words, word)
-          words.splice(level, 0, word) # insert at index
-          phrase.phrase = words.toPhrase()
-          # фраза считается отсортированной, если последнее слово в ней = текущему
-          phrase.sorted = true if words[words.length - 1] == word
-
-        # console.log(filtered_phrases, word, level)
-
-        # здесь запускается рекурсия
-        @sortWords(filtered_phrases, level + 1) if filtered_phrases.length > 1
 
     # найти родителя
     findParent: (phrase_without_parent) ->
@@ -152,6 +129,7 @@
         if list_changed
           @collapseList()
         else
+          window.testy = JSON.parse(JSON.stringify(@list.phrases))[0]
           @sortPhraseWords(@list.phrases)
           @expandList(@list.phrases)
 
@@ -165,8 +143,12 @@
     #   2.  если попадаются родители, разнящиеся на более чем 1 слово, то расстановка этих
     #       слов происходит сначала по принципу козырей, потом по алфавиту
     sortPhraseWords: (phrases) ->
-        phrases.forEach (parent) =>
-          if parent.children then parent.children.forEach (phrase) =>
+      phrases.forEach (parent) =>
+        if parent.children
+          # сортируем так же детей
+          @sortPhraseWords(parent.children)
+
+          parent.children.forEach (phrase) =>
             # оставшееся слова (если родительская фраза «репетитор москва»),
             # то для дитя «подготовка репетитор москва егэ» оставшееся слова
             # будут [подготовка, егэ] – их нужно будет поставить на последнее
@@ -189,8 +171,6 @@
             # сначала родительская фраза, потом все остальное
             phrase.phrase = parent.phrase.toWords().concat(words).toPhrase()
 
-            # сортируем так же детей
-            @sortPhraseWords(phrase.children) if phrase.children
 
     # «развернуть» отсортированный список
     expandList: (phrases) ->

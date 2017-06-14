@@ -749,37 +749,6 @@
           return priority_list;
         }
       },
-      sortWords: function(phrases, level) {
-        var priority_list;
-        if (level == null) {
-          level = 0;
-        }
-        priority_list = this.getPriorityList(phrases);
-        if (level) {
-          priority_list = priority_list.slice(level, priority_list.length);
-        }
-        return priority_list.forEach((function(_this) {
-          return function(word) {
-            var filtered_phrases;
-            filtered_phrases = phrases.filter(function(phrase) {
-              return !phrase.sorted && $.inArray(word, phrase.phrase.toWords()) >= level;
-            });
-            filtered_phrases.forEach(function(phrase) {
-              var words;
-              words = phrase.phrase.toWords();
-              words = _.without(words, word);
-              words.splice(level, 0, word);
-              phrase.phrase = words.toPhrase();
-              if (words[words.length - 1] === word) {
-                return phrase.sorted = true;
-              }
-            });
-            if (filtered_phrases.length > 1) {
-              return _this.sortWords(filtered_phrases, level + 1);
-            }
-          };
-        })(this));
-      },
       findParent: function(phrase_without_parent) {
         var level, max_level_frequency, parents, trump_parents;
         parents = this.list.phrases.filter(function(phrase) {
@@ -884,6 +853,7 @@
           if (list_changed) {
             return this.collapseList();
           } else {
+            window.testy = JSON.parse(JSON.stringify(this.list.phrases))[0];
             this.sortPhraseWords(this.list.phrases);
             return this.expandList(this.list.phrases);
           }
@@ -893,6 +863,7 @@
         return phrases.forEach((function(_this) {
           return function(parent) {
             if (parent.children) {
+              _this.sortPhraseWords(parent.children);
               return parent.children.forEach(function(phrase) {
                 var leftovers, sorted_words, words;
                 words = _.difference(phrase.phrase.toWords(), parent.phrase.toWords());
@@ -911,10 +882,7 @@
                   });
                   words = sorted_words.concat(leftovers);
                 }
-                phrase.phrase = parent.phrase.toWords().concat(words).toPhrase();
-                if (phrase.children) {
-                  return _this.sortPhraseWords(phrase.children);
-                }
+                return phrase.phrase = parent.phrase.toWords().concat(words).toPhrase();
               });
             }
           };
