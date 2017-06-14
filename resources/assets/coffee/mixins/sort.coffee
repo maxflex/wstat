@@ -110,6 +110,7 @@
         phrases_without_parent.forEach (phrase_without_parent) =>
           # находим родителя
           parent = @findParent(phrase_without_parent)
+          # console.log("«#{phrase_without_parent.phrase}» parent", parent) if phrase_without_parent.phrase is 'репетитор английский язык'
 
           # если есть родитель, схлопываем (добавляем фразу без родителя внутрь)
           if parent isnt null
@@ -143,9 +144,6 @@
     sortPhraseWords: (phrases) ->
       phrases.forEach (parent) =>
         if parent.children
-          # сортируем так же детей
-          @sortPhraseWords(parent.children)
-
           parent.children.forEach (phrase) =>
             # оставшееся слова (если родительская фраза «репетитор москва»),
             # то для дитя «подготовка репетитор москва егэ» оставшееся слова
@@ -167,7 +165,11 @@
               words = sorted_words.concat(leftovers)
 
             # сначала родительская фраза, потом все остальное
+            # console.log("«#{phrase.phrase}»", parent.phrase.toWords(), words)
             phrase.phrase = parent.phrase.toWords().concat(words).toPhrase()
+
+          # сортируем так же детей
+          @sortPhraseWords(parent.children)
 
 
     # «развернуть» отсортированный список

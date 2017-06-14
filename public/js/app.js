@@ -856,8 +856,7 @@
         return phrases.forEach((function(_this) {
           return function(parent) {
             if (parent.children) {
-              _this.sortPhraseWords(parent.children);
-              return parent.children.forEach(function(phrase) {
+              parent.children.forEach(function(phrase) {
                 var leftovers, sorted_words, words;
                 words = _.difference(phrase.phrase.toWords(), parent.phrase.toWords());
                 if (words.length > 1) {
@@ -877,6 +876,7 @@
                 }
                 return phrase.phrase = parent.phrase.toWords().concat(words).toPhrase();
               });
+              return _this.sortPhraseWords(parent.children);
             }
           };
         })(this));
