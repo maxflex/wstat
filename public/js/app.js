@@ -8,7 +8,7 @@
     });
     return window.app = new Vue({
       el: '#app',
-      mixins: [TransformMixin, ExportMixin, SmartSortMixin, HelpersMixin],
+      mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin],
       data: {
         page: 'list',
         saving: false,
@@ -511,15 +511,6 @@
 }).call(this);
 
 (function() {
-  Vue.directive('digits-only', {
-    update: function(el) {
-      return el.value = el.value.replace(/[^0-9]/g, '');
-    }
-  });
-
-}).call(this);
-
-(function() {
   Vue.component('virtual-scroller', VueVirtualScroller.VirtualScroller);
 
 }).call(this);
@@ -549,6 +540,15 @@
       }
     },
     template: "<span>{{ count }} {{ text }}</span>"
+  });
+
+}).call(this);
+
+(function() {
+  Vue.directive('digits-only', {
+    update: function(el) {
+      return el.value = el.value.replace(/[^0-9]/g, '');
+    }
   });
 
 }).call(this);
@@ -698,7 +698,7 @@
 }).call(this);
 
 (function() {
-  this.SmartSortMixin = {
+  this.SortMixin = {
     data: {
       sorted_phrases: [],
       priority_list: [],
@@ -814,7 +814,7 @@
                   level_frequency = 0;
                   _this.list.phrases.forEach(function(phrase) {
                     if (sameLevel(parent, phrase)) {
-                      return level_frequency += parseInt(phrase.frequency || 1);
+                      return level_frequency += parseInt(phrase.frequency) || 1;
                     }
                   });
                   parent.level_frequency = level_frequency;
@@ -873,9 +873,9 @@
                 }
                 parent.children.push(phrase_without_parent);
                 if (parent.total_frequency === void 0) {
-                  parent.total_frequency = parent.frequency || 1;
+                  parent.total_frequency = parseInt(parent.frequency) || 1;
                 }
-                parent.total_frequency += phrase_without_parent.frequency || 1;
+                parent.total_frequency += parseInt(phrase_without_parent.frequency) || 1;
                 _this.list.phrases = _this.removePhrase(phrase_without_parent);
                 return list_changed = true;
               }
@@ -936,8 +936,8 @@
       sortPhrases: function(phrases) {
         return phrases.sort(function(phrase_1, phrase_2) {
           var difference, phrase_1_frequency, phrase_2_frequency;
-          phrase_1_frequency = phrase_1.total_frequency || (phrase_1.frequency || 1);
-          phrase_2_frequency = phrase_2.total_frequency || (phrase_2.frequency || 1);
+          phrase_1_frequency = phrase_1.total_frequency || (parseInt(phrase_1.frequency) || 1);
+          phrase_2_frequency = phrase_2.total_frequency || (parseInt(phrase_2.frequency) || 1);
           difference = phrase_2_frequency - phrase_1_frequency;
           if (difference !== 0) {
             return difference;
@@ -992,93 +992,6 @@
             return _this.loading = false;
           };
         })(this), 100);
-      }
-    }
-  };
-
-}).call(this);
-
-(function() {
-  this.SortMixin = {
-    methods: {
-      sort: function() {
-        if (!(this.list.phrases && this.list.phrases.length)) {
-          return;
-        }
-        this.getWords();
-        this.getWeights();
-        return this.sortPhraseByWeight();
-      },
-      getWords: function() {
-        this.words = [];
-        return this.list.phrases.forEach((function(_this) {
-          return function(phrase) {
-            var ref;
-            return (ref = _this.words).push.apply(ref, phrase.phrase.toWords());
-          };
-        })(this));
-      },
-      getWeights: function() {
-        var word_groups;
-        this.word_weights = [];
-        word_groups = _.chain(this.words).groupBy(function(word) {
-          return word;
-        }).sortBy(function(word) {
-          return word.length;
-        }).value();
-        return _.map(word_groups, (function(_this) {
-          return function(group) {
-            return _this.word_weights[group[0]] = group.length;
-          };
-        })(this));
-      },
-      sortPhraseByWeight: function() {
-        this.list.phrases.forEach((function(_this) {
-          return function(phrase) {
-            var phrase_weight, words, words_sorted_by_weight;
-            words = phrase.phrase.toWords();
-            words_sorted_by_weight = _.sortBy(words.sort().reverse(), (function(word) {
-              return _this.word_weights[word];
-            })).reverse();
-            phrase_weight = [];
-            words_sorted_by_weight.forEach(function(word) {
-              return phrase_weight.push(_this.word_weights[word]);
-            });
-            phrase.phrase = words_sorted_by_weight.join(' ');
-            return phrase.phrase_weight = phrase_weight;
-          };
-        })(this));
-        return this.list.phrases.sort(function(a, b) {
-          var i, j, length, min, ref;
-          length = Math.min(a.phrase_weight.length, b.phrase_weight.length);
-          min = false;
-          for (i = j = 0, ref = length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
-            if (a.phrase_weight[i] === 41 && b.phrase_weight[i] === 124) {
-              debugger;
-            }
-            if (a.phrase_weight[i] < b.phrase_weight[i]) {
-              min = -1;
-            }
-            if (a.phrase_weight[i] > b.phrase_weight[i]) {
-              min = 1;
-            }
-            if (min) {
-              break;
-            }
-          }
-          if (!min) {
-            min = b.phrase_weight.length - a.phrase_weight.length;
-            if (min === 0) {
-              if (a.phrase > b.phrase) {
-                min = -1;
-              }
-              if (a.phrase < b.phrase) {
-                min = 1;
-              }
-            }
-          }
-          return min;
-        }).reverse();
       }
     }
   };

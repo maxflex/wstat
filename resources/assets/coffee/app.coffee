@@ -1,9 +1,9 @@
 $(document).ready ->
-  Vue.directive 'sortable', 
+  Vue.directive 'sortable',
     bind: (el, binding) -> sortable = $(el).sortable(binding.value)
   window.app = new Vue
     el: '#app'
-    mixins: [TransformMixin, ExportMixin, SmartSortMixin, HelpersMixin]
+    mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin]
     data:
       page: 'list'              # list | open
       saving: false
