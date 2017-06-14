@@ -708,11 +708,8 @@
       }
     },
     methods: {
-      getPriorityList: function(phrases, with_weights) {
+      getPriorityList: function(phrases) {
         var list_with_weights, priority_list, weights;
-        if (with_weights == null) {
-          with_weights = false;
-        }
         weights = {};
         phrases.forEach((function(_this) {
           return function(phrase) {
@@ -736,18 +733,14 @@
             }
           };
         })(this));
-        if (with_weights) {
-          list_with_weights = [];
-          priority_list.forEach(function(word) {
-            return list_with_weights.push({
-              word: word,
-              weight: weights[word]
-            });
+        list_with_weights = [];
+        priority_list.forEach(function(word) {
+          return list_with_weights.push({
+            word: word,
+            weight: weights[word]
           });
-          return list_with_weights;
-        } else {
-          return priority_list;
-        }
+        });
+        return list_with_weights;
       },
       findParent: function(phrase_without_parent) {
         var level, max_level_frequency, parents, trump_parents;
@@ -769,7 +762,7 @@
                 return;
               }
               return trump_parents = parents.filter(function(parent) {
-                return $.inArray(word, parent.phrase.toWords());
+                return $.inArray(word, parent.phrase.toWords()) !== -1;
               });
             });
             if (trump_parents.length) {
@@ -870,12 +863,12 @@
                 if (words.length > 1) {
                   sorted_words = [];
                   _this.trump_words.forEach(function(word) {
-                    if ($.inArray(word, words)) {
+                    if ($.inArray(word, words) !== -1) {
                       return sorted_words.push(word);
                     }
                   });
                   leftovers = words.filter(function(word) {
-                    return !$.inArray(word, sorted_words);
+                    return $.inArray(word, sorted_words) === -1;
                   });
                   leftovers.sort(function(word_1, word_2) {
                     return word_1 > word_2;

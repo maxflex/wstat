@@ -7,7 +7,7 @@
       axis: 'y'
   methods:
     # получить приоритет-список
-    getPriorityList: (phrases, with_weights = false) ->
+    getPriorityList: (phrases) ->
       # создание массива веса слов
       weights = {}
       phrases.forEach (phrase) =>
@@ -20,15 +20,12 @@
         difference = weights[b] - weights[a]
         return if difference isnt 0 then difference else (a > b)
 
-      if with_weights
-        list_with_weights = []
-        priority_list.forEach (word) ->
-          list_with_weights.push
-            word: word
-            weight: weights[word]
-        list_with_weights
-      else
-        priority_list
+      list_with_weights = []
+      priority_list.forEach (word) ->
+        list_with_weights.push
+          word: word
+          weight: weights[word]
+      list_with_weights
 
 
     # найти родителя
@@ -54,7 +51,8 @@
           trump_parents = []
           @trump_words.forEach (word) ->
             return if trump_parents.length
-            trump_parents = parents.filter (parent) -> $.inArray(word, parent.phrase.toWords())
+            trump_parents = parents.filter (parent) -> $.inArray(word, parent.phrase.toWords()) isnt -1
+
 
           # обрезаем родителей по козырным словам, если таковые были найдены
           parents = trump_parents if trump_parents.length
@@ -160,10 +158,10 @@
             if words.length > 1
               # отсортированные по «козырям»
               sorted_words = []
-              @trump_words.forEach (word) -> sorted_words.push(word) if $.inArray(word, words)
+              @trump_words.forEach (word) -> sorted_words.push(word) if $.inArray(word, words) isnt -1
 
               # по алфавиту оставшееся слова, которые не попали под козырные
-              leftovers = words.filter (word) -> not $.inArray(word, sorted_words)
+              leftovers = words.filter (word) -> $.inArray(word, sorted_words) is -1
               leftovers.sort (word_1, word_2) -> word_1 > word_2
 
               words = sorted_words.concat(leftovers)
