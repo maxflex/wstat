@@ -379,6 +379,12 @@ function isParent(phrase_1, phrase_2) {
     return (isSuperset(phrase_1_words, phrase_2_words) && phrase_2_words.length > phrase_1_words.length);
 }
 
+function sameLevel(phrase_1, phrase_2) {
+    phrase_1_words = phrase_1.phrase.toWords()
+    phrase_2_words = phrase_2.phrase.toWords()
+    return isSuperset(phrase_1_words, phrase_2_words);
+}
+
 // function allowDrop(event) {
 //     $(event.target).closest('[draggable=true]').addClass('sortable-drag')
 //     event.preventDefault()

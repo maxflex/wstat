@@ -702,6 +702,7 @@
     data: {
       sorted_phrases: [],
       priority_list: [],
+      trump_words: [],
       sortableOptions: {
         axis: 'y'
       }
@@ -712,10 +713,6 @@
         return setTimeout((function(_this) {
           return function() {
             _this.sorted_phrases = [];
-            _this.sortWords(_this.list.phrases);
-            _this.list.phrases.map(function(phrase) {
-              return delete phrase.sorted;
-            });
             _this.collapseList();
             _this.list.phrases = _this.sorted_phrases;
             return _this.loading = false;
@@ -794,6 +791,67 @@
           };
         })(this));
       },
+      findParent: function(phrase_without_parent) {
+        var level, max_level_frequency, parents, trump_parents;
+        parents = this.list.phrases.filter(function(phrase) {
+          return isParent(phrase, phrase_without_parent);
+        });
+        if (parents.length) {
+          parents = _.sortBy(parents, function(parent) {
+            return _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length;
+          });
+          level = _.difference(phrase_without_parent.phrase.toWords(), parents[0].phrase.toWords()).length;
+          parents = parents.filter(function(parent) {
+            return _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length === level;
+          });
+          if (parents.length > 1) {
+            trump_parents = [];
+            this.trump_words.forEach(function(word) {
+              if (trump_parents.length) {
+                return;
+              }
+              return trump_parents = parents.filter(function(parent) {
+                return $.inArray(word, parent.phrase.toWords());
+              });
+            });
+            if (trump_parents.length) {
+              parents = trump_parents;
+            }
+            if (parents.length > 1) {
+              max_level_frequency = -1;
+              parents.forEach((function(_this) {
+                return function(parent) {
+                  var level_frequency;
+                  level_frequency = 0;
+                  _this.list.phrases.forEach(function(phrase) {
+                    if (sameLevel(parent, phrase)) {
+                      return level_frequency += parseInt(phrase.frequency || 1);
+                    }
+                  });
+                  parent.level_frequency = level_frequency;
+                  if (level_frequency > max_level_frequency) {
+                    return max_level_frequency = level_frequency;
+                  }
+                };
+              })(this));
+              parents = parents.filter(function(parent) {
+                var level_frequency;
+                level_frequency = parent.level_frequency;
+                delete parent.level_frequency;
+                return level_frequency === max_level_frequency;
+              });
+              if (parents.length > 1) {
+                parents.sort(function(phrase_1, phrase_2) {
+                  return phrase_1.phrase > phrase_2.phrase;
+                });
+              }
+            }
+          }
+        } else {
+          return null;
+        }
+        return parents[0];
+      },
       collapseList: function() {
         var list_changed, phrases_without_parent;
         phrases_without_parent = [];
@@ -818,38 +876,17 @@
         if (phrases_without_parent.length) {
           phrases_without_parent.forEach((function(_this) {
             return function(phrase_without_parent) {
-              var closest_parent, parents;
-              parents = _this.list.phrases.filter(function(phrase) {
-                return isParent(phrase, phrase_without_parent);
-              });
-              closest_parent = {
-                level: 9999,
-                frequency: -1,
-                phrase: null
-              };
-              if (parents.length) {
-                parents.forEach(function(parent) {
-                  var frequency, level;
-                  level = _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length;
-                  frequency = parent.frequency || 1;
-                  if (level < closest_parent.level || (level === closest_parent.level && closest_parent.frequency < frequency)) {
-                    return closest_parent = {
-                      level: level,
-                      frequency: frequency,
-                      phrase: parent
-                    };
-                  }
-                });
-              }
-              if (closest_parent.phrase !== null) {
-                if (closest_parent.phrase.children === void 0) {
-                  closest_parent.phrase.children = [];
+              var parent;
+              parent = _this.findParent(phrase_without_parent);
+              if (parent !== null) {
+                if (parent.children === void 0) {
+                  parent.children = [];
                 }
-                closest_parent.phrase.children.push(phrase_without_parent);
-                if (closest_parent.phrase.total_frequency === void 0) {
-                  closest_parent.phrase.total_frequency = closest_parent.phrase.frequency || 1;
+                parent.children.push(phrase_without_parent);
+                if (parent.total_frequency === void 0) {
+                  parent.total_frequency = parent.frequency || 1;
                 }
-                closest_parent.phrase.total_frequency += phrase_without_parent.frequency || 1;
+                parent.total_frequency += phrase_without_parent.frequency || 1;
                 _this.list.phrases = _this.removePhrase(phrase_without_parent);
                 return list_changed = true;
               }
@@ -858,17 +895,49 @@
           if (list_changed) {
             return this.collapseList();
           } else {
+            this.sortPhraseWords(this.list.phrases);
             return this.expandList(this.list.phrases);
           }
         }
       },
+      sortPhraseWords: function(phrases) {
+        return phrases.forEach((function(_this) {
+          return function(parent) {
+            if (parent.children) {
+              return parent.children.forEach(function(phrase) {
+                var leftovers, sorted_words, words;
+                words = _.difference(phrase.phrase.toWords(), parent.phrase.toWords());
+                if (words.length > 1) {
+                  sorted_words = [];
+                  _this.trump_words.forEach(function(word) {
+                    if ($.inArray(word, words)) {
+                      return sorted_words.push(word);
+                    }
+                  });
+                  leftovers = words.filter(function(word) {
+                    return !$.inArray(word, sorted_words);
+                  });
+                  leftovers.sort(function(word_1, word_2) {
+                    return word_1 > word_2;
+                  });
+                  words = sorted_words.concat(leftovers);
+                }
+                phrase.phrase = parent.phrase.toWords().concat(words).toPhrase();
+                if (phrase.children) {
+                  return _this.sortPhraseWords(phrase.children);
+                }
+              });
+            }
+          };
+        })(this));
+      },
       expandList: function(phrases) {
         this.sortPhrases(phrases);
         return phrases.forEach((function(_this) {
-          return function(phrase, index) {
+          return function(phrase) {
             _this.sorted_phrases.push(phrase);
             if (phrase.children) {
-              _this.expandList(phrase.children, index);
+              _this.expandList(phrase.children);
               delete phrase.children;
               return delete phrase.total_frequency;
             }

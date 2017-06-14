@@ -2,6 +2,7 @@
   data:
     sorted_phrases: []
     priority_list: []
+    trump_words: []
     sortableOptions:
       axis: 'y'
   methods:
@@ -9,9 +10,6 @@
       @loading = true
       setTimeout =>
           @sorted_phrases = []
-          @sortWords(@list.phrases)
-          # удаляем отметку sorted из всех фраз из предыдущего шага
-          @list.phrases.map (phrase) -> delete phrase.sorted
           @collapseList()
           @list.phrases = @sorted_phrases
           @loading = false
@@ -65,6 +63,65 @@
         # здесь запускается рекурсия
         @sortWords(filtered_phrases, level + 1) if filtered_phrases.length > 1
 
+    # найти родителя
+    findParent: (phrase_without_parent) ->
+      # все родители
+      parents = @list.phrases.filter (phrase) -> isParent(phrase, phrase_without_parent)
+      # console.log("«#{phrase_without_parent.phrase}» parents are ", parents)
+      if parents.length
+        #
+        # находим ближайших по уровню родителей
+        #
+
+        # сначала определяем минимальный уровень вложенности
+        parents = _.sortBy parents, (parent) -> _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length
+        # минимальный уровень вложенности
+        level = _.difference(phrase_without_parent.phrase.toWords(), parents[0].phrase.toWords()).length
+        # оставляем только родителей с минимальным уровнем вложенности
+        parents = parents.filter (parent) -> _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length is level
+
+        # если родителей больше 2х, применяем алгоритм выбора родителей
+        if parents.length > 1
+          # бежим по списку козырей
+          trump_parents = []
+          @trump_words.forEach (word) ->
+            return if trump_parents.length
+            trump_parents = parents.filter (parent) -> $.inArray(word, parent.phrase.toWords())
+
+          # обрезаем родителей по козырным словам, если таковые были найдены
+          parents = trump_parents if trump_parents.length
+          # console.log('\t 1. ', parents)
+          # если есть 2 и более родителей, на которых козыри не сработали,
+          # то выбирается родитель с максимальной суммарной частотой уровня
+          if parents.length > 1
+            # находим суммарную частоту уровня родителей
+            max_level_frequency = -1
+
+            parents.forEach (parent) =>
+              level_frequency = 0
+              @list.phrases.forEach (phrase) =>
+                level_frequency += parseInt(phrase.frequency or 1) if sameLevel(parent, phrase)
+              parent.level_frequency = level_frequency
+              max_level_frequency = level_frequency if level_frequency > max_level_frequency
+
+            # оставляем только с максимальной частотой + удаляем атрибут level_frequency
+            parents = parents.filter (parent) ->
+              level_frequency = parent.level_frequency
+              delete parent.level_frequency
+              level_frequency is max_level_frequency
+
+            # console.log('\t 2. ', parents)
+            # алфавит. если ничего не сработало и по прежнему имеем 2
+            # и более родителей, то выбираем родителя по алфавиту
+            if parents.length > 1
+              parents.sort (phrase_1, phrase_2) -> phrase_1.phrase > phrase_2.phrase
+              # console.log('\t 3. ', parents)
+
+      # возвращаем null, если не нашлось родителей ообще
+      else return null
+      # console.log("\t«#{phrase_without_parent.phrase}» parent is", parents[0].phrase)
+      parents[0]
+
 
     # «схлопнуть» список
     collapseList: ->
@@ -85,52 +142,72 @@
 
       if (phrases_without_parent.length)
         phrases_without_parent.forEach (phrase_without_parent) =>
-          # находим всех родителей
-          parents = @list.phrases.filter (phrase) -> isParent(phrase, phrase_without_parent)
-
-          # определяем ближайшего среди родителей
-          closest_parent =
-            level: 9999
-            frequency: -1
-            phrase: null
-
-          if parents.length
-            parents.forEach (parent) ->
-              level = _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length
-              frequency = parent.frequency or 1
-              if (level < closest_parent.level || (level == closest_parent.level && closest_parent.frequency < frequency))
-                closest_parent =
-                  level: level
-                  frequency: frequency
-                  phrase: parent
-
-          # console.log("«#{phrase_without_parent.phrase}» parents", parents, closest_parent)
+          # находим родителя
+          parent = @findParent(phrase_without_parent)
 
           # если есть родитель, схлопываем (добавляем фразу без родителя внутрь)
-          if closest_parent.phrase isnt null
-            closest_parent.phrase.children = [] if closest_parent.phrase.children is undefined
-            closest_parent.phrase.children.push(phrase_without_parent)
+          if parent isnt null
+            parent.children = [] if parent.children is undefined
+            parent.children.push(phrase_without_parent)
 
             # суммарный frequency
-            closest_parent.phrase.total_frequency = (closest_parent.phrase.frequency or 1) if closest_parent.phrase.total_frequency is undefined
-            closest_parent.phrase.total_frequency += (phrase_without_parent.frequency or 1)
+            parent.total_frequency = (parent.frequency or 1) if parent.total_frequency is undefined
+            parent.total_frequency += (phrase_without_parent.frequency or 1)
 
             @list.phrases = @removePhrase(phrase_without_parent)
             list_changed = true
 
         # если фраз без детей не осталось, выходим из рекурсии
-        if list_changed then @collapseList() else @expandList(@list.phrases)
+        if list_changed
+          @collapseList()
+        else
+          @sortPhraseWords(@list.phrases)
+          @expandList(@list.phrases)
+
+    #
+    #                           Метод сортировки слов внутри фразы
+    #
+    #   1.  берем фразу, соответствуем ей всех родителей, определенных в самом начале и выстраиваем
+    #       слова в последовательности как они идут сначала у самого главного родителя,
+    #       потом следующего родителя и т.д. по 1 слову
+    #
+    #   2.  если попадаются родители, разнящиеся на более чем 1 слово, то расстановка этих
+    #       слов происходит сначала по принципу козырей, потом по алфавиту
+    sortPhraseWords: (phrases) ->
+        phrases.forEach (parent) =>
+          if parent.children then parent.children.forEach (phrase) =>
+            # оставшееся слова (если родительская фраза «репетитор москва»),
+            # то для дитя «подготовка репетитор москва егэ» оставшееся слова
+            # будут [подготовка, егэ] – их нужно будет поставить на последнее
+            # место в соответствующем порядке
+            words = _.difference(phrase.phrase.toWords(), parent.phrase.toWords())
+
+            # если попадаются родители, разнящиеся на более чем 1 слово, то расстановка
+            # этих слов происходит сначала по принципу козырей, потом по алфавиту
+            if words.length > 1
+              # отсортированные по «козырям»
+              sorted_words = []
+              @trump_words.forEach (word) -> sorted_words.push(word) if $.inArray(word, words)
+
+              # по алфавиту оставшееся слова, которые не попали под козырные
+              leftovers = words.filter (word) -> not $.inArray(word, sorted_words)
+              leftovers.sort (word_1, word_2) -> word_1 > word_2
+
+              words = sorted_words.concat(leftovers)
+
+            # сначала родительская фраза, потом все остальное
+            phrase.phrase = parent.phrase.toWords().concat(words).toPhrase()
+
+            # сортируем так же детей
+            @sortPhraseWords(phrase.children) if phrase.children
 
     # «развернуть» отсортированный список
     expandList: (phrases) ->
       @sortPhrases(phrases)
-      phrases.forEach (phrase, index) =>
+      phrases.forEach (phrase) =>
         @sorted_phrases.push(phrase)
         if (phrase.children)
-          @expandList(phrase.children, index)
-          # @list.phrases = @list.phrases.concat(phrase.children)
-          # @list.phrases.splice.apply(@list.phrases, [index, 0].concat(phrase.children))
-          # console.log('inserting at index', index)
+          @expandList(phrase.children)
           delete phrase.children
           delete phrase.total_frequency
 
