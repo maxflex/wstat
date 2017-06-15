@@ -742,31 +742,41 @@
         });
         return list_with_weights;
       },
+      closestParents: function(parents, phrase_without_parent) {
+        var level;
+        parents = _.sortBy(parents, function(parent) {
+          return _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length;
+        });
+        level = _.difference(phrase_without_parent.phrase.toWords(), parents[0].phrase.toWords()).length;
+        return parents.filter(function(parent) {
+          return _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length === level;
+        });
+      },
       findParent: function(phrase_without_parent) {
-        var level, max_level_frequency, parents, trump_parents;
+        var highest_level_found, max_level_frequency, parents, trump_parents;
         parents = this.list.phrases.filter(function(phrase) {
           return isParent(phrase, phrase_without_parent);
         });
         if (parents.length) {
-          parents = _.sortBy(parents, function(parent) {
-            return _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length;
-          });
-          level = _.difference(phrase_without_parent.phrase.toWords(), parents[0].phrase.toWords()).length;
-          parents = parents.filter(function(parent) {
-            return _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length === level;
-          });
-          if (parents.length > 1) {
-            trump_parents = [];
-            this.trump_words.forEach(function(word) {
-              if (trump_parents.length) {
-                return;
-              }
-              return trump_parents = parents.filter(function(parent) {
+          trump_parents = [];
+          highest_level_found = false;
+          this.trump_words.forEach((function(_this) {
+            return function(word) {
+              trump_parents = parents.filter(function(parent) {
                 return $.inArray(word, parent.phrase.toWords()) !== -1;
               });
-            });
-            if (trump_parents.length) {
-              parents = trump_parents;
+              if (trump_parents.length > 1 && !highest_level_found) {
+                trump_parents = _this.closestParents(trump_parents, phrase_without_parent);
+                highest_level_found = true;
+              }
+              if (trump_parents.length) {
+                return parents = trump_parents;
+              }
+            };
+          })(this));
+          if (parents.length > 1) {
+            if (!highest_level_found) {
+              parents = this.closestParents(parents, phrase_without_parent);
             }
             if (parents.length > 1) {
               max_level_frequency = -1;
@@ -915,23 +925,6 @@
             if (phrase.children) {
               return _this.sortPhrases(phrase.children);
             }
-          };
-        })(this));
-      },
-      sortWordsManual: function() {
-        var words;
-        words = _.pluck(this.priority_list, 'word');
-        return this.list.phrases.forEach((function(_this) {
-          return function(phrase) {
-            var indexes, phrase_words_sorted;
-            indexes = [];
-            phrase.phrase.toWords().forEach(function(word) {
-              return indexes.push(words.indexOf(word));
-            });
-            phrase_words_sorted = indexes.sort().map(function(i) {
-              return words[i];
-            });
-            return phrase.phrase = phrase_words_sorted.toPhrase();
           };
         })(this));
       },

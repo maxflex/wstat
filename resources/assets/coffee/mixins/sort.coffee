@@ -27,6 +27,17 @@
           weight: weights[word]
       list_with_weights
 
+    #
+    # находим ближайших по уровню родителей
+    #
+    closestParents: (parents, phrase_without_parent) ->
+      # сначала определяем минимальный уровень вложенности
+      parents = _.sortBy parents, (parent) -> _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length
+      # минимальный уровень вложенности
+      level = _.difference(phrase_without_parent.phrase.toWords(), parents[0].phrase.toWords()).length
+      # оставляем только родителей с минимальным уровнем вложенности
+      parents.filter (parent) -> _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length is level
+
 
     # найти родителя
     findParent: (phrase_without_parent) ->
@@ -35,30 +46,27 @@
       # console.log("«#{phrase_without_parent.phrase}» parents are ", parents)
       if parents.length
         #
-        # находим ближайших по уровню родителей
+        # отсеиваем родителей по козырным словами и уровню
         #
+        trump_parents = []
+        highest_level_found = false # не надо отталкиваться от самого верхнего уровня, если он уже найден
+        
+        @trump_words.forEach (word) =>
+          trump_parents = parents.filter (parent) -> $.inArray(word, parent.phrase.toWords()) isnt -1
+          # если фразы с козырным словом были найдены, оставляем только самый верхний уровень фраз
+          if (trump_parents.length > 1 && not highest_level_found)
+            trump_parents = @closestParents(trump_parents, phrase_without_parent)
+            highest_level_found = true
 
-        # сначала определяем минимальный уровень вложенности
-        parents = _.sortBy parents, (parent) -> _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length
-        # минимальный уровень вложенности
-        level = _.difference(phrase_without_parent.phrase.toWords(), parents[0].phrase.toWords()).length
-        # оставляем только родителей с минимальным уровнем вложенности
-        parents = parents.filter (parent) -> _.difference(phrase_without_parent.phrase.toWords(), parent.phrase.toWords()).length is level
+          if trump_parents.length
+            # обрезаем родителей по козырным словам, если таковые были найдены
+            parents = trump_parents
 
-        # если родителей больше 2х, применяем алгоритм выбора родителей
         if parents.length > 1
-          # бежим по списку козырей
-          trump_parents = []
-          @trump_words.forEach (word) ->
-            return if trump_parents.length
-            trump_parents = parents.filter (parent) -> $.inArray(word, parent.phrase.toWords()) isnt -1
+          # находим ближайших по уровню родителей
+          parents = @closestParents(parents, phrase_without_parent) if not highest_level_found
 
-
-          # обрезаем родителей по козырным словам, если таковые были найдены
-          parents = trump_parents if trump_parents.length
-          # console.log('\t 1. ', parents)
-          # если есть 2 и более родителей, на которых козыри не сработали,
-          # то выбирается родитель с максимальной суммарной частотой уровня
+          # если родителей больше 2х, применяем алгоритм выбора родителей
           if parents.length > 1
             # находим суммарную частоту уровня родителей
             max_level_frequency = -1
@@ -82,7 +90,6 @@
             if parents.length > 1
               parents.sort (phrase_1, phrase_2) -> phrase_1.phrase > phrase_2.phrase
               # console.log('\t 3. ', parents)
-
       # возвращаем null, если не нашлось родителей ообще
       else return null
       # console.log("\t«#{phrase_without_parent.phrase}» parent is", parents[0].phrase)
@@ -119,7 +126,7 @@
 
             # суммарный frequency
             parent.total_frequency = (parseInt(parent.frequency) or 1) if parent.total_frequency is undefined
-            
+
             # добавляем frequency всех детей
             if phrase_without_parent.children
               parent.total_frequency += parseInt(phrase_without_parent.total_frequency)
@@ -197,15 +204,6 @@
         return if difference isnt 0 then difference else (phrase_1.phrase > phrase_2.phrase) # или по алфавиту
 
       phrases.forEach (phrase) => @sortPhrases(phrase.children) if phrase.children
-
-    # сортировка слов внутри фраз
-    sortWordsManual: ->
-      words = _.pluck(@priority_list, 'word')
-      @list.phrases.forEach (phrase) =>
-        indexes = []
-        phrase.phrase.toWords().forEach (word) -> indexes.push(words.indexOf(word))
-        phrase_words_sorted = indexes.sort().map (i) -> words[i]
-        phrase.phrase = phrase_words_sorted.toPhrase()
 
     # ручная сортировка
     sortModal: ->
