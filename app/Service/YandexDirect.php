@@ -71,6 +71,10 @@ class YandexDirect
             sleep(static::SLEEP);
         }
 
+        if (! isset($response->data)) {
+            return 'время ожидания истекло';
+        }
+
         foreach($response->data->Phrases as $phrase) {
             $return[] = $phrase->Shows;
         }
