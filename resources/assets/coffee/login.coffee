@@ -2,6 +2,7 @@ angular
     .module 'Wstat', ['angular-ladda']
     .controller 'LoginCtrl', ($scope, $http) ->
         angular.element(document).ready ->
+            window.scope = angular.element('[ng-app=Wstat]').scope()
             $scope.l = Ladda.create(document.querySelector('#login-submit'))
             login_data = $.cookie("login_data")
             if login_data isnt undefined

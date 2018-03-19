@@ -3,9 +3,9 @@
 
 @section('content')
 <center ng-app="Login" ng-controller="LoginCtrl">
-	<form class="form-signin" autocomplete="off">
-		<input type="text" id="inputLogin" class="form-control" placeholder="Логин" autofocus name="login" ng-model="login" autocomplete="off">
-		<input type="password" id="inputPassword" class="form-control" placeholder="Пароль" name="password" ng-model="password" autocomplete="off">
+	<div class="form-signin" autocomplete="off">
+		<input ng-disabled="sms_verification" type="text" id="inputLogin" class="form-control" placeholder="Логин" autofocus ng-model="$parent.login" autocomplete="off" ng-keyup="enter($event)">
+		<input ng-disabled="sms_verification" type="password" id="inputPassword" class="form-control" placeholder="Пароль" ng-model="$parent.password" autocomplete="off" ng-keyup="enter($event)">
 		<input type="password" autocomplete="passoword" style="display:none" />
 
 		<button id="login-submit" data-style="zoom-in" ng-disabled="in_process"
@@ -13,7 +13,7 @@
 			<span class="glyphicon glyphicon-lock"></span><span ng-show="!in_process">Войти</span>
 			<span ng-show="in_process">Вход</span>
 		</button>
-	</form>
+	</div>
 </center>
 
 <div class="g-recaptcha" data-sitekey="{{ config('captcha.site') }}" data-size="invisible" data-callback="captchaChecked"></div>
@@ -25,7 +25,7 @@
 </style>
 <script>
     function captchaChecked() {
-        angular.element('[ng-app=Wstat]').scope().goLogin()
+        scope.goLogin()
     }
 </script>
 @stop

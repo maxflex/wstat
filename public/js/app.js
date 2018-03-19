@@ -487,6 +487,7 @@
   angular.module('Wstat', ['angular-ladda']).controller('LoginCtrl', function($scope, $http) {
     angular.element(document).ready(function() {
       var login_data;
+      window.scope = angular.element('[ng-app=Wstat]').scope();
       $scope.l = Ladda.create(document.querySelector('#login-submit'));
       login_data = $.cookie("login_data");
       if (login_data !== void 0) {
