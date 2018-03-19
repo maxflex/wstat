@@ -27,9 +27,9 @@ const elixir = require('laravel-elixir');
         .browserSync({
             port: 8097,
             open: 'external',
-            host: 'wstat.app',
-            proxy: 'https://wstat.app:8096',
-            https: true
+            host: 'wstat.localhost',
+            proxy: 'http://wstat.localhost:8096',
+            // https: true
         })
          .sass('app.scss')
          .coffee(['resources/assets/coffee/*.coffee', 'resources/assets/coffee/*/*.coffee'])

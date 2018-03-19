@@ -486,18 +486,46 @@
 (function() {
   angular.module('Wstat', ['angular-ladda']).controller('LoginCtrl', function($scope, $http) {
     angular.element(document).ready(function() {
-      return $scope.l = Ladda.create(document.querySelector('#login-submit'));
+      var login_data;
+      $scope.l = Ladda.create(document.querySelector('#login-submit'));
+      login_data = $.cookie("login_data");
+      if (login_data !== void 0) {
+        login_data = JSON.parse(login_data);
+        $scope.login = login_data.login;
+        $scope.password = login_data.password;
+        $scope.sms_verification = true;
+        return $scope.$apply();
+      }
     });
-    return $scope.checkFields = function() {
-      $scope.l.start();
+    $scope.enter = function($event) {
+      if ($event.keyCode === 13) {
+        return $scope.checkFields();
+      }
+    };
+    $scope.goLogin = function() {
       ajaxStart();
-      $scope.in_process = true;
       return $http.post('login', {
         login: $scope.login,
-        password: $scope.password
+        password: $scope.password,
+        code: $scope.code,
+        captcha: grecaptcha.getResponse()
       }).then(function(response) {
+        grecaptcha.reset();
         if (response.data === true) {
+          $.removeCookie('login_data');
           return location.reload();
+        } else if (response.data === 'sms') {
+          ajaxEnd();
+          $scope.in_process = false;
+          $scope.l.stop();
+          $scope.sms_verification = true;
+          return $.cookie("login_data", JSON.stringify({
+            login: $scope.login,
+            password: $scope.password
+          }), {
+            expires: 1 / (24 * 60) * 2,
+            path: '/'
+          });
         } else {
           $scope.in_process = false;
           ajaxEnd();
@@ -505,6 +533,15 @@
           return notifyError("Неправильная пара логин-пароль");
         }
       });
+    };
+    return $scope.checkFields = function() {
+      $scope.l.start();
+      $scope.in_process = true;
+      if (grecaptcha.getResponse() === '') {
+        return grecaptcha.execute();
+      } else {
+        return $scope.goLogin();
+      }
     };
   });
 
