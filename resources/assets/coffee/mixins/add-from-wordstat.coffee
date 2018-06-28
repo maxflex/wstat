@@ -17,6 +17,7 @@
             phrase: d.phrase
             original: d.phrase
             frequency: d.number.replace(/\s/g, '')
+        notifySuccess("<b>" + response.data.length + "</b> добавлено")
         @saving = false
         closeModal('add-from-wordstat')
       , (response) ->

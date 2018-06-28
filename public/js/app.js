@@ -617,6 +617,7 @@
                 frequency: d.number.replace(/\s/g, '')
               });
             });
+            notifySuccess("<b>" + response.data.length + "</b> добавлено");
             _this.saving = false;
             return closeModal('add-from-wordstat');
           };
