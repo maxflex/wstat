@@ -20,4 +20,6 @@
         @saving = false
         closeModal('add-from-wordstat')
       , (response) ->
+        @saving = false
         notifyError('Ошибка при добавлении из WordStat')
+        closeModal('add-from-wordstat')

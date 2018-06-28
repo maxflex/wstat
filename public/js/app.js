@@ -549,15 +549,6 @@
 }).call(this);
 
 (function() {
-  Vue.directive('digits-only', {
-    update: function(el) {
-      return el.value = el.value.replace(/[^0-9]/g, '');
-    }
-  });
-
-}).call(this);
-
-(function() {
   Vue.component('virtual-scroller', VueVirtualScroller.VirtualScroller);
 
 }).call(this);
@@ -592,6 +583,15 @@
 }).call(this);
 
 (function() {
+  Vue.directive('digits-only', {
+    update: function(el) {
+      return el.value = el.value.replace(/[^0-9]/g, '');
+    }
+  });
+
+}).call(this);
+
+(function() {
   this.AddFromWordstat = {
     data: {
       add_from_wordstat_keyphrase: null
@@ -621,7 +621,9 @@
             return closeModal('add-from-wordstat');
           };
         })(this), function(response) {
-          return notifyError('Ошибка при добавлении из WordStat');
+          this.saving = false;
+          notifyError('Ошибка при добавлении из WordStat');
+          return closeModal('add-from-wordstat');
         });
       }
     }
