@@ -19,3 +19,5 @@
             frequency: d.number.replace(/\s/g, '')
         @saving = false
         closeModal('add-from-wordstat')
+      , (response) ->
+        notifyError('Ошибка при добавлении из WordStat')

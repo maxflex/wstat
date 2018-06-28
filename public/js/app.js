@@ -620,7 +620,9 @@
             _this.saving = false;
             return closeModal('add-from-wordstat');
           };
-        })(this));
+        })(this), function(response) {
+          return notifyError('Ошибка при добавлении из WordStat');
+        });
       }
     }
   };
