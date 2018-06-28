@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-class Wordstat {
+class WordStat {
 
     public $page;
 
@@ -16,7 +16,7 @@ class Wordstat {
 
     public static function getData($keyphrase)
     {
-        $w = new Wordstat($keyphrase);
+        $w = new WordStat($keyphrase);
 
         $page = 1;
         $items = [];

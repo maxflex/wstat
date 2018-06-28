@@ -21,10 +21,4 @@ Route::group(['middleware' => ['login']], function () {
 
     // Route::get('excel/export', 'ExcelController@export');
     Route::post('export', 'ExcelController@export');
-
-    Route::get('aga', function() {
-        $w = new App\Service\Wordstat;
-        $response = $w->getRaw('репетитор');
-        return dump($w->decode($response));
-    });
 });
