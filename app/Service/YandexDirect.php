@@ -4,8 +4,7 @@ namespace App\Service;
 
 class YandexDirect
 {
-    // const API_URL   = 'https://api.direct.yandex.ru/live/v4/json/';
-    const API_URL   = 'https://api.direct.yandex.com/json/v5/';
+    const API_URL   = 'https://api.direct.yandex.ru/live/v4/json/';
     const LOCALE = 'ru';
     // const MOSCOW_GEO_ID = 213;      // москва
     // const MOSCOW_REGION_GEO_ID = 1; // москва и область
@@ -35,42 +34,6 @@ class YandexDirect
         curl_close($ch);
         \Log::info($response);
         return json_decode($response);
-    }
-
-    public static function exec2($method, $param = [])
-    {
-        $post_data = [
-            'method' => $method,
-            'locale' => self::LOCALE,
-            'token' => config('direct.token'),
-            'param' => $param,
-        ];
-
-        $ch = curl_init(self::API_URL);
-
-        $headers = [
-            'Content-type: application/xml',
-            'Authorization: gfhjui'
-        ];
-
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER 	=> true,
-            CURLOPT_POST			=> true,
-            CURLOPT_POSTFIELDS		=> json_encode($post_data),
-            CURLOPT_HTTPHEADER      => $headers,
-        ]);
-
-        $response = curl_exec($ch);
-        // $code     = curl_getinfo($ch)['http_code'];
-
-        curl_close($ch);
-        \Log::info($response);
-        return json_decode($response);
-    }
-
-    public static function run()
-    {
-        return self::exec('campaigns');
     }
 
     /**

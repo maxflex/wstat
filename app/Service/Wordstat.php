@@ -22,11 +22,11 @@ class WordStat {
         $items = [];
         do {
             $data = $w->getNextPage();
-            $page_items = $data['content']['includingPhrases']['items'];
+            $page_items = @$data['content']['includingPhrases']['items'];
             if ($page_items && count($page_items)) {
                 $items = array_merge($items, $page_items);
             }
-            if (($data['content']['hasNextPage'] == 'yes')) {
+            if ((@$data['content']['hasNextPage'] == 'yes')) {
                 sleep(1);
             } else {
                 return $items;
