@@ -27,7 +27,7 @@ class WordStat {
                 $items = array_merge($items, $page_items);
             }
             if ((@$data['content']['hasNextPage'] == 'yes')) {
-                sleep(1);
+                sleep($w->page % 10 == 0 ? 3 : 1); // каждые 10 страниц пауза на 3 секунды
             } else {
                 return $items;
             }
