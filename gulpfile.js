@@ -24,13 +24,13 @@ const elixir = require('laravel-elixir');
 
  elixir(function(mix) {
      mix
-        .browserSync({
-            port: 8097,
-            open: 'external',
-            host: 'wstat.localhost',
-            proxy: 'http://wstat.localhost:8096',
-            // https: true
-        })
+        // .browserSync({
+        //     port: 8097,
+        //     open: 'external',
+        //     host: 'wstat.localhost',
+        //     proxy: 'http://wstat.localhost:8096',
+        //     // https: true
+        // })
          .sass('app.scss')
          .coffee(['resources/assets/coffee/*.coffee', 'resources/assets/coffee/*/*.coffee'])
          .scripts(jsFromBower([

@@ -1,5 +1,6 @@
 <a class="list-group-item active">Операции</a>
 <a @click="runModal(addWords, 'добавить')" class="list-group-item">Добавить слова</a>
+<a @click="addFromWordstatModal" class="list-group-item">Добавить из WordStat</a>
 <a @click="runModal(addMinuses, 'добавить')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Добавить минус слова</a>
 <a onclick="showModal('add-to-all')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Добавить ко всем</a>
 <a @click="splitPhrasesToWords()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Разбить фразы на слова</a>

@@ -3,7 +3,7 @@ $(document).ready ->
     bind: (el, binding) -> sortable = $(el).sortable(binding.value)
   window.app = new Vue
     el: '#app'
-    mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin]
+    mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin, AddFromWordstat]
     data:
       page: 'list'              # list | open
       saving: false

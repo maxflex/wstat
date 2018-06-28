@@ -8,7 +8,7 @@
     });
     return window.app = new Vue({
       el: '#app',
-      mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin],
+      mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin, AddFromWordstat],
       data: {
         page: 'list',
         saving: false,
@@ -549,6 +549,15 @@
 }).call(this);
 
 (function() {
+  Vue.directive('digits-only', {
+    update: function(el) {
+      return el.value = el.value.replace(/[^0-9]/g, '');
+    }
+  });
+
+}).call(this);
+
+(function() {
   Vue.component('virtual-scroller', VueVirtualScroller.VirtualScroller);
 
 }).call(this);
@@ -583,11 +592,38 @@
 }).call(this);
 
 (function() {
-  Vue.directive('digits-only', {
-    update: function(el) {
-      return el.value = el.value.replace(/[^0-9]/g, '');
+  this.AddFromWordstat = {
+    data: {
+      add_from_wordstat_keyphrase: null
+    },
+    methods: {
+      addFromWordstatModal: function() {
+        this.add_from_wordstat_keyphrase = null;
+        return showModal('add-from-wordstat');
+      },
+      addFromWordstat: function() {
+        if (!this.add_from_wordstat_keyphrase) {
+          return;
+        }
+        this.saving = true;
+        return this.$http.post('api/addFromWordstat', {
+          keyphrase: this.add_from_wordstat_keyphrase
+        }).then((function(_this) {
+          return function(response) {
+            response.data.forEach(function(d) {
+              return _this.list.phrases.push({
+                phrase: d.phrase,
+                original: d.phrase,
+                frequency: d.number.replace(/\s/g, '')
+              });
+            });
+            _this.saving = false;
+            return closeModal('add-from-wordstat');
+          };
+        })(this));
+      }
     }
-  });
+  };
 
 }).call(this);
 

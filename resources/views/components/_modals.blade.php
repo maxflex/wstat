@@ -88,6 +88,22 @@
     </div>
 </div>
 
+<div class="modal" id='add-from-wordstat-modal' tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Добавить из WordStat</h4>
+            </div>
+            <div class="modal-body">
+                <input v-model='add_from_wordstat_keyphrase' @keydown.enter="addFromWordstat" class='form-control mb' placeholder="Ключевая фраза">
+            </div>
+            <div class="modal-footer center">
+                <div class="btn btn-primary" :disabled="!add_from_wordstat_keyphrase || saving" @click="addFromWordstat">добавить</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal" id='add-to-all-modal' tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
