@@ -21,14 +21,18 @@ class WordStat {
         $page = 1;
         $items = [];
         do {
-            $data = $w->getNextPage();
-            $page_items = @$data['content']['includingPhrases']['items'];
-            if ($page_items && count($page_items)) {
-                $items = array_merge($items, $page_items);
-            }
-            if ((@$data['content']['hasNextPage'] == 'yes')) {
-                sleep($w->page % 10 == 0 ? 3 : ($w->page >= 30 ? 2 : 1)); // каждые 10 страниц пауза на 3 секунды
-            } else {
+            try {
+                $data = $w->getNextPage();
+                $page_items = @$data['content']['includingPhrases']['items'];
+                if ($page_items && count($page_items)) {
+                    $items = array_merge($items, $page_items);
+                }
+                if ((@$data['content']['hasNextPage'] == 'yes')) {
+                    sleep($w->page % 10 == 0 ? 3 : ($w->page >= 30 ? 2 : 1)); // каждые 10 страниц пауза на 3 секунды
+                } else {
+                    return $items;
+                }
+            } catch (\Exception $e) {
                 return $items;
             }
         } while (true);
