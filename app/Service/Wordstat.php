@@ -25,7 +25,7 @@ class WordStat {
             $data = $w->getNextPage();
 
             // если не удалось получить данные
-            if ($data == null && $fails < 3) {
+            if ($data == null && $fails < 5) {
                 $fails++;
                 $w->page--;
                 sleep(3);
