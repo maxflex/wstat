@@ -4,6 +4,9 @@ namespace App\Service;
 
 class YandexDirect
 {
+    // получить TOKEN
+    // https://oauth.yandex.com/authorize?response_type=token&client_id=834c96e2a8694724a796dd87c3ca6adf из под elena...
+
     const API_URL   = 'https://api.direct.yandex.ru/live/v4/json/';
     const LOCALE = 'ru';
     // const MOSCOW_GEO_ID = 213;      // москва

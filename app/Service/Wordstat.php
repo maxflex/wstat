@@ -18,21 +18,33 @@ class WordStat {
     {
         $w = new WordStat($keyphrase);
 
+        $fails = 0;
         $page = 1;
         $items = [];
         do {
             try {
                 $data = $w->getNextPage();
+
+                // если не удалось получить данные
+                if ($data == null && $fails < 3) {
+                    $fails++;
+                    $w->page--;
+                    sleep(3);
+                    continue;
+                }
+
                 $page_items = @$data['content']['includingPhrases']['items'];
                 if ($page_items && count($page_items)) {
                     $items = array_merge($items, $page_items);
                 }
                 if ((@$data['content']['hasNextPage'] == 'yes')) {
-                    sleep($w->page % 10 == 0 ? 3 : ($w->page >= 30 ? 2 : 1)); // каждые 10 страниц пауза на 3 секунды
+                    sleep($w->page % 10 == 0 ? 3 : 1); // каждые 10 страниц пауза на 3 секунды
                 } else {
+                    \Log::info(json_encode($data));
                     return $items;
                 }
             } catch (\Exception $e) {
+                \Log::info(json_encode($data));
                 return $items;
             }
         } while (true);
