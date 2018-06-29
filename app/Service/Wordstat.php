@@ -22,17 +22,17 @@ class WordStat {
         $page = 1;
         $items = [];
         do {
-            try {
-                $data = $w->getNextPage();
+            $data = $w->getNextPage();
 
-                // если не удалось получить данные
-                if ($data == null && $fails < 3) {
-                    $fails++;
-                    $w->page--;
-                    sleep(3);
-                    continue;
-                }
+            // если не удалось получить данные
+            if ($data == null && $fails < 3) {
+                $fails++;
+                $w->page--;
+                sleep(3);
+                continue;
+            }
 
+            if (isset($data['content']['includingPhrases'])) {
                 $page_items = @$data['content']['includingPhrases']['items'];
                 if ($page_items && count($page_items)) {
                     $items = array_merge($items, $page_items);
@@ -43,7 +43,7 @@ class WordStat {
                     \Log::info(json_encode($data));
                     return $items;
                 }
-            } catch (\Exception $e) {
+            } else {
                 \Log::info(json_encode($data));
                 return $items;
             }
