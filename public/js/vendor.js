@@ -30175,8 +30175,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
 			allow_dismiss : true,
 			placement: {
 				from: "top",
-			},
-			delay: 0
+			}
 		});
 	}
 
@@ -30190,8 +30189,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
 			allow_dismiss : true,
 			placement: {
 				from: "top",
-			},
-			delay: 0
+			}
 		});
 	}
 
@@ -30330,6 +30328,7 @@ function sameLevel(phrase_1, phrase_2) {
 //     $(event.target).closest('[draggable=true]').addClass('sortable-drag')
 //     event.preventDefault()
 // }
+
 /*
  * Input Mask Core
  * http://github.com/RobinHerbots/jquery.inputmask

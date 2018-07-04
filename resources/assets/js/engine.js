@@ -234,8 +234,7 @@
 			allow_dismiss : true,
 			placement: {
 				from: "top",
-			},
-			delay: 0
+			}
 		});
 	}
 
@@ -249,8 +248,7 @@
 			allow_dismiss : true,
 			placement: {
 				from: "top",
-			},
-			delay: 0
+			}
 		});
 	}
 
