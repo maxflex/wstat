@@ -16,15 +16,19 @@
       @add_from_wordstat.keyphrase_list = @add_from_wordstat.keyphrase_text.split("\n")
       this.$_addFromWordstatStep()
 
+    $_addingFromWordstatFinished: (message, error = false) ->
+      closeModal('add-from-wordstat')
+      fn = if error then notifyError else notifySuccess
+      fn(message)
+      @add_from_wordstat.keyphrase_list = []
+      @add_from_wordstat.current_step = 0
+      @add_from_wordstat.added = 0
+      @saving = false
+
     $_addFromWordstatStep: ->
       return if not @add_from_wordstat.keyphrase_list.length
       if @add_from_wordstat.current_step >= @add_from_wordstat.keyphrase_list.length
-        closeModal('add-from-wordstat')
-        notifySuccess("<b>#{this.add_from_wordstat.added}</b> добавлено")
-        @add_from_wordstat.keyphrase_list = []
-        @add_from_wordstat.current_step = 0
-        @add_from_wordstat.added = 0
-        @saving = false
+        this.$_addingFromWordstatFinished("<b>#{this.add_from_wordstat.added}</b> добавлено")
       else
         this.$http.post 'api/addFromWordstat',
           keyphrase: @add_from_wordstat.keyphrase_list[@add_from_wordstat.current_step]
@@ -45,6 +49,4 @@
             , 250
           this.$_addFromWordstatStep()
         , (response) ->
-          @saving = false
-          notifyError('Ошибка при добавлении из WordStat')
-          closeModal('add-from-wordstat')
+          this.$_addingFromWordstatFinished("Ошибка при добавлении из WordStat", true)

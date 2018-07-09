@@ -614,17 +614,25 @@
         this.add_from_wordstat.keyphrase_list = this.add_from_wordstat.keyphrase_text.split("\n");
         return this.$_addFromWordstatStep();
       },
+      $_addingFromWordstatFinished: function(message, error) {
+        var fn;
+        if (error == null) {
+          error = false;
+        }
+        closeModal('add-from-wordstat');
+        fn = error ? notifyError : notifySuccess;
+        fn(message);
+        this.add_from_wordstat.keyphrase_list = [];
+        this.add_from_wordstat.current_step = 0;
+        this.add_from_wordstat.added = 0;
+        return this.saving = false;
+      },
       $_addFromWordstatStep: function() {
         if (!this.add_from_wordstat.keyphrase_list.length) {
           return;
         }
         if (this.add_from_wordstat.current_step >= this.add_from_wordstat.keyphrase_list.length) {
-          closeModal('add-from-wordstat');
-          notifySuccess("<b>" + this.add_from_wordstat.added + "</b> добавлено");
-          this.add_from_wordstat.keyphrase_list = [];
-          this.add_from_wordstat.current_step = 0;
-          this.add_from_wordstat.added = 0;
-          return this.saving = false;
+          return this.$_addingFromWordstatFinished("<b>" + this.add_from_wordstat.added + "</b> добавлено");
         } else {
           return this.$http.post('api/addFromWordstat', {
             keyphrase: this.add_from_wordstat.keyphrase_list[this.add_from_wordstat.current_step]
@@ -647,9 +655,7 @@
               return _this.$_addFromWordstatStep();
             };
           })(this), function(response) {
-            this.saving = false;
-            notifyError('Ошибка при добавлении из WordStat');
-            return closeModal('add-from-wordstat');
+            return this.$_addingFromWordstatFinished("Ошибка при добавлении из WordStat", true);
           });
         }
       }
