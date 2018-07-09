@@ -4133,3 +4133,24 @@ div.table-like {
         }
     }
 }
+
+.modal-body {
+    $add-from-wordstat-content-height: 350px;
+    &--add-from-wordstat {
+        height: $add-from-wordstat-content-height;
+        position: relative;
+        & > * {
+            height: 100% !important;
+        }
+    }
+    & .add-from-wordstat-keyphrase-list {
+        &.active {
+            font-weight: bold;
+            color: $green;
+        }
+    }
+    & .add-from-wordstat__items {
+        position: relative;
+        overflow: hidden;
+    }
+}

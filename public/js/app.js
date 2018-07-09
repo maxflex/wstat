@@ -594,38 +594,64 @@
 (function() {
   this.AddFromWordstat = {
     data: {
-      add_from_wordstat_keyphrase: null
+      add_from_wordstat: {
+        keyphrase_text: '',
+        keyphrase_list: [],
+        current_step: 0,
+        added: 0
+      }
     },
     methods: {
       addFromWordstatModal: function() {
-        this.add_from_wordstat_keyphrase = null;
+        this.add_from_wordstat.keyphrase_text = '';
         return showModal('add-from-wordstat');
       },
       addFromWordstat: function() {
-        if (!this.add_from_wordstat_keyphrase) {
+        if (!this.add_from_wordstat.keyphrase_text) {
           return;
         }
         this.saving = true;
-        return this.$http.post('api/addFromWordstat', {
-          keyphrase: this.add_from_wordstat_keyphrase
-        }).then((function(_this) {
-          return function(response) {
-            response.data.forEach(function(d) {
-              return _this.list.phrases.push({
-                phrase: d.phrase,
-                original: d.phrase,
-                frequency: d.number.replace(/\s/g, '')
+        this.add_from_wordstat.keyphrase_list = this.add_from_wordstat.keyphrase_text.split("\n");
+        return this.$_addFromWordstatStep();
+      },
+      $_addFromWordstatStep: function() {
+        if (!this.add_from_wordstat.keyphrase_list.length) {
+          return;
+        }
+        if (this.add_from_wordstat.current_step >= this.add_from_wordstat.keyphrase_list.length) {
+          closeModal('add-from-wordstat');
+          notifySuccess("<b>" + this.add_from_wordstat.added + "</b> добавлено");
+          this.add_from_wordstat.keyphrase_list = [];
+          this.add_from_wordstat.current_step = 0;
+          this.add_from_wordstat.added = 0;
+          return this.saving = false;
+        } else {
+          return this.$http.post('api/addFromWordstat', {
+            keyphrase: this.add_from_wordstat.keyphrase_list[this.add_from_wordstat.current_step]
+          }).then((function(_this) {
+            return function(response) {
+              response.data.forEach(function(d) {
+                return _this.list.phrases.push({
+                  phrase: d.phrase,
+                  original: d.phrase,
+                  frequency: d.number.replace(/\s/g, '')
+                });
               });
-            });
-            notifySuccess("<b>" + response.data.length + "</b> добавлено");
-            _this.saving = false;
+              _this.add_from_wordstat.added += response.data.length;
+              _this.add_from_wordstat.current_step++;
+              if (_this.add_from_wordstat.current_step > 9) {
+                $('.add-from-wordstat__items').animate({
+                  scrollTop: (_this.add_from_wordstat.current_step - 9) * 17
+                }, 250);
+              }
+              return _this.$_addFromWordstatStep();
+            };
+          })(this), function(response) {
+            this.saving = false;
+            notifyError('Ошибка при добавлении из WordStat');
             return closeModal('add-from-wordstat');
-          };
-        })(this), function(response) {
-          this.saving = false;
-          notifyError('Ошибка при добавлении из WordStat');
-          return closeModal('add-from-wordstat');
-        });
+          });
+        }
       }
     }
   };

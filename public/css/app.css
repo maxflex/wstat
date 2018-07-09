@@ -15826,6 +15826,20 @@ div.table-like {
     background: #7c4121;
     color: white; }
 
+.modal-body--add-from-wordstat {
+  height: 350px;
+  position: relative; }
+  .modal-body--add-from-wordstat > * {
+    height: 100% !important; }
+
+.modal-body .add-from-wordstat-keyphrase-list.active {
+  font-weight: bold;
+  color: #5cb85c; }
+
+.modal-body .add-from-wordstat__items {
+  position: relative;
+  overflow: hidden; }
+
 .list-group-item .search_icon {
   float: right;
   cursor: pointer; }

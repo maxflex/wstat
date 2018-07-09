@@ -92,13 +92,32 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Добавить из WordStat</h4>
+                <h4 class="modal-title">
+                    <span v-if="add_from_wordstat.keyphrase_list.length">
+                        Добавление @{{ add_from_wordstat.current_step + 1 }} из @{{ add_from_wordstat.keyphrase_list.length }}...
+                    </span>
+                    <span v-else>Добавить из WordStat</span>
+                </h4>
             </div>
-            <div class="modal-body">
-                <input v-model='add_from_wordstat_keyphrase' @keydown.enter="addFromWordstat" class='form-control mb' placeholder="Ключевая фраза">
+            <div class="modal-body modal-body--add-from-wordstat">
+                <textarea v-if="!add_from_wordstat.keyphrase_list.length" v-model='add_from_wordstat.keyphrase_text'
+                    class='form-control mb' placeholder="Ключевые фразы"></textarea>
+                <div v-else class="add-from-wordstat__items">
+                    <div class="blocker-div"></div>
+                    <div v-for="(keyphrase, index) in add_from_wordstat.keyphrase_list" class="add-from-wordstat-keyphrase-list"
+                        :class="{'active': add_from_wordstat.current_step == index}"
+                        >
+                        @{{ keyphrase }}
+                    </div>
+                </div>
             </div>
             <div class="modal-footer center">
-                <div class="btn btn-primary" :disabled="!add_from_wordstat_keyphrase || saving" @click="addFromWordstat">добавить</div>
+                <div class="btn btn-primary" :disabled="!add_from_wordstat.keyphrase_text || saving" @click="addFromWordstat" style='width: 90px'>
+                    <span v-if="add_from_wordstat.keyphrase_list.length">
+                        <img src="/img/svg/tail-spin.svg" style='height: 18px' />
+                    </span>
+                    <span v-else>добавить</span>
+                </div>
             </div>
         </div>
     </div>
