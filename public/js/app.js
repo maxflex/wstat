@@ -154,6 +154,22 @@
             return this.list.phrases = new_phrases;
           }
         },
+        removeDuplicates: function() {
+          var i, phrases, phrases_sorted;
+          phrases = _.clone(this.list.phrases);
+          phrases = _.chain(phrases).sortBy('frequency').sortBy('phrase').value();
+          i = 0;
+          phrases_sorted = [];
+          while (i < phrases.length - 2) {
+            while (phrases[i].phrase === phrases[i + 1].phrase) {
+              i++;
+            }
+            phrases_sorted.push(phrases[i]);
+            i++;
+          }
+          phrases_sorted.push(phrases[phrases.length - 1]);
+          return this.list.phrases = phrases_sorted;
+        },
         addMinuses: function() {
           var minuses;
           minuses = [];

@@ -12,7 +12,7 @@
 <a @click="runModal(mixer, 'применить')" class="list-group-item" :class="{'disabled': !$root.list.phrases.length}">Миксер</a>
 
 <a class="list-group-item active">Удаление</a>
-<a @click="uniq()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Удалить дубликаты</a>
+<a @click="removeDuplicates()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Удалить дубликаты</a>
 <a @click="removeFrequencies()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Удалить частоты</a>
 <a @click="removeMinuses()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Удалить минус слова</a>
 <a @click="removePluses()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Удалить плюс слова</a>
