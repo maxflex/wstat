@@ -107,7 +107,7 @@ $(document).ready ->
 
         i = 0
         phrases_sorted = []
-        while i < phrases.length - 2
+        while i < phrases.length - 1
           i++ while phrases[i].phrase is phrases[i + 1].phrase
           phrases_sorted.push(phrases[i])
           i++

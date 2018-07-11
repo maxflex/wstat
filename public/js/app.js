@@ -160,7 +160,7 @@
           phrases = _.chain(phrases).sortBy('frequency').sortBy('phrase').value();
           i = 0;
           phrases_sorted = [];
-          while (i < phrases.length - 2) {
+          while (i < phrases.length - 1) {
             while (phrases[i].phrase === phrases[i + 1].phrase) {
               i++;
             }
