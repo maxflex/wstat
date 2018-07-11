@@ -113,7 +113,7 @@ $(document).ready ->
           i++
         phrases_sorted.push(phrases[phrases.length - 1])
 
-        @list.phrases = phrases_sorted
+        @list.phrases = _.sortBy(phrases_sorted, 'id')
 
       addMinuses: ->
         minuses = []

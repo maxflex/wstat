@@ -168,7 +168,7 @@
             i++;
           }
           phrases_sorted.push(phrases[phrases.length - 1]);
-          return this.list.phrases = phrases_sorted;
+          return this.list.phrases = _.sortBy(phrases_sorted, 'id');
         },
         addMinuses: function() {
           var minuses;
