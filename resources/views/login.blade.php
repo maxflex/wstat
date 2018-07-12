@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WStat</title>
+    <title>WSTAT | Вход</title>
     <meta charset="utf-8">
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <meta charset="utf-8">
@@ -10,23 +10,29 @@
     <link href="css/signin.css" rel="stylesheet" type="text/css">
     @yield('scripts')
 
-    <script src="//maps.google.ru/maps/api/js?key=AIzaSyAXXZZwXMG5yNxFHN7yR4GYJgSe9cKKl7o&libraries=places"></script>
-    <script src="{{ asset('/js/vendor.js', isProduction()) }}"></script>
-    <script src="{{ asset('/js/app.js', isProduction()) }}"></script>
-    @include('server_variables')
+    <script src="{{ asset('/js/vendor.js') }}"></script>
+    <script src="{{ asset('/js/app.js') }}"></script>
+    <script src='https://www.google.com/recaptcha/api.js?hl=ru'></script>
+
+    <style>
+        .grecaptcha-badge {
+            visibility: hidden;
+        }
+    </style>
+    <script>
+        function captchaChecked() {
+            scope.goLogin()
+        }
+    </script>
   </head>
 
-  <body class="content" ng-app="Wstat" ng-controller="LoginCtrl">
-      <div class="container">
-            <div class="row">
-              <div class="col-sm-1">
-                {{-- {{ \App\Models\User::fromSession() }} --}}
-              </div>
-              <div class="col-sm-10">
-                  @yield('content')
-              </div>
-          </div>
+  <body class="content animated fadeIn login-ec" ng-app="Wstat" ng-controller="LoginCtrl"
+    ng-init='wallpaper = {{ json_encode($wallpaper) }}'>
+      <div ng-show="image_loaded">
+          @yield('content')
+      </div>
+      <div ng-show="!image_loaded">
+          <img src="/img/svg/tail-spin.svg" />
       </div>
   </body>
-
 </html>

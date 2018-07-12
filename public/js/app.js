@@ -500,10 +500,37 @@
 }).call(this);
 
 (function() {
-  angular.module('Wstat', ['angular-ladda']).controller('LoginCtrl', function($scope, $http) {
+  angular.module('Wstat', []).controller('LoginCtrl', function($scope, $http) {
+    var loadImage;
+    loadImage = function() {
+      var img;
+      $scope.image_loaded = false;
+      img = new Image;
+      img.addEventListener("load", function() {
+        $('body').css({
+          'background-image': "url(" + $scope.wallpaper.image_url + ")"
+        });
+        $scope.image_loaded = true;
+        $scope.$apply();
+        return setTimeout(function() {
+          return $('#center').removeClass('animated').removeClass('fadeIn').removeAttr('style');
+        }, 2000);
+      });
+      return img.src = $scope.wallpaper.image_url;
+    };
     angular.element(document).ready(function() {
       var login_data;
-      window.scope = angular.element('[ng-app=Wstat]').scope();
+      setScope();
+      loadImage();
+      $('input[autocomplete="off"]').each(function() {
+        var id, input;
+        input = this;
+        id = $(input).attr('id');
+        $(input).removeAttr('id');
+        return setTimeout(function() {
+          return $(input).attr('id', id);
+        }, 2000);
+      });
       $scope.l = Ladda.create(document.querySelector('#login-submit'));
       login_data = $.cookie("login_data");
       if (login_data !== void 0) {
@@ -520,7 +547,9 @@
       }
     };
     $scope.goLogin = function() {
-      ajaxStart();
+      if ($scope.preview) {
+        return;
+      }
       return $http.post('login', {
         login: $scope.login,
         password: $scope.password,
@@ -530,13 +559,12 @@
         grecaptcha.reset();
         if (response.data === true) {
           $.removeCookie('login_data');
-          return location.reload();
+          location.reload();
         } else if (response.data === 'sms') {
-          ajaxEnd();
           $scope.in_process = false;
           $scope.l.stop();
           $scope.sms_verification = true;
-          return $.cookie("login_data", JSON.stringify({
+          $.cookie("login_data", JSON.stringify({
             login: $scope.login,
             password: $scope.password
           }), {
@@ -545,13 +573,16 @@
           });
         } else {
           $scope.in_process = false;
-          ajaxEnd();
           $scope.l.stop();
-          return notifyError("Неправильная пара логин-пароль");
+          $scope.error = "Неправильная пара логин-пароль";
         }
+        return $scope.$apply();
       });
     };
     return $scope.checkFields = function() {
+      if ($scope.preview) {
+        return;
+      }
       $scope.l.start();
       $scope.in_process = true;
       if (grecaptcha.getResponse() === '') {

@@ -17,7 +17,10 @@ class UserLogin
     public function handle($request, Closure $next)
     {
         if (! User::loggedIn()) {
-            return view('login.login');
+            $wallpaper = (object)[
+                'image_url' => 'img/background/solid.png'
+            ];
+            return view('login.login', compact('wallpaper'));
         }
         view()->share('user', User::fromSession());
         return $next($request);
