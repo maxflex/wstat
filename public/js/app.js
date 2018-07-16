@@ -8,7 +8,7 @@
     });
     return window.app = new Vue({
       el: '#app',
-      mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin, AddFromWordstat],
+      mixins: [TransformMixin, ExportMixin, SortMixin, HelpersMixin, AddFromWordstat, RemoveDuplicates],
       data: {
         page: 'list',
         saving: false,
@@ -141,34 +141,6 @@
           this.addwords_error = true;
           notifyError(message + "<br>строка " + (index + 1) + ": <i>" + line + "</i>");
           return false;
-        },
-        uniq: function(phrases) {
-          var new_phrases;
-          if (phrases == null) {
-            phrases = null;
-          }
-          new_phrases = _.uniq(phrases || this.list.phrases, 'phrase');
-          if (phrases) {
-            return new_phrases;
-          } else {
-            return this.list.phrases = new_phrases;
-          }
-        },
-        removeDuplicates: function() {
-          var i, phrases, phrases_sorted;
-          phrases = _.clone(this.list.phrases);
-          phrases = _.chain(phrases).sortBy('frequency').sortBy('phrase').value();
-          i = 0;
-          phrases_sorted = [];
-          while (i < phrases.length - 1) {
-            while (phrases[i].phrase === phrases[i + 1].phrase) {
-              i++;
-            }
-            phrases_sorted.push(phrases[i]);
-            i++;
-          }
-          phrases_sorted.push(phrases[phrases.length - 1]);
-          return this.list.phrases = _.sortBy(phrases_sorted, 'id');
         },
         addMinuses: function() {
           var minuses;
@@ -849,6 +821,46 @@
         } else {
           return ajaxEnd();
         }
+      }
+    }
+  };
+
+}).call(this);
+
+(function() {
+  this.RemoveDuplicates = {
+    methods: {
+      uniq: function(phrases) {
+        var new_phrases;
+        if (phrases == null) {
+          phrases = null;
+        }
+        new_phrases = _.uniq(phrases || this.list.phrases, 'phrase');
+        if (phrases) {
+          return new_phrases;
+        } else {
+          return this.list.phrases = new_phrases;
+        }
+      },
+      removeDuplicates: function() {
+        var error, i, phrases, phrases_sorted;
+        phrases = _.clone(this.list.phrases);
+        phrases = _.chain(phrases).sortBy('frequency').sortBy('phrase').value();
+        i = 0;
+        phrases_sorted = [];
+        while (i < phrases.length - 1) {
+          try {
+            while (phrases[i].phrase === phrases[i + 1].phrase) {
+              i++;
+            }
+            phrases_sorted.push(phrases[i]);
+            i++;
+          } catch (error) {
+            break;
+          }
+        }
+        phrases_sorted.push(phrases[phrases.length - 1]);
+        return this.list.phrases = _.sortBy(phrases_sorted, 'id');
       }
     }
   };
