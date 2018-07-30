@@ -193,3 +193,8 @@
        $allowed = \App\Models\User::fromSession()->allowed($right);
        return $return_int ? (int)$allowed : $allowed;
    }
+
+    function dbEgecrm($table)
+    {
+        return \DB::connection('egecrm')->table($table);
+    }
