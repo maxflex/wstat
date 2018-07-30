@@ -122,7 +122,7 @@
      */
     function userIdOrSystem()
     {
-        return \App\Models\User::loggedIn() ? \App\Models\User::fromSession()->id : 0;
+        return \App\Models\User::loggedIn() ? \App\Models\User::id() : 0;
     }
 
     function now($no_time = false)

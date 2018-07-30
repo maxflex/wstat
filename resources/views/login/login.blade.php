@@ -7,7 +7,7 @@
     </div>
     <div class="input-groups">
         <div class="group">
-            <input ng-disabled="sms_verification" type="text" id="inputLogin" placeholder="логин" autofocus ng-model="login" autocomplete="off" ng-keyup="enter($event)">
+            <input ng-disabled="sms_verification" type="text" id="inputLogin" placeholder="email" autofocus ng-model="login" autocomplete="off" ng-keyup="enter($event)">
         </div>
         <div class="group">
             <input ng-disabled="sms_verification" type="password" id="inputPassword"  placeholder="пароль" ng-model="password" autocomplete="new-password" ng-keyup="enter($event)">
