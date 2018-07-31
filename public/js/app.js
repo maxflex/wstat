@@ -504,6 +504,9 @@
         }, 2000);
       });
       $scope.l = Ladda.create(document.querySelector('#login-submit'));
+      if ($scope.logged_user) {
+        $scope.login = $scope.logged_user.email;
+      }
       login_data = $.cookie("login_data");
       if (login_data !== void 0) {
         login_data = JSON.parse(login_data);
@@ -513,6 +516,11 @@
         return $scope.$apply();
       }
     });
+    $scope.clearLogged = function() {
+      $scope.logged_user = null;
+      $scope.login = '';
+      return $.removeCookie('logged_user');
+    };
     $scope.enter = function($event) {
       if ($event.keyCode === 13) {
         return $scope.checkFields();

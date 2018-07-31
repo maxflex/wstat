@@ -91,6 +91,9 @@ class User extends Model
                 }
                 // self::log($user_id, 'success_login');
                 $user->toSession();
+                setcookie("logged_user", json_encode([
+					'email' => $data['login']
+				]), time() + (3600 * 24 * 365), "/");
                 return true;
             } else {
                 // self::log($user_id, 'failed_login', 'нет прав доступа для данного IP');

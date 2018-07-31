@@ -25,6 +25,7 @@ angular
                     $(input).attr('id', id)
                 , 2000
             $scope.l = Ladda.create(document.querySelector('#login-submit'))
+            $scope.login = $scope.logged_user.email if ($scope.logged_user)
             login_data = $.cookie("login_data")
             if login_data isnt undefined
                 login_data = JSON.parse(login_data)
@@ -32,6 +33,11 @@ angular
                 $scope.password = login_data.password
                 $scope.sms_verification = true
                 $scope.$apply()
+
+        $scope.clearLogged = ->
+            $scope.logged_user = null
+            $scope.login = ''
+            $.removeCookie('logged_user')
 
         #обработка события по enter в форме логина
         $scope.enter = ($event) ->
