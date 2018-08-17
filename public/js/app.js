@@ -851,16 +851,19 @@
         }
       },
       removeDuplicates: function() {
-        var error, i, phrases, phrases_sorted;
+        var error, frequency_sum, i, phrases, phrases_sorted;
         phrases = _.clone(this.list.phrases);
         phrases = _.chain(phrases).sortBy('frequency').sortBy('phrase').value();
         i = 0;
         phrases_sorted = [];
         while (i < phrases.length - 1) {
           try {
+            frequency_sum = phrases[i].frequency;
             while (phrases[i].phrase === phrases[i + 1].phrase) {
               i++;
+              frequency_sum += phrases[i].frequency;
             }
+            phrases[i].frequency = frequency_sum;
             phrases_sorted.push(phrases[i]);
             i++;
           } catch (error) {

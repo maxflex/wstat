@@ -19,7 +19,11 @@
       phrases_sorted = []
       while i < phrases.length - 1
         try
-          i++ while phrases[i].phrase is phrases[i + 1].phrase
+          frequency_sum = phrases[i].frequency
+          while phrases[i].phrase is phrases[i + 1].phrase
+            i++
+            frequency_sum += phrases[i].frequency
+          phrases[i].frequency = frequency_sum
           phrases_sorted.push(phrases[i])
           i++
         catch
