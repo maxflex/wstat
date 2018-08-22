@@ -576,15 +576,6 @@
 }).call(this);
 
 (function() {
-  Vue.directive('digits-only', {
-    update: function(el) {
-      return el.value = el.value.replace(/[^0-9]/g, '');
-    }
-  });
-
-}).call(this);
-
-(function() {
   Vue.component('virtual-scroller', VueVirtualScroller.VirtualScroller);
 
 }).call(this);
@@ -614,6 +605,15 @@
       }
     },
     template: "<span>{{ count }} {{ text }}</span>"
+  });
+
+}).call(this);
+
+(function() {
+  Vue.directive('digits-only', {
+    update: function(el) {
+      return el.value = el.value.replace(/[^0-9]/g, '');
+    }
   });
 
 }).call(this);
@@ -716,8 +716,11 @@
           };
         })(this)
       });
-      return clipboard.on('success', function() {
+      clipboard.on('success', function() {
         return notifySuccess('Скопировано в буфер');
+      });
+      return clipboard.on('error', function() {
+        return notifyError('Ошибка копирования в буфер');
       });
     },
     methods: {

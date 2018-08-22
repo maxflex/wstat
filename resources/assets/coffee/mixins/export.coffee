@@ -15,6 +15,7 @@
         return text
 
     clipboard.on 'success', -> notifySuccess('Скопировано в буфер')
+    clipboard.on 'error', -> notifyError('Ошибка копирования в буфер')
 
   methods:
     copyToClipboard: ->
