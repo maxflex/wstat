@@ -6,6 +6,7 @@
   mounted: ->
     clipboard = new ClipboardJS '#copy-to-clipboard',
       text: =>
+        alert('Копирование...')
         text = @fields.join("\t") + "\n"
         @list.phrases.forEach (phrase) =>
           a = []

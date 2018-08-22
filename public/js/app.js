@@ -703,6 +703,7 @@
         text: (function(_this) {
           return function() {
             var text;
+            alert('Копирование...');
             text = _this.fields.join("\t") + "\n";
             _this.list.phrases.forEach(function(phrase) {
               var a;
