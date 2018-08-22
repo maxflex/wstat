@@ -576,6 +576,15 @@
 }).call(this);
 
 (function() {
+  Vue.directive('digits-only', {
+    update: function(el) {
+      return el.value = el.value.replace(/[^0-9]/g, '');
+    }
+  });
+
+}).call(this);
+
+(function() {
   Vue.component('virtual-scroller', VueVirtualScroller.VirtualScroller);
 
 }).call(this);
@@ -605,15 +614,6 @@
       }
     },
     template: "<span>{{ count }} {{ text }}</span>"
-  });
-
-}).call(this);
-
-(function() {
-  Vue.directive('digits-only', {
-    update: function(el) {
-      return el.value = el.value.replace(/[^0-9]/g, '');
-    }
   });
 
 }).call(this);
@@ -697,7 +697,31 @@
       this.filename = 'wstat.xlsx';
       return this.fields = ['id', 'phrase', 'frequency', 'original', 'minus'];
     },
+    mounted: function() {
+      var clipboard;
+      clipboard = new ClipboardJS('#copy-to-clipboard', {
+        text: (function(_this) {
+          return function() {
+            var text;
+            text = _this.fields.join("\t") + "\n";
+            _this.list.phrases.forEach(function(phrase) {
+              var a;
+              a = [];
+              _this.fields.forEach(function(field) {
+                return a.push(phrase[field]);
+              });
+              return text += a.join("\t") + "\n";
+            });
+            return text;
+          };
+        })(this)
+      });
+      return clipboard.on('success', function() {
+        return notifySuccess('Скопировано в буфер');
+      });
+    },
     methods: {
+      copyToClipboard: function() {},
       generateSheetData: function() {
         var C, R, cell, cell_ref, col_width, range, wsheet;
         wsheet = {};

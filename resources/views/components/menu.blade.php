@@ -25,7 +25,11 @@
 
 <a class="list-group-item active">Список</a>
 <a @click="clear()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Очистить</a>
-<a @click="exportXls()" class="list-group-item" :class="{'disabled': !list.phrases.length}">Экспорт</a>
+<a class="list-group-item" :class="{'disabled': !list.phrases.length}">
+    <span class="link-like" @click="exportXls()">Экспорт</span>
+    <span class="bar-separator">|</span>
+    <span class="link-like" id='copy-to-clipboard'>Скопировать</span>
+</a>
 <a @click="save()" class="list-group-item" :class="{'disabled': !list.id}">Сохранить</a>
 <a onclick="showModal('save-as')" class="list-group-item" :class="{'disabled': !list.phrases.length}">Сохранить как...</a>
 <a @click="page = 'open'" class="list-group-item">Открыть</a>

@@ -62,6 +62,7 @@ const elixir = require('laravel-elixir');
              'vue-virtual-scroller/dist/vue-virtual-scroller',
              'js-xlsx/dist/xlsx.full.min',
              'file-saver/FileSaver.min',
+             'clipboard/dist/clipboard.min',
             //  'Sortable/Sortable.min',
             //  'vue.draggable/dist/vuedraggable.min'
          ]).concat([

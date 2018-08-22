@@ -3,7 +3,22 @@
     @filename = 'wstat.xlsx'
     @fields = ['id', 'phrase', 'frequency', 'original', 'minus']
 
+  mounted: ->
+    clipboard = new ClipboardJS '#copy-to-clipboard',
+      text: =>
+        text = @fields.join("\t") + "\n"
+        @list.phrases.forEach (phrase) =>
+          a = []
+          @fields.forEach (field) =>
+            a.push(phrase[field])
+          text += a.join("\t") + "\n"
+        return text
+
+    clipboard.on 'success', -> notifySuccess('Скопировано в буфер')
+
   methods:
+    copyToClipboard: ->
+
     generateSheetData: ->
         wsheet = {}
         range =

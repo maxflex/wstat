@@ -64,6 +64,7 @@
     "xregexp": "^3.1.1",
     "vue": "^2.2.2",
     "vue-resource": "^1.2.1",
-    "vue.draggable": "^2.9.0"
+    "vue.draggable": "^2.9.0",
+    "clipboard": "^2.0.1"
   }
 }

@@ -15840,6 +15840,13 @@ div.table-like {
   position: relative;
   overflow: hidden; }
 
+.bar-separator {
+  color: #ddd;
+  opacity: .5; }
+
+.list-group-item .link-like, .list-group-item .panel-heading-main .col-sm-4 span, .panel-heading-main .col-sm-4 .list-group-item span {
+  color: #555; }
+
 .list-group-item .search_icon {
   float: right;
   cursor: pointer; }
