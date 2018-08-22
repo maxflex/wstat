@@ -15847,6 +15847,9 @@ div.table-like {
 .list-group-item .link-like, .list-group-item .panel-heading-main .col-sm-4 span, .panel-heading-main .col-sm-4 .list-group-item span {
   color: #555; }
 
+.list-group-item.disabled .link-like, .list-group-item.disabled .panel-heading-main .col-sm-4 span, .panel-heading-main .col-sm-4 .list-group-item.disabled span {
+  color: #777; }
+
 .list-group-item .search_icon {
   float: right;
   cursor: pointer; }

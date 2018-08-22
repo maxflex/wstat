@@ -4163,3 +4163,7 @@ div.table-like {
 .list-group-item .link-like {
     color: #555;
 }
+
+.list-group-item.disabled .link-like {
+    color: #777;
+}
