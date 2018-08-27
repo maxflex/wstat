@@ -4,9 +4,11 @@ URL::forceSchema('https');
 # Login
 Route::post('login', 'LoginController@login');
 Route::get('logout', 'LoginController@logout');
-
+Route::get('auth', 'AuthController@index');
 
 Route::group(['middleware' => ['login']], function () {
+    Route::get('auth/continue-session', 'AuthController@continueSession');
+    
     # Variables
     Route::get('/', 'MainController@index');
 

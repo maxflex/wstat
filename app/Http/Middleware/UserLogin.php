@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use App\Models\User;
+use App\Service\SessionService;
 
 class UserLogin
 {
@@ -17,11 +18,9 @@ class UserLogin
     public function handle($request, Closure $next)
     {
         if (! User::loggedIn()) {
-            $wallpaper = (object)[
-                'image_url' => 'img/background/solid.png'
-            ];
-            return view('login.login', compact('wallpaper'));
+            return redirect(config('sso.server') . '?url=' . url()->current());
         }
+        SessionService::action();
         view()->share('user', User::fromSession());
         return $next($request);
     }
